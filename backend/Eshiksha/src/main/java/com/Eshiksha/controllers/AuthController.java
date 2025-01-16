@@ -13,6 +13,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -33,7 +34,7 @@ public class AuthController {
 
     private final JwtUtils jwtUtils;
 
-    public AuthController(StudentRepository studentRepository, AuthenticationManager authenticationManager, UserDetailsService userDetailsService, PasswordEncoder passwordEncoder,JwtUtils jwtUtils) {
+    public AuthController(StudentRepository studentRepository, AuthenticationManager authenticationManager, UserDetailsService userDetailsService, PasswordEncoder passwordEncoder, JwtUtils jwtUtils) {
         this.studentRepository = studentRepository;
         this.authenticationManager = authenticationManager;
         this.userDetailsService = userDetailsService;
@@ -58,11 +59,10 @@ public class AuthController {
     }
 
     @PostMapping("/student/login")
-    public ResponseEntity<?> loginStudent(@RequestBody Student student)
-    {
+    public ResponseEntity<?> loginStudent(@RequestBody Student student) {
         try {
-            Authentication authentication =authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(student.getUsername(),student.getPassword()));
-
+            Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(student.getUsername(), student.getPassword()));
+            SecurityContextHolder.getContext().setAuthentication(authentication);
             String jwt = jwtUtils.generateJwtToken(authentication);
             return ResponseEntity.ok(new JwtResponse(jwt, student.getUsername()));
         } catch (Exception e) {

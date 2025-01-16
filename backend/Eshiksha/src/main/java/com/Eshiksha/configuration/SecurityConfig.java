@@ -25,14 +25,15 @@ public class SecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http)
+    public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtAuthenticationFilter jwtAuthenticationFilter)
             throws Exception {
         http.csrf(csrf -> csrf.disable());
         http.authorizeHttpRequests(auth -> {
-            auth.requestMatchers("/auth/student/**").permitAll().requestMatchers("/home/user").hasRole("USER")
-                    .requestMatchers("/home/admin").hasRole("ADMIN").anyRequest().authenticated();
+                    auth.requestMatchers("/auth/student/**").permitAll().requestMatchers("/home/user").hasRole("USER")
+                            .requestMatchers("/home/admin").hasRole("ADMIN").anyRequest().authenticated();
 
-        });
+                })
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
