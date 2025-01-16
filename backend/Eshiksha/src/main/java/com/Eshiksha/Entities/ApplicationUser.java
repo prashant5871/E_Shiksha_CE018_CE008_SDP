@@ -36,8 +36,8 @@ public class ApplicationUser implements UserDetails {
 
 	private String password;
 
-	private String fullName;
-
+	private String firstName;
+	private String lastName;
 	private boolean enabled;
 
 	@ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
@@ -49,13 +49,14 @@ public class ApplicationUser implements UserDetails {
 		// TODO Auto-generated constructor stub
 	}
 
-	public ApplicationUser(int userId, String email, String password, String fullName, boolean enabled,
+	public ApplicationUser(int userId, String email, String password, String firstName,String lastName, boolean enabled,
 			Set<Role> roles) {
 		super();
 		this.userId = userId;
 		this.email = email;
 		this.password = password;
-		this.fullName = fullName;
+		this.firstName = firstName;
+		this.lastName = lastName;
 		this.enabled = enabled;
 		this.roles = roles;
 	}
@@ -76,13 +77,13 @@ public class ApplicationUser implements UserDetails {
 		this.email = email;
 	}
 
-	public String getFullName() {
-		return fullName;
-	}
+	public String getFirstName(){ return this.firstName; }
 
-	public void setFullName(String fullName) {
-		this.fullName = fullName;
-	}
+	public void setFirstName(String firstName){ this.firstName = firstName; }
+
+	public String getLastName(){ return this.lastName; }
+
+	public void setLastName(String lastName){ this.lastName = lastName; }
 
 	@Override
 	public boolean isEnabled() {

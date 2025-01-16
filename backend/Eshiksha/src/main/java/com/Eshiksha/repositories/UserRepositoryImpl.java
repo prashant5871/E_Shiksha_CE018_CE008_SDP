@@ -21,10 +21,10 @@ public class UserRepositoryImpl implements UserRepository {
     public Optional<ApplicationUser> findByEmail(String email) {
         try {
 
-            String sql = "SELECT * FROM application_user WHERE email = :email";
+            String sql = "FROM ApplicationUser WHERE email = :email";
 
             ApplicationUser user = (ApplicationUser) entityManager
-                    .createNativeQuery(sql, ApplicationUser.class)
+                    .createQuery(sql, ApplicationUser.class)
                     .setParameter("email", email)
                     .getSingleResult();
             return Optional.ofNullable(user);
