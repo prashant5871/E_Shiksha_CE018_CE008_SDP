@@ -2,13 +2,17 @@ package com.Eshiksha.controllers;
 
 import com.Eshiksha.Entities.ApplicationUser;
 import com.Eshiksha.Entities.Student;
+import com.Eshiksha.Utils.JwtUtils;
+import com.Eshiksha.dto.JwtResponse;
 import com.Eshiksha.repositories.StudentRepository;
 import com.Eshiksha.services.UserDetailsServiceImpl;
 import org.apache.coyote.Response;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -27,11 +31,14 @@ public class AuthController {
 
     private StudentRepository studentRepository;
 
-    public AuthController(StudentRepository studentRepository, AuthenticationManager authenticationManager, UserDetailsService userDetailsService, PasswordEncoder passwordEncoder) {
+    private final JwtUtils jwtUtils;
+
+    public AuthController(StudentRepository studentRepository, AuthenticationManager authenticationManager, UserDetailsService userDetailsService, PasswordEncoder passwordEncoder,JwtUtils jwtUtils) {
         this.studentRepository = studentRepository;
         this.authenticationManager = authenticationManager;
         this.userDetailsService = userDetailsService;
         this.passwordEncoder = passwordEncoder;
+        this.jwtUtils = jwtUtils;
     }
 
     @PostMapping("/student/signup")
@@ -53,9 +60,15 @@ public class AuthController {
     @PostMapping("/student/login")
     public ResponseEntity<?> loginStudent(@RequestBody Student student)
     {
-        Authentication authentication =authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(student.getUsername(),student.getPassword()));
+        try {
+            Authentication authentication =authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(student.getUsername(),student.getPassword()));
 
-        return ResponseEntity.ok("Login succesfully");
+            String jwt = jwtUtils.generateJwtToken(authentication);
+            return ResponseEntity.ok(new JwtResponse(jwt, student.getUsername()));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid username or password!");
+        }
+
     }
 
 }
