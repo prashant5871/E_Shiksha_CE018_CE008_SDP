@@ -7,6 +7,8 @@ import com.Eshiksha.services.UserDetailsServiceImpl;
 import org.apache.coyote.Response;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -51,6 +53,7 @@ public class AuthController {
     @PostMapping("/student/login")
     public ResponseEntity<?> loginStudent(@RequestBody Student student)
     {
+        Authentication authentication =authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(student.getUsername(),student.getPassword()));
 
         return ResponseEntity.ok("Login succesfully");
     }
