@@ -25,8 +25,7 @@ public class AuthController {
 
     private StudentRepository studentRepository;
 
-    public  AuthController(StudentRepository studentRepository,AuthenticationManager authenticationManager, UserDetailsService userDetailsService,PasswordEncoder passwordEncoder)
-    {
+    public AuthController(StudentRepository studentRepository, AuthenticationManager authenticationManager, UserDetailsService userDetailsService, PasswordEncoder passwordEncoder) {
         this.studentRepository = studentRepository;
         this.authenticationManager = authenticationManager;
         this.userDetailsService = userDetailsService;
@@ -34,21 +33,26 @@ public class AuthController {
     }
 
     @PostMapping("/student/signup")
-    public ResponseEntity<?> signup(@RequestBody Student student)
-    {
-        if(userDetailsService.loadUserByUsername(student.getEmail()) != null)
-        {
+    public ResponseEntity<?> signup(@RequestBody Student student) {
+        if (userDetailsService.loadUserByUsername(student.getEmail()) != null) {
             return ResponseEntity.badRequest().body("UserName exists!");
         }
 
         try {
             student.setPassword(passwordEncoder.encode(student.getPassword()));
             this.studentRepository.createStudent(student);
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
         return ResponseEntity.ok("Registred succesfully");
+    }
+
+    @PostMapping("/student/login")
+    public ResponseEntity<?> loginStudent(@RequestBody Student student)
+    {
+
+        return ResponseEntity.ok("Login succesfully");
     }
 
 }
