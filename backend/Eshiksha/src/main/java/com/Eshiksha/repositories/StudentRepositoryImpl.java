@@ -3,6 +3,7 @@ package com.Eshiksha.repositories;
 import com.Eshiksha.Entities.Student;
 
 import jakarta.persistence.EntityManager;
+import jakarta.transaction.Transactional;
 
 public class StudentRepositoryImpl implements StudentRepository {
 
@@ -13,6 +14,7 @@ public class StudentRepositoryImpl implements StudentRepository {
 		this.entityManager = entityManager;
 	}
 	@Override
+	@Transactional
 	public Student createStudent(Student student) {
 		entityManager.persist(student);
 		return student;
