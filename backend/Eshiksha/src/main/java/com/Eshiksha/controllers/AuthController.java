@@ -5,6 +5,7 @@ import com.Eshiksha.Entities.Student;
 import com.Eshiksha.Utils.JwtUtils;
 import com.Eshiksha.dto.JwtResponse;
 import com.Eshiksha.repositories.StudentRepository;
+import com.Eshiksha.services.StudentService;
 import com.Eshiksha.services.UserDetailsServiceImpl;
 import org.apache.coyote.Response;
 import org.springframework.http.HttpStatus;
@@ -30,12 +31,13 @@ public class AuthController {
     private final UserDetailsService userDetailsService;
     private final PasswordEncoder passwordEncoder;
 
-    private StudentRepository studentRepository;
+    private StudentService studentService;
+
 
     private final JwtUtils jwtUtils;
 
-    public AuthController(StudentRepository studentRepository, AuthenticationManager authenticationManager, UserDetailsService userDetailsService, PasswordEncoder passwordEncoder, JwtUtils jwtUtils) {
-        this.studentRepository = studentRepository;
+    public AuthController(StudentService studentService, AuthenticationManager authenticationManager, UserDetailsService userDetailsService, PasswordEncoder passwordEncoder, JwtUtils jwtUtils) {
+        this.studentService = studentService;
         this.authenticationManager = authenticationManager;
         this.userDetailsService = userDetailsService;
         this.passwordEncoder = passwordEncoder;
@@ -50,7 +52,7 @@ public class AuthController {
 
         try {
             student.setPassword(passwordEncoder.encode(student.getPassword()));
-            this.studentRepository.createStudent(student);
+            this.studentService.createStudent(student);
         } catch (Exception e) {
             e.printStackTrace();
         }

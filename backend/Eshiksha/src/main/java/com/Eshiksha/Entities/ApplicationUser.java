@@ -27,98 +27,130 @@ import jakarta.persistence.Table;
 @Table(name = "users")
 @Inheritance(strategy = InheritanceType.JOINED)
 public class ApplicationUser implements UserDetails {
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private int userId;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private int userId;
 
-	@Column(unique = true, nullable = false)
-	private String email;
+    @Column(unique = true, nullable = false)
+    private String email;
 
-	private String password;
+    private String password;
 
-	private String firstName;
-	private String lastName;
-	private boolean enabled;
+    private String firstName;
+    private String lastName;
+    private boolean enabled;
 
-	@ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-	@JoinTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
-	private Set<Role> roles = new HashSet<Role>();
 
-	public ApplicationUser() {
-		super();
-		// TODO Auto-generated constructor stub
-	}
+    public ApplicationUser(int userId, String email, String password, String firstName, String lastName, boolean enabled, String verificationCode, Set<Role> roles) {
+        this.userId = userId;
+        this.email = email;
+        this.password = password;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.enabled = enabled;
+        this.verificationCode = verificationCode;
+        this.roles = roles;
+    }
 
-	public ApplicationUser(int userId, String email, String password, String firstName,String lastName, boolean enabled,
-			Set<Role> roles) {
-		super();
-		this.userId = userId;
-		this.email = email;
-		this.password = password;
-		this.firstName = firstName;
-		this.lastName = lastName;
-		this.enabled = enabled;
-		this.roles = roles;
-	}
+    @Column(name = "verification_code", length = 64)
+    private String verificationCode;
 
-	public int getUserId() {
-		return userId;
-	}
+    public String getVerificationCode() {
+        return verificationCode;
+    }
 
-	public void setUserId(int userId) {
-		this.userId = userId;
-	}
+    public void setVerificationCode(String verificationCode) {
+        this.verificationCode = verificationCode;
+    }
 
-	public String getEmail() {
-		return email;
-	}
 
-	public void setEmail(String email) {
-		this.email = email;
-	}
+    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @JoinTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
+    private Set<Role> roles = new HashSet<Role>();
 
-	public String getFirstName(){ return this.firstName; }
+    public ApplicationUser() {
+        super();
+        // TODO Auto-generated constructor stub
+    }
 
-	public void setFirstName(String firstName){ this.firstName = firstName; }
+    public ApplicationUser(int userId, String email, String password, String firstName, String lastName, boolean enabled,
+                           Set<Role> roles) {
+        super();
+        this.userId = userId;
+        this.email = email;
+        this.password = password;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.enabled = enabled;
+        this.roles = roles;
+    }
 
-	public String getLastName(){ return this.lastName; }
+    public int getUserId() {
+        return userId;
+    }
 
-	public void setLastName(String lastName){ this.lastName = lastName; }
+    public void setUserId(int userId) {
+        this.userId = userId;
+    }
 
-	@Override
-	public boolean isEnabled() {
-		return enabled;
-	}
+    public String getEmail() {
+        return email;
+    }
 
-	public void setEnabled(boolean enabled) {
-		this.enabled = enabled;
-	}
+    public void setEmail(String email) {
+        this.email = email;
+    }
 
-	public Set<Role> getRoles() {
-		return roles;
-	}
+    public String getFirstName() {
+        return this.firstName;
+    }
 
-	public void setRoles(Set<Role> roles) {
-		this.roles = roles;
-	}
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
 
-	public void setPassword(String password) {
-		this.password = password;
-	}
+    public String getLastName() {
+        return this.lastName;
+    }
 
-	@Override
-	public Collection<? extends GrantedAuthority> getAuthorities() {
-		return roles.stream().map(role -> (GrantedAuthority) role::getName).collect(Collectors.toList());
-	}
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
 
-	@Override
-	public String getPassword() {
-		return this.password;
-	}
+    @Override
+    public boolean isEnabled() {
+        return enabled;
+    }
 
-	@Override
-	public String getUsername() {
-		return this.email;
-	}
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
+    }
+
+    public Set<Role> getRoles() {
+        return roles;
+    }
+
+    public void setRoles(Set<Role> roles) {
+        this.roles = roles;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return roles.stream().map(role -> (GrantedAuthority) role::getName).collect(Collectors.toList());
+    }
+
+    @Override
+    public String getPassword() {
+        return this.password;
+    }
+
+    @Override
+    public String getUsername() {
+        return this.email;
+    }
 
 }

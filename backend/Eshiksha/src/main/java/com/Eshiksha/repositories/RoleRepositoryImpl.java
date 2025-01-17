@@ -6,6 +6,7 @@ import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
+import java.util.UUID;
 
 @Repository
 public class RoleRepositoryImpl implements RoleRepository {
@@ -19,13 +20,14 @@ public class RoleRepositoryImpl implements RoleRepository {
     @Override
     public Optional<Role> findByName(String name) {
         try {
+
             Role role = entityManager.createQuery("FROM Role where name = :name",Role.class)
                     .setParameter("name",name)
                     .getSingleResult();
 
-            return Optional.ofNullable(role);
+            return Optional.of(role);
         }catch (Exception e){
-            return null;
+            return Optional.empty();
         }
     }
 

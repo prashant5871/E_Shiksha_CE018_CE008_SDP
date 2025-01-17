@@ -18,7 +18,6 @@ public class StudentRepositoryImpl implements StudentRepository {
 	@Override
 	@Transactional
 	public Student createStudent(Student student) {
-		student.setEnabled(false);
 		entityManager.persist(student);
 		return student;
 	}
