@@ -61,7 +61,10 @@ public class AuthController {
     @PostMapping("/student/login")
     public ResponseEntity<?> loginStudent(@RequestBody Student student) {
         try {
+            System.out.println("student email : " + student.getEmail() + '\n');
+            System.out.println("student password : " + student.getPassword() + '\n');
             Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(student.getUsername(), student.getPassword()));
+            System.out.println("After authenticate method\n");
             SecurityContextHolder.getContext().setAuthentication(authentication);
             String jwt = jwtUtils.generateJwtToken(authentication);
             return ResponseEntity.ok(new JwtResponse(jwt, student.getUsername()));
