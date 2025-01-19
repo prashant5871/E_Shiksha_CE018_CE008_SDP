@@ -29,7 +29,7 @@ public class SecurityConfig {
             throws Exception {
         http.csrf(csrf -> csrf.disable());
         http.authorizeHttpRequests(auth -> {
-                    auth.requestMatchers("/auth/student/**").permitAll().requestMatchers("/home/user").hasRole("USER")
+                    auth.requestMatchers("/auth/**").permitAll().requestMatchers("/home/user").hasRole("USER")
                             .requestMatchers("/home/admin").hasRole("ADMIN").anyRequest().authenticated();
 
                 })

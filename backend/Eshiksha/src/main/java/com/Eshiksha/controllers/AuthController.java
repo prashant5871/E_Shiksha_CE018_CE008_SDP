@@ -2,25 +2,20 @@ package com.Eshiksha.controllers;
 
 import com.Eshiksha.Entities.ApplicationUser;
 import com.Eshiksha.Entities.Student;
+import com.Eshiksha.Entities.Teacher;
 import com.Eshiksha.Utils.JwtUtils;
 import com.Eshiksha.dto.JwtResponse;
-import com.Eshiksha.repositories.StudentRepository;
+import com.Eshiksha.services.AuthService;
 import com.Eshiksha.services.StudentService;
 import com.Eshiksha.services.UserDetailsServiceImpl;
-import org.apache.coyote.Response;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/auth")
@@ -28,7 +23,7 @@ public class AuthController {
 
     private final AuthenticationManager authenticationManager;
 
-    private final UserDetailsService userDetailsService;
+    private final UserDetailsServiceImpl userDetailsService;
     private final PasswordEncoder passwordEncoder;
 
     private StudentService studentService;
@@ -36,12 +31,15 @@ public class AuthController {
 
     private final JwtUtils jwtUtils;
 
-    public AuthController(StudentService studentService, AuthenticationManager authenticationManager, UserDetailsService userDetailsService, PasswordEncoder passwordEncoder, JwtUtils jwtUtils) {
+    private AuthService authService;
+
+    public AuthController(StudentService studentService, AuthenticationManager authenticationManager, UserDetailsServiceImpl userDetailsService, PasswordEncoder passwordEncoder, JwtUtils jwtUtils, AuthService authService) {
         this.studentService = studentService;
         this.authenticationManager = authenticationManager;
         this.userDetailsService = userDetailsService;
         this.passwordEncoder = passwordEncoder;
         this.jwtUtils = jwtUtils;
+        this.authService = authService;
     }
 
     @PostMapping("/student/signup")
@@ -74,6 +72,37 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid username or password!");
         }
 
+    }
+
+    @PostMapping("/varify/{varificationCode}")
+    public ResponseEntity<String> varify(
+            @PathVariable String varificationCode
+    )
+    {
+        ApplicationUser appUser = userDetailsService.varifyUser(varificationCode);
+
+        if(appUser != null)
+        {
+            return ResponseEntity.ok("varified succesfully");
+        }else{
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @PostMapping("/teacher/signup")
+    public ResponseEntity<?> signupTeacher(@RequestBody Teacher teacher) {
+        if (userDetailsService.loadUserByUsername(teacher.getEmail()) != null) {
+            return ResponseEntity.badRequest().body("UserName exists!");
+        }
+
+        try {
+            teacher.setPassword(passwordEncoder.encode(teacher.getPassword()));
+            this.authService.createTeacher(teacher);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return ResponseEntity.ok("Registred succesfully");
     }
 
 }

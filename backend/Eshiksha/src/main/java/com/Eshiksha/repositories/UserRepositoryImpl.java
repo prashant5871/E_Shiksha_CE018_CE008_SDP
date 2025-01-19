@@ -4,6 +4,7 @@ import com.Eshiksha.Entities.ApplicationUser;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
@@ -31,6 +32,23 @@ public class UserRepositoryImpl implements UserRepository {
         } catch (NoResultException e) {
             return Optional.empty();
         }
+    }
+
+
+    @Override
+    public ApplicationUser findByVarificationCode(String varificationCode) {
+
+        ApplicationUser appUser = entityManager.createQuery("FROM ApplicationUser where varificationCode=:varificationCode", ApplicationUser.class)
+                .setParameter("varificationCode",varificationCode)
+                .getSingleResult();
+
+        return appUser;
+    }
+
+    @Override
+    @Transactional
+    public void merge(ApplicationUser appUser) {
+        this.entityManager.merge(appUser);
     }
 
 }

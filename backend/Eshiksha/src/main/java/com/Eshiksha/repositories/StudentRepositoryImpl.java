@@ -1,5 +1,6 @@
 package com.Eshiksha.repositories;
 
+import com.Eshiksha.Entities.ApplicationUser;
 import com.Eshiksha.Entities.Student;
 
 import jakarta.persistence.EntityManager;
@@ -20,6 +21,16 @@ public class StudentRepositoryImpl implements StudentRepository {
 	public Student createStudent(Student student) {
 		entityManager.persist(student);
 		return student;
+	}
+
+	@Override
+	public ApplicationUser findByVarificationCode(String varificationCode) {
+
+		ApplicationUser appUser = entityManager.createQuery("FROM ApplicationUser where varificationCode=:varificationCode", ApplicationUser.class)
+				.setParameter("varificationCode",varificationCode)
+				.getSingleResult();
+
+		return appUser;
 	}
 
 }

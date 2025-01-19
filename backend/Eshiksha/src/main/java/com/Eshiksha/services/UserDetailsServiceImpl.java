@@ -32,5 +32,19 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         }
     }
 
+    public ApplicationUser varifyUser(String varificationCode) {
+        ApplicationUser appUser = userRepository.findByVarificationCode(varificationCode);
+
+        if(appUser != null)
+        {
+            appUser.setEnabled(true);
+        }
+
+        userRepository.merge(appUser);
+
+        return appUser;
+
+    }
+
 
 }

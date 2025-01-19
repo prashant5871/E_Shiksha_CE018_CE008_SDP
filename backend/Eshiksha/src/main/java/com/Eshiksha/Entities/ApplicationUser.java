@@ -41,26 +41,26 @@ public class ApplicationUser implements UserDetails {
     private boolean enabled;
 
 
-    public ApplicationUser(int userId, String email, String password, String firstName, String lastName, boolean enabled, String verificationCode, Set<Role> roles) {
+    public ApplicationUser(int userId, String email, String password, String firstName, String lastName, boolean enabled, String varificationCode, Set<Role> roles) {
         this.userId = userId;
         this.email = email;
         this.password = password;
         this.firstName = firstName;
         this.lastName = lastName;
         this.enabled = enabled;
-        this.verificationCode = verificationCode;
+        this.varificationCode = varificationCode;
         this.roles = roles;
     }
 
     @Column(name = "verification_code", length = 64)
-    private String verificationCode;
+    private String varificationCode;
 
     public String getVerificationCode() {
-        return verificationCode;
+        return varificationCode;
     }
 
-    public void setVerificationCode(String verificationCode) {
-        this.verificationCode = verificationCode;
+    public void setVerificationCode(String varificationCode) {
+        this.varificationCode = varificationCode;
     }
 
 

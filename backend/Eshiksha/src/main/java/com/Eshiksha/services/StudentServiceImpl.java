@@ -60,6 +60,14 @@ public class StudentServiceImpl implements StudentService {
         }
     }
 
+    @Override
+    public ApplicationUser findByVarificationCode(String varificationCode) {
+        ApplicationUser appUser = studentRepository.findByVarificationCode(varificationCode);
+
+        return appUser;
+
+    }
+
 
     private void sendVerificationEmail(Student user)
             throws MessagingException, UnsupportedEncodingException {
@@ -81,7 +89,7 @@ public class StudentServiceImpl implements StudentService {
         helper.setSubject(subject);
 
         content = content.replace("[[name]]", user.getFirstName());
-        String verifyURL =  "http://localhost:8000/verify?code=" + user.getVerificationCode();
+        String verifyURL =  "http://localhost:3000/verify?code=" + user.getVerificationCode();
         content = content.replace("[[URL]]", verifyURL);
 
         helper.setText(content, true);
