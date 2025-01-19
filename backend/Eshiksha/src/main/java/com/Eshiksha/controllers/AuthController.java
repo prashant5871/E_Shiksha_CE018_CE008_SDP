@@ -58,6 +58,7 @@ public class AuthController {
         return ResponseEntity.ok("Registred succesfully");
     }
 
+
     @PostMapping("/student/login")
     public ResponseEntity<?> loginStudent(@RequestBody Student student) {
         try {
@@ -74,12 +75,27 @@ public class AuthController {
 
     }
 
+    @PostMapping("/teacher/login")
+    public ResponseEntity<?> loginTeacher(@RequestBody Teacher teacher) {
+        try {
+            System.out.println("student email : " + teacher.getEmail() + '\n');
+            System.out.println("teacher password : " + teacher.getPassword() + '\n');
+            Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(teacher.getUsername(), teacher.getPassword()));
+            System.out.println("After authenticate method\n");
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+            String jwt = jwtUtils.generateJwtToken(authentication);
+            return ResponseEntity.ok(new JwtResponse(jwt, teacher.getUsername()));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid username or password!");
+        }
+
+    }
     @PostMapping("/varify/{varificationCode}")
     public ResponseEntity<String> varify(
             @PathVariable String varificationCode
     )
     {
-        ApplicationUser appUser = userDetailsService.varifyUser(varificationCode);
+        ApplicationUser appUser = this.authService.varifyUser(varificationCode);
 
         if(appUser != null)
         {
