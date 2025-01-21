@@ -24,11 +24,13 @@ public class UserRepositoryImpl implements UserRepository {
 
             String sql = "FROM ApplicationUser WHERE email = :email";
 
-            ApplicationUser user = (ApplicationUser) entityManager
+            ApplicationUser user = entityManager
                     .createQuery(sql, ApplicationUser.class)
                     .setParameter("email", email)
                     .getSingleResult();
+            System.out.println("user classs type : " + user.getClass().getName());
             return Optional.ofNullable(user);
+
         } catch (NoResultException e) {
             return Optional.empty();
         }

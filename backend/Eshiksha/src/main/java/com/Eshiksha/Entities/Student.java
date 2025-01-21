@@ -14,7 +14,7 @@ import jakarta.persistence.OneToMany;
 @Entity
 public class Student extends ApplicationUser {
 	
-	@ManyToMany
+	@ManyToMany(mappedBy = "enrolledStudents")
 	private List<Course> enrolledCourses;
 	
 	@OneToMany

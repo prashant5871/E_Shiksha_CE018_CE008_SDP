@@ -10,13 +10,12 @@ public class Course {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int courseId;
 
-	private int courseName;
+	private String courseName;
 
 	private String description;
 
 	private float price;
 
-	private String dummy;
 
 	@OneToOne
 	private CourseCategory category;
@@ -38,11 +37,13 @@ public class Course {
 	@OneToMany(cascade = CascadeType.ALL)
 	private List<CourseReview> reviews;
 
+	private String status;
+
 	public Course() {
 
 	}
 
-	public Course(int courseId, int courseName, String description, float price, CourseCategory category, List<Lession> lessions, Teacher teacher, List<Student> enrolledStudents, List<CourseReview> reviews) {
+	public Course(int courseId, String courseName, String description, float price, CourseCategory category, List<Lession> lessions, Teacher teacher, List<Student> enrolledStudents, List<CourseReview> reviews, String status) {
 		this.courseId = courseId;
 		this.courseName = courseName;
 		this.description = description;
@@ -52,6 +53,13 @@ public class Course {
 		this.teacher = teacher;
 		this.enrolledStudents = enrolledStudents;
 		this.reviews = reviews;
+        this.status = status;
+    }
+
+	public Course(String courseName, String description, float price) {
+		this.courseName = courseName;
+		this.description = description;
+		this.price = price;
 	}
 
 	public int getCourseId() {
@@ -62,11 +70,11 @@ public class Course {
 		this.courseId = courseId;
 	}
 
-	public int getCourseName() {
+	public String getCourseName() {
 		return courseName;
 	}
 
-	public void setCourseName(int courseName) {
+	public void setCourseName(String courseName) {
 		this.courseName = courseName;
 	}
 
@@ -139,5 +147,13 @@ public class Course {
 				", enrolledStudents=" + enrolledStudents +
 				", reviews=" + reviews +
 				'}';
+	}
+
+	public String getStatus() {
+		return status;
+	}
+
+	public void setStatus(String status) {
+		this.status = status;
 	}
 }
