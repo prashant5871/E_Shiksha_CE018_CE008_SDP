@@ -2,17 +2,142 @@ package com.Eshiksha.Entities;
 
 import java.util.List;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
+import jakarta.persistence.*;
 
 @Entity
 public class Course {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int courseId;
+
+	private int courseName;
+
+	private String description;
+
+	private float price;
+
+	private String dummy;
+
+	@OneToOne
+	private CourseCategory category;
+
 	@OneToMany
 	List<Lession> lessions;
+
+	@ManyToOne
+	private Teacher teacher;
+
+	@ManyToMany
+	@JoinTable(
+			name = "enrolled_students",
+			joinColumns = @JoinColumn(name = "courseId"),
+			inverseJoinColumns = @JoinColumn(name="userId")
+	)
+	private List<Student> enrolledStudents;
+
+	@OneToMany(cascade = CascadeType.ALL)
+	private List<CourseReview> reviews;
+
+	public Course() {
+
+	}
+
+	public Course(int courseId, int courseName, String description, float price, CourseCategory category, List<Lession> lessions, Teacher teacher, List<Student> enrolledStudents, List<CourseReview> reviews) {
+		this.courseId = courseId;
+		this.courseName = courseName;
+		this.description = description;
+		this.price = price;
+		this.category = category;
+		this.lessions = lessions;
+		this.teacher = teacher;
+		this.enrolledStudents = enrolledStudents;
+		this.reviews = reviews;
+	}
+
+	public int getCourseId() {
+		return courseId;
+	}
+
+	public void setCourseId(int courseId) {
+		this.courseId = courseId;
+	}
+
+	public int getCourseName() {
+		return courseName;
+	}
+
+	public void setCourseName(int courseName) {
+		this.courseName = courseName;
+	}
+
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
+	}
+
+	public float getPrice() {
+		return price;
+	}
+
+	public void setPrice(float price) {
+		this.price = price;
+	}
+
+	public CourseCategory getCategory() {
+		return category;
+	}
+
+	public void setCategory(CourseCategory category) {
+		this.category = category;
+	}
+
+	public List<Lession> getLessions() {
+		return lessions;
+	}
+
+	public void setLessions(List<Lession> lessions) {
+		this.lessions = lessions;
+	}
+
+	public Teacher getTeacher() {
+		return teacher;
+	}
+
+	public void setTeacher(Teacher teacher) {
+		this.teacher = teacher;
+	}
+
+	public List<Student> getEnrolledStudents() {
+		return enrolledStudents;
+	}
+
+	public void setEnrolledStudents(List<Student> enrolledStudents) {
+		this.enrolledStudents = enrolledStudents;
+	}
+
+	public List<CourseReview> getReviews() {
+		return reviews;
+	}
+
+	public void setReviews(List<CourseReview> reviews) {
+		this.reviews = reviews;
+	}
+
+	@Override
+	public String toString() {
+		return "Course{" +
+				"courseId=" + courseId +
+				", courseName=" + courseName +
+				", description='" + description + '\'' +
+				", price=" + price +
+				", category=" + category +
+				", lessions=" + lessions +
+				", teacher=" + teacher +
+				", enrolledStudents=" + enrolledStudents +
+				", reviews=" + reviews +
+				'}';
+	}
 }
