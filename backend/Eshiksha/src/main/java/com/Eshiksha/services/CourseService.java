@@ -10,4 +10,6 @@ public interface CourseService {
     public Course findById(int id);
 
     public void create(String courseName, String description, float price, int categoryId, String jwtToken);
+
+    public Course getCourseById(int courseId);
 }
