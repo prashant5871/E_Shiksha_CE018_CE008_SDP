@@ -30,7 +30,9 @@ public class SecurityConfig {
         http.csrf(csrf -> csrf.disable());
         http.authorizeHttpRequests(auth -> {
                     auth.requestMatchers("/auth/**").permitAll().requestMatchers("/home/user").hasRole("USER")
-                            .requestMatchers("/home/admin").hasRole("ADMIN").anyRequest().authenticated();
+                            .requestMatchers("/home/admin").hasRole("ADMIN")
+                            .requestMatchers("/courses/**").hasAnyRole("TEACHER", "USER")
+                            .anyRequest().authenticated();
 
                 })
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);

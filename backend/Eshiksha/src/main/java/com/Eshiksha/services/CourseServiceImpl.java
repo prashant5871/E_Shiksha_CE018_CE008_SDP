@@ -37,7 +37,7 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
-    public void create(String courseName, String description, float price, int categoryId, String jwtToken) {
+    public void create(String courseName, String description, float price, int categoryId, String jwtToken, String documentUrl) {
         Course course = new Course(courseName,description,price);
 
         CourseCategory category = this.courseCategoryRepository.findById(categoryId).orElseThrow(()->new RuntimeException("Invalid Course Category"));
@@ -56,6 +56,7 @@ public class CourseServiceImpl implements CourseService {
         Teacher teacher = new Teacher(user);
 
         course.setTeacher(teacher);
+        course.setDocumentUrl(documentUrl);
         System.out.println("Teacher = " + teacher.getUserId());
 
 

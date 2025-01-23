@@ -9,7 +9,7 @@ public interface CourseService {
 
     public Course findById(int id);
 
-    public void create(String courseName, String description, float price, int categoryId, String jwtToken);
+    public void create(String courseName, String description, float price, int categoryId, String jwtToken, String documentUrl);
 
     public Course getCourseById(int courseId);
 }

@@ -39,11 +39,13 @@ public class Course {
 
 	private String status;
 
+	private String documentUrl;
+
 	public Course() {
 
 	}
 
-	public Course(int courseId, String courseName, String description, float price, CourseCategory category, List<Lession> lessions, Teacher teacher, List<Student> enrolledStudents, List<CourseReview> reviews, String status) {
+	public Course(int courseId, String courseName, String description, float price, CourseCategory category, List<Lession> lessions, Teacher teacher, List<Student> enrolledStudents, List<CourseReview> reviews, String status, String documentUrl) {
 		this.courseId = courseId;
 		this.courseName = courseName;
 		this.description = description;
@@ -54,6 +56,7 @@ public class Course {
 		this.enrolledStudents = enrolledStudents;
 		this.reviews = reviews;
         this.status = status;
+        this.documentUrl = documentUrl;
     }
 
 	public Course(String courseName, String description, float price) {
@@ -155,5 +158,13 @@ public class Course {
 
 	public void setStatus(String status) {
 		this.status = status;
+	}
+
+	public String getDocumentUrl() {
+		return documentUrl;
+	}
+
+	public void setDocumentUrl(String documentUrl) {
+		this.documentUrl = documentUrl;
 	}
 }
