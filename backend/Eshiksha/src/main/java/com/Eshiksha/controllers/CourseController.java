@@ -77,15 +77,26 @@ public class CourseController {
 
 
     @PostMapping("/")
-    public ResponseEntity<String> createCourse(@RequestPart("course") String courseJson,
-                                               @RequestPart("document") MultipartFile document,
-                                               @RequestPart("thumbnail") MultipartFile thumbnail,
+    public ResponseEntity<String> createCourse(@RequestParam String courseName,
+                                               @RequestParam String description,
+                                               @RequestParam float price,
+                                               @RequestParam int categoryId,
+                                               @RequestParam MultipartFile document,
+                                               @RequestParam MultipartFile thumbnail,
+//                                               @RequestPart("course") String courseJson,
+//                                               @RequestPart("document") MultipartFile document,
+//                                               @RequestPart("thumbnail") MultipartFile thumbnail,
                                                HttpServletRequest request) {
         try {
             System.out.println("inside create course method...\n");
             ObjectMapper objectMapper = new ObjectMapper();
-            CourseDTO course = objectMapper.readValue(courseJson, CourseDTO.class);
+//            CourseDTO course = objectMapper.readValue(courseJson, CourseDTO.class);
 
+            CourseDTO course = new CourseDTO();
+            course.setCourseName(courseName);
+            course.setDescription(description);
+            course.setPrice(price);
+            course.setCategoryId(categoryId);
             String authorizationHeader = request.getHeader("Authorization");
 
             if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
@@ -117,6 +128,13 @@ public class CourseController {
                         Files.createDirectories(documentPath.getParent());
                     }
 
+                    File thumbnailFolder = new File("./thumbnail");
+
+                    if(!thumbnailFolder.exists())
+                    {
+                        Files.createDirectories(thumbnailPath.getParent());
+                    }
+
                     Files.write(documentPath, document.getBytes());
                     Files.write(thumbnailPath, thumbnail.getBytes());
 
@@ -137,7 +155,7 @@ public class CourseController {
             } else {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Authorization header is missing or invalid.");
             }
-        } catch (JsonProcessingException e) {
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }

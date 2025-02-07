@@ -17,7 +17,7 @@ public class Course {
 	private float price;
 
 
-	@OneToOne
+	@ManyToOne
 	private CourseCategory category;
 
 	@OneToMany

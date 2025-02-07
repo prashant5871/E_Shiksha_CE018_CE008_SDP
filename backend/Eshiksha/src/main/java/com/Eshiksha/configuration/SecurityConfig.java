@@ -32,6 +32,7 @@ public class SecurityConfig {
                     auth.requestMatchers("/auth/**").permitAll().requestMatchers("/home/user").hasRole("USER")
                             .requestMatchers("/home/admin").hasRole("ADMIN")
                             .requestMatchers("/courses/**").hasAnyRole("TEACHER", "USER")
+                            .requestMatchers("/lessions/**").hasAnyRole("TEACHER","USER")
                             .anyRequest().authenticated();
 
                 })
