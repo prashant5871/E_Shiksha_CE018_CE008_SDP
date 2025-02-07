@@ -41,11 +41,18 @@ public class Course {
 
 	private String documentUrl;
 
-	public Course() {
+	private String thumbnail;
 
+
+	public String getThumbnail() {
+		return thumbnail;
 	}
 
-	public Course(int courseId, String courseName, String description, float price, CourseCategory category, List<Lession> lessions, Teacher teacher, List<Student> enrolledStudents, List<CourseReview> reviews, String status, String documentUrl) {
+	public void setThumbnail(String thumbnail) {
+		this.thumbnail = thumbnail;
+	}
+
+	public Course(int courseId, String courseName, String description, float price, CourseCategory category, List<Lession> lessions, Teacher teacher, List<Student> enrolledStudents, List<CourseReview> reviews, String status, String documentUrl, String thumbnail) {
 		this.courseId = courseId;
 		this.courseName = courseName;
 		this.description = description;
@@ -55,9 +62,16 @@ public class Course {
 		this.teacher = teacher;
 		this.enrolledStudents = enrolledStudents;
 		this.reviews = reviews;
-        this.status = status;
-        this.documentUrl = documentUrl;
-    }
+		this.status = status;
+		this.documentUrl = documentUrl;
+		this.thumbnail = thumbnail;
+	}
+
+
+	public Course() {
+
+	}
+
 
 	public Course(String courseName, String description, float price) {
 		this.courseName = courseName;

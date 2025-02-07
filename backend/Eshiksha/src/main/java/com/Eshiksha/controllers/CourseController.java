@@ -78,7 +78,8 @@ public class CourseController {
 
     @PostMapping("/")
     public ResponseEntity<String> createCourse(@RequestPart("course") String courseJson,
-                                               @RequestPart("file") MultipartFile file,
+                                               @RequestPart("document") MultipartFile document,
+                                               @RequestPart("thumbnail") MultipartFile thumbnail,
                                                HttpServletRequest request) {
         try {
             System.out.println("inside create course method...\n");
@@ -90,37 +91,47 @@ public class CourseController {
             if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
                 String jwtToken = authorizationHeader.substring(7);
 
-                // Validate file type
-                if (file.isEmpty() || !file.getContentType().equals("application/pdf")) {
-                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid file format. Only PDF files are allowed.");
+                // Validate document type
+                if (document.isEmpty() || !document.getContentType().equals("application/pdf")) {
+                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid document format. Only PDF files are allowed.");
+                }
+
+                if(thumbnail.isEmpty())
+                {
+                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("thumbnail is not provided");
                 }
 
                 try {
-                    // Store file in ./documents folder
-                    String fileName = System.currentTimeMillis() + "_" + file.getOriginalFilename();
-                    Path filePath = Paths.get("./documents/" + fileName);
+                    // Store document in ./documents folder
+                    String documentName = System.currentTimeMillis() + "_" + document.getOriginalFilename();
+                    Path documentPath = Paths.get("./documents/" + documentName);
+
+                    String thumbnailName = System.currentTimeMillis() + "_" + thumbnail.getOriginalFilename();
+                    Path thumbnailPath = Paths.get("./thumbnails/" + thumbnailName);
 
                     File folder  = new File("./documents");
 
 
 
                     if(!folder.exists()) {
-                        Files.createDirectories(filePath.getParent());
+                        Files.createDirectories(documentPath.getParent());
                     }
 
-                    Files.write(filePath, file.getBytes());
+                    Files.write(documentPath, document.getBytes());
+                    Files.write(thumbnailPath, thumbnail.getBytes());
 
-                    String documentUrl = filePath.toString();
+                    String documentUrl = documentPath.toString();
+                    String thumbnailUrl = thumbnailPath.toString();
 
                     // Call service method with updated document URL
                     this.courseService.create(course.getCourseName(), course.getDescription(), course.getPrice(),
-                            course.getCategoryId(), jwtToken, documentUrl);
+                            course.getCategoryId(), jwtToken, documentUrl,thumbnailUrl);
 
                     return ResponseEntity.status(HttpStatus.CREATED).body("Course created successfully");
 
                 } catch (IOException e) {
                     e.printStackTrace();
-                    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error while saving the file.");
+                    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error while saving the document.");
                 }
 
             } else {
