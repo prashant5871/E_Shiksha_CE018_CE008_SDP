@@ -16,4 +16,9 @@ public class LessionServiceImpl implements LessionService {
     public void saveLession(Lession lession) {
         this.lessionRepository.save(lession);
     }
+
+    @Override
+    public Lession findLessionById(int lessionId) {
+        return this.lessionRepository.findByLessionId(lessionId);
+    }
 }
