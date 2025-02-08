@@ -7,4 +7,6 @@ public interface StudentService {
     public Student createStudent(Student student);
 
     public ApplicationUser findByVarificationCode(String varificationCode);
+
+    public ApplicationUser findByUserName(String username);
 }

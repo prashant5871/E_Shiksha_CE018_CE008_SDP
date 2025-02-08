@@ -68,7 +68,9 @@ public class AuthController {
             System.out.println("After authenticate method\n");
             SecurityContextHolder.getContext().setAuthentication(authentication);
             String jwt = jwtUtils.generateJwtToken(authentication);
-            return ResponseEntity.ok(new JwtResponse(jwt, student.getUsername()));
+
+            ApplicationUser u = studentService.findByUserName(student.getUsername());
+            return ResponseEntity.ok(new JwtResponse(jwt, student.getUsername(),u.getUserId()));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid username or password!");
         }
@@ -84,7 +86,9 @@ public class AuthController {
             System.out.println("After authenticate method\n");
             SecurityContextHolder.getContext().setAuthentication(authentication);
             String jwt = jwtUtils.generateJwtToken(authentication);
-            return ResponseEntity.ok(new JwtResponse(jwt, teacher.getUsername()));
+            ApplicationUser u = studentService.findByUserName(teacher.getUsername());
+
+            return ResponseEntity.ok(new JwtResponse(jwt, teacher.getUsername(),u.getUserId()));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid username or password!");
         }

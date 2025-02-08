@@ -7,4 +7,5 @@ public interface StudentRepository {
 	public Student createStudent(Student student);
 
     public ApplicationUser findByVarificationCode(String varificationCode);
+
 }

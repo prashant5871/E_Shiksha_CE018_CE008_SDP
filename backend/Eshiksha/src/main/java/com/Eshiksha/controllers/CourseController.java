@@ -90,7 +90,7 @@ public class CourseController {
      */
 
 
-    /*
+
     @PostMapping("/")
     public ResponseEntity<String> createCourse(@RequestParam String courseName,
                                                @RequestParam String description,
@@ -175,9 +175,9 @@ public class CourseController {
         }
     }
 
-     */
 
 
+/*
     @PostMapping("/")
     public ResponseEntity<String> createCourse(
             @RequestParam String courseName,
@@ -243,5 +243,7 @@ public class CourseController {
     }
 
 
+
+ */
 
 }
