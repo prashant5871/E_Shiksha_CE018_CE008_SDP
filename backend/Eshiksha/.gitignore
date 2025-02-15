@@ -33,3 +33,7 @@ build/
 .vscode/
 
 application.properties
+video
+thumbnails
+documents
+lession

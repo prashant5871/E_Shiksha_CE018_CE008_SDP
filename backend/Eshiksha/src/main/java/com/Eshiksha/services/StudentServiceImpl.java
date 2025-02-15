@@ -3,10 +3,7 @@ package com.Eshiksha.services;
 import com.Eshiksha.Entities.ApplicationUser;
 import com.Eshiksha.Entities.Role;
 import com.Eshiksha.Entities.Student;
-import com.Eshiksha.repositories.RoleRepository;
-import com.Eshiksha.repositories.RoleRepositoryImpl;
-import com.Eshiksha.repositories.StudentRepository;
-import com.Eshiksha.repositories.StudentRepositoryImpl;
+import com.Eshiksha.repositories.*;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -18,19 +15,20 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
-import org.apache.commons.lang3.RandomStringUtils;
-
 @Service
 public class StudentServiceImpl implements StudentService {
     private StudentRepository studentRepository;
     private RoleRepository roleRepository;
 
+    private UserRepository userRepository;
+
     private JavaMailSender mailSender;
 
-    public StudentServiceImpl(StudentRepository studentRepository, RoleRepository roleRepository,JavaMailSender mailSender) {
+    public StudentServiceImpl(StudentRepository studentRepository, RoleRepository roleRepository,JavaMailSender mailSender,UserRepository userRepository) {
         this.studentRepository = studentRepository;
         this.roleRepository = roleRepository;
         this.mailSender = mailSender;
+        this.userRepository = userRepository;
     }
 
 
@@ -66,6 +64,11 @@ public class StudentServiceImpl implements StudentService {
 
         return appUser;
 
+    }
+
+    @Override
+    public ApplicationUser findByUserName(String username) {
+        return this.userRepository.findByEmail(username).get();
     }
 
 

@@ -60,8 +60,10 @@ public class JwtUtils {
 
             // Optional: You can add custom validation logic here
             String usernameFromToken = claims.getSubject();
-            return (usernameFromToken.equals(userDetails.getUsername()) && !isTokenExpired(token));
-        } catch (JwtException | IllegalArgumentException e) {
+//            return (usernameFromToken.equals(userDetails.getUsername()) && !isTokenExpired(token));
+
+            return !isTokenExpired(token);
+        }catch (JwtException | IllegalArgumentException e) {
             System.err.println("Invalid JWT token: " + e.getMessage());
         }
         return false;

@@ -17,7 +17,7 @@ public class Course {
 	private float price;
 
 
-	@OneToOne
+	@ManyToOne
 	private CourseCategory category;
 
 	@OneToMany
@@ -39,11 +39,20 @@ public class Course {
 
 	private String status;
 
-	public Course() {
+	private String documentUrl;
 
+	private String thumbnail;
+
+
+	public String getThumbnail() {
+		return thumbnail;
 	}
 
-	public Course(int courseId, String courseName, String description, float price, CourseCategory category, List<Lession> lessions, Teacher teacher, List<Student> enrolledStudents, List<CourseReview> reviews, String status) {
+	public void setThumbnail(String thumbnail) {
+		this.thumbnail = thumbnail;
+	}
+
+	public Course(int courseId, String courseName, String description, float price, CourseCategory category, List<Lession> lessions, Teacher teacher, List<Student> enrolledStudents, List<CourseReview> reviews, String status, String documentUrl, String thumbnail) {
 		this.courseId = courseId;
 		this.courseName = courseName;
 		this.description = description;
@@ -53,8 +62,16 @@ public class Course {
 		this.teacher = teacher;
 		this.enrolledStudents = enrolledStudents;
 		this.reviews = reviews;
-        this.status = status;
-    }
+		this.status = status;
+		this.documentUrl = documentUrl;
+		this.thumbnail = thumbnail;
+	}
+
+
+	public Course() {
+
+	}
+
 
 	public Course(String courseName, String description, float price) {
 		this.courseName = courseName;
@@ -155,5 +172,13 @@ public class Course {
 
 	public void setStatus(String status) {
 		this.status = status;
+	}
+
+	public String getDocumentUrl() {
+		return documentUrl;
+	}
+
+	public void setDocumentUrl(String documentUrl) {
+		this.documentUrl = documentUrl;
 	}
 }

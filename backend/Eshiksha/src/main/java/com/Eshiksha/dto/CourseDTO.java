@@ -4,14 +4,15 @@ public class CourseDTO {
     private String courseName;
     private String description;
     private float price;
-    private String dummy;
     private int categoryId;
 
-    public CourseDTO(String courseName, String description, float price, String dummy, int categoryId) {
+    public CourseDTO() {
+    }
+
+    public CourseDTO(String courseName, String description, float price, int categoryId) {
         this.courseName = courseName;
         this.description = description;
         this.price = price;
-        this.dummy = dummy;
         this.categoryId = categoryId;
     }
 
@@ -39,13 +40,6 @@ public class CourseDTO {
         this.price = price;
     }
 
-    public String getDummy() {
-        return dummy;
-    }
-
-    public void setDummy(String dummy) {
-        this.dummy = dummy;
-    }
 
     public int getCategoryId() {
         return categoryId;
@@ -61,7 +55,6 @@ public class CourseDTO {
                 "courseName='" + courseName + '\'' +
                 ", description='" + description + '\'' +
                 ", price=" + price +
-                ", dummy='" + dummy + '\'' +
                 ", categoryId=" + categoryId +
                 '}';
     }
