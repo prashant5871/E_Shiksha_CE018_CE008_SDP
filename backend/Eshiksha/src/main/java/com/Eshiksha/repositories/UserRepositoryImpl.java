@@ -10,7 +10,7 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-public class UserRepositoryImpl implements UserRepository {
+public class UserRepositoryImpl  {
 
     private EntityManager entityManager;
 
@@ -18,7 +18,7 @@ public class UserRepositoryImpl implements UserRepository {
         this.entityManager = entityManager;
     }
 
-    @Override
+//    @Override
     public Optional<ApplicationUser> findByEmail(String email) {
         try {
 
@@ -37,7 +37,7 @@ public class UserRepositoryImpl implements UserRepository {
     }
 
 
-    @Override
+//    @Override
     public ApplicationUser findByVarificationCode(String varificationCode) {
 
         ApplicationUser appUser = entityManager.createQuery("FROM ApplicationUser where varificationCode=:varificationCode", ApplicationUser.class)
@@ -47,7 +47,7 @@ public class UserRepositoryImpl implements UserRepository {
         return appUser;
     }
 
-    @Override
+//    @Override
     @Transactional
     public void merge(ApplicationUser appUser) {
         this.entityManager.merge(appUser);

@@ -8,7 +8,7 @@ import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public class StudentRepositoryImpl implements StudentRepository {
+public class StudentRepositoryImpl  {
 
 	private EntityManager entityManager;
 	
@@ -16,14 +16,14 @@ public class StudentRepositoryImpl implements StudentRepository {
 	{
 		this.entityManager = entityManager;
 	}
-	@Override
+//	@Override
 	@Transactional
 	public Student createStudent(Student student) {
 		entityManager.persist(student);
 		return student;
 	}
 
-	@Override
+//	@Override
 	public ApplicationUser findByVarificationCode(String varificationCode) {
 
 		ApplicationUser appUser = entityManager.createQuery("FROM ApplicationUser where varificationCode=:varificationCode", ApplicationUser.class)

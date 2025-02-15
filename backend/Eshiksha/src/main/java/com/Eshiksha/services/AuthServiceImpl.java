@@ -89,14 +89,14 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public ApplicationUser varifyUser(String varificationCode) {
-        ApplicationUser appUser = userRepository.findByVarificationCode(varificationCode);
+        ApplicationUser appUser = userRepository.findByVarificationCode(varificationCode).get();
 
         if(appUser != null)
         {
             appUser.setEnabled(true);
         }
 
-        userRepository.merge(appUser);
+        userRepository.save(appUser);
 
         return appUser;
 

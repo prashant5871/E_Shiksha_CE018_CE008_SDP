@@ -50,7 +50,7 @@ public class StudentServiceImpl implements StudentService {
 
             sendVerificationEmail(student);
 
-            return studentRepository.createStudent(student);
+            return studentRepository.save(student);
         } catch (MessagingException e) {
             throw new RuntimeException(e);
         } catch (UnsupportedEncodingException e) {
@@ -60,7 +60,7 @@ public class StudentServiceImpl implements StudentService {
 
     @Override
     public ApplicationUser findByVarificationCode(String varificationCode) {
-        ApplicationUser appUser = studentRepository.findByVarificationCode(varificationCode);
+        ApplicationUser appUser = studentRepository.findByVarificationCode(varificationCode).get();
 
         return appUser;
 
