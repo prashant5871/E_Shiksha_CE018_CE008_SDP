@@ -10,6 +10,8 @@ import {
   Routes,
   Navigate,
 } from "react-router-dom"
+import Home from './user/Home'
+import Footer from './shared/components/Footer'
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -22,7 +24,7 @@ function App() {
     localStorage.setItem("authToken", authToken);
     setIsLoggedIn(true);
     setUserId(uid);
-    setUserMail(uid, umail, authToken);
+    setUserMail(umail);
   }, []);
 
   const logout = useCallback(() => {
@@ -30,6 +32,7 @@ function App() {
     setIsLoggedIn(false);
     setIsStudent(true);
     setUserId(null);
+    setUserMail(null);
   }, []);
   
   let routes;
@@ -38,8 +41,8 @@ function App() {
   } else if (isLoggedIn) {
     routes = (
       <Routes>
-        {/* <Route exact path="/" element={<Home />} /> */}
-        <Route path="/" element={<>hello world</>} />
+        <Route exact path="/" element={<Home />} />
+        {/* <Route path="/" element={<>hello world</>} /> */}
         {/* <Route path="/wishlist" element={<WishList />} /> */}
         {/* <Route path="/triplist" element={<TripList />} /> */}
         {/* <Route path="/allBookings" element={<AllBookings />} /> */}
@@ -52,8 +55,8 @@ function App() {
   } else {
     routes = (
       <Routes>
-        {/* <Route exact path="/" element={<Home />} /> */}\
-        <Route path="/" element={<>hello world</>} />
+        <Route exact path="/" element={<Home />} />
+        {/* <Route path="/" element={<>hello world</>} /> */}
 
       </Routes>
     );
@@ -84,6 +87,7 @@ function App() {
             pauseOnFocusLoss
           />
     </Router>
+    <Footer/>
     </AuthContext.Provider>
     </>
   )

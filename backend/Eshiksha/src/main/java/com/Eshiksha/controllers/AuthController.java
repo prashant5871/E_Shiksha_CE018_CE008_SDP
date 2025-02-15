@@ -22,18 +22,15 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
 
     private final AuthenticationManager authenticationManager;
-
     private final UserDetailsServiceImpl userDetailsService;
     private final PasswordEncoder passwordEncoder;
-
-    private StudentService studentService;
-
-
+    private final StudentService studentService;
     private final JwtUtils jwtUtils;
+    private final AuthService authService;
 
-    private AuthService authService;
-
-    public AuthController(StudentService studentService, AuthenticationManager authenticationManager, UserDetailsServiceImpl userDetailsService, PasswordEncoder passwordEncoder, JwtUtils jwtUtils, AuthService authService) {
+    public AuthController(StudentService studentService, AuthenticationManager authenticationManager,
+                          UserDetailsServiceImpl userDetailsService, PasswordEncoder passwordEncoder,
+                          JwtUtils jwtUtils, AuthService authService) {
         this.studentService = studentService;
         this.authenticationManager = authenticationManager;
         this.userDetailsService = userDetailsService;
@@ -45,80 +42,91 @@ public class AuthController {
     @PostMapping("/student/signup")
     public ResponseEntity<?> signup(@RequestBody Student student) {
         if (userDetailsService.loadUserByUsername(student.getEmail()) != null) {
-            return ResponseEntity.badRequest().body("UserName exists!");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse("UserName already exists!", false));
         }
 
         try {
             student.setPassword(passwordEncoder.encode(student.getPassword()));
-            this.studentService.createStudent(student);
+            studentService.createStudent(student);
+            return ResponseEntity.status(HttpStatus.CREATED).body(new ApiResponse("Student registered successfully", true));
         } catch (Exception e) {
-            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ApiResponse("Failed to register student", false));
         }
-
-        return ResponseEntity.ok("Registred succesfully");
     }
-
 
     @PostMapping("/student/login")
     public ResponseEntity<?> loginStudent(@RequestBody Student student) {
         try {
-            System.out.println("student email : " + student.getEmail() + '\n');
-            System.out.println("student password : " + student.getPassword() + '\n');
-            Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(student.getUsername(), student.getPassword()));
-            System.out.println("After authenticate method\n");
+            Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(student.getUsername(), student.getPassword()));
             SecurityContextHolder.getContext().setAuthentication(authentication);
             String jwt = jwtUtils.generateJwtToken(authentication);
-            return ResponseEntity.ok(new JwtResponse(jwt, student.getUsername()));
+            return ResponseEntity.ok(new JwtResponse(jwt, student.getUsername(), student.getUserId()));
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid username or password!");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(new ApiResponse("Invalid username or password!", false));
         }
-
     }
 
     @PostMapping("/teacher/login")
     public ResponseEntity<?> loginTeacher(@RequestBody Teacher teacher) {
         try {
-            System.out.println("student email : " + teacher.getEmail() + '\n');
-            System.out.println("teacher password : " + teacher.getPassword() + '\n');
-            Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(teacher.getUsername(), teacher.getPassword()));
-            System.out.println("After authenticate method\n");
+            Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(teacher.getUsername(), teacher.getPassword()));
             SecurityContextHolder.getContext().setAuthentication(authentication);
             String jwt = jwtUtils.generateJwtToken(authentication);
-            return ResponseEntity.ok(new JwtResponse(jwt, teacher.getUsername()));
+            return ResponseEntity.ok(new JwtResponse(jwt, teacher.getUsername(), teacher.getUserId()));
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid username or password!");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(new ApiResponse("Invalid username or password!", false));
         }
-
     }
-    @PostMapping("/varify/{varificationCode}")
-    public ResponseEntity<String> varify(
-            @PathVariable String varificationCode
-    )
-    {
-        ApplicationUser appUser = this.authService.varifyUser(varificationCode);
 
-        if(appUser != null)
-        {
-            return ResponseEntity.ok("varified succesfully");
-        }else{
-            return ResponseEntity.notFound().build();
+    @PostMapping("/verify/{verificationCode}")
+    public ResponseEntity<String> verify(@PathVariable String verificationCode) {
+        ApplicationUser appUser = this.authService.varifyUser(verificationCode);
+
+        if (appUser != null) {
+            return ResponseEntity.ok("Verified successfully");
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body("Verification code is invalid or expired.");
         }
     }
 
     @PostMapping("/teacher/signup")
     public ResponseEntity<?> signupTeacher(@RequestBody Teacher teacher) {
         if (userDetailsService.loadUserByUsername(teacher.getEmail()) != null) {
-            return ResponseEntity.badRequest().body("UserName exists!");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse("UserName already exists!", false));
         }
 
         try {
             teacher.setPassword(passwordEncoder.encode(teacher.getPassword()));
-            this.authService.createTeacher(teacher);
+            authService.createTeacher(teacher);
+            return ResponseEntity.status(HttpStatus.CREATED).body(new ApiResponse("Teacher registered successfully", true));
         } catch (Exception e) {
-            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ApiResponse("Failed to register teacher", false));
         }
-
-        return ResponseEntity.ok("Registred succesfully");
     }
 
+    // Helper response structure for consistent API responses
+    public static class ApiResponse {
+        private String message;
+        private boolean success;
+
+        public ApiResponse(String message, boolean success) {
+            this.message = message;
+            this.success = success;
+        }
+
+        public String getMessage() {
+            return message;
+        }
+
+        public boolean isSuccess() {
+            return success;
+        }
+    }
 }
