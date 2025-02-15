@@ -5,6 +5,7 @@ import com.Eshiksha.Entities.Course;
 import com.Eshiksha.Entities.Lession;
 import com.Eshiksha.services.CourseService;
 import com.Eshiksha.services.LessionService;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.FileSystemResource;
@@ -24,10 +25,23 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 @RestController
 @RequestMapping("/lessions")
 public class LessionController {
+
+    private final Map<String, Long> lastRequestTime = new ConcurrentHashMap<>();
+    private final Map<String, Long> lastChunkSize = new ConcurrentHashMap<>();
+
+    // **Estimated bitrates (in bits per second) for different qualities**
+    private final Map<String, Long> bitrateMap = Map.of(
+            "360p", 800_000L,   // 0.8 Mbps
+            "480p", 1_500_000L, // 1.5 Mbps
+            "720p", 3_000_000L  // 3 Mbps
+    );
+
 
     @Autowired
     private LessionService lessionService;
@@ -114,7 +128,7 @@ public class LessionController {
 
     }
 
-
+/*
 
     // stream lession in chunks
     @GetMapping("/stream/range/{lessionId}")
@@ -208,6 +222,90 @@ public class LessionController {
 
 
 
+ */
 
+
+    @GetMapping("/stream/range/{lessonId}")
+    public ResponseEntity<Resource> streamVideoRange(
+            @PathVariable int lessonId,
+            @RequestHeader(value = "Range", required = false) String range,
+            HttpServletRequest request) {
+
+        if (range == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
+
+        Lession lesson = lessionService.findLessionById(lessonId);
+        Path path = Paths.get(lesson.getContentUrl());
+
+        long fileLength = path.toFile().length();
+        String[] ranges = range.replace("bytes=", "").split("-");
+        long rangeStart = Long.parseLong(ranges[0]);
+        long rangeEnd = Math.min(rangeStart + AppConstants.CHUNK_SIZE - 1, fileLength - 1);
+
+        try (InputStream inputStream = Files.newInputStream(path)) {
+            inputStream.skip(rangeStart);
+            long contentLength = rangeEnd - rangeStart + 1;
+            byte[] data = new byte[(int) contentLength];
+            inputStream.read(data, 0, data.length);
+
+            // **Track request time**
+            String userIp = request.getRemoteAddr(); // Get user IP
+            long currentTime = System.currentTimeMillis();
+
+            if (lastRequestTime.containsKey(userIp)) {
+                long lastTime = lastRequestTime.get(userIp);
+                long timeDiff = currentTime - lastTime; // in milliseconds
+
+                if (timeDiff > 0) {
+                    // Get last chunk size
+                    long previousChunkSize = lastChunkSize.getOrDefault(userIp, contentLength);
+
+                    // **Estimate watch time** for the last chunk
+                    long bitrate = bitrateMap.getOrDefault("720p", 3_000_000L); // Default to 720p
+                    double watchTime = (previousChunkSize * 8.0) / bitrate; // in seconds
+
+                    // Convert watch time to milliseconds
+                    long watchTimeMillis = (long) (watchTime * 1000);
+
+                    // **Adjust time difference**
+                    long adjustedTimeDiff = Math.max(timeDiff - watchTimeMillis, 1); // Ensure non-zero
+
+                    // **Calculate Speed**
+                    double speedBytesPerSec = (double) contentLength / (adjustedTimeDiff / 1000.0);
+                    double speedMbps = (speedBytesPerSec * 8) / 1_000_000;
+
+                    System.out.println("User " + userIp + " Speed: " + speedMbps + " Mbps");
+
+                    // **Select video quality dynamically**
+                    if (speedMbps < 0.5) {
+                        System.out.println("Serving 360p");
+                    } else if (speedMbps < 1) {
+                        System.out.println("Serving 480p");
+                    } else {
+                        System.out.println("Serving 720p");
+                    }
+                }
+            }
+
+            // Store current request time & chunk size
+            lastRequestTime.put(userIp, currentTime);
+            lastChunkSize.put(userIp, contentLength);
+
+            // Return chunk
+            HttpHeaders headers = new HttpHeaders();
+            headers.add("Content-Range", "bytes " + rangeStart + "-" + rangeEnd + "/" + fileLength);
+            headers.setContentLength(contentLength);
+
+            return ResponseEntity
+                    .status(HttpStatus.PARTIAL_CONTENT)
+                    .headers(headers)
+                    .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                    .body(new ByteArrayResource(data));
+        } catch (IOException ex) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+
+        }
 
 }
