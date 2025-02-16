@@ -4,13 +4,11 @@ import com.Eshiksha.Entities.ApplicationUser;
 import com.Eshiksha.Entities.Role;
 import com.Eshiksha.Entities.Student;
 import com.Eshiksha.repositories.*;
-import jakarta.mail.MessagingException;
-import jakarta.mail.internet.MimeMessage;
 import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.mail.javamail.MimeMessageHelper;
-import org.springframework.stereotype.Service;
 
-import java.io.UnsupportedEncodingException;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
@@ -22,18 +20,15 @@ public class StudentServiceImpl implements StudentService {
 
     private UserRepository userRepository;
 
-    private JavaMailSender mailSender;
-
-    public StudentServiceImpl(StudentRepository studentRepository, RoleRepository roleRepository,JavaMailSender mailSender,UserRepository userRepository) {
+    public StudentServiceImpl(StudentRepository studentRepository, RoleRepository roleRepository, UserRepository userRepository) {
         this.studentRepository = studentRepository;
         this.roleRepository = roleRepository;
-        this.mailSender = mailSender;
         this.userRepository = userRepository;
     }
 
 
     @Override
-    public Student createStudent(Student student) {
+    public ApplicationUser createStudent(ApplicationUser student) {
         try {
             student.setEnabled(false);
             Set<Role> roles = new HashSet<>();
@@ -48,19 +43,22 @@ public class StudentServiceImpl implements StudentService {
             System.out.println("Varification code is : " + varificationCode);
             student.setVerificationCode(varificationCode);
 
-            sendVerificationEmail(student);
 
-            return studentRepository.createStudent(student);
-        } catch (MessagingException e) {
-            throw new RuntimeException(e);
-        } catch (UnsupportedEncodingException e) {
+            userRepository.save(student);
+
+            Student student1 = new Student();
+            student1.setUser(userRepository.findByEmail(student.getEmail()).get());
+            studentRepository.save(student1);
+
+            return student;
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
 
     @Override
     public ApplicationUser findByVarificationCode(String varificationCode) {
-        ApplicationUser appUser = studentRepository.findByVarificationCode(varificationCode);
+        ApplicationUser appUser = userRepository.findByVarificationCode(varificationCode).get();
 
         return appUser;
 
@@ -71,32 +69,13 @@ public class StudentServiceImpl implements StudentService {
         return this.userRepository.findByEmail(username).get();
     }
 
+    @Override
+    @Transactional
+    public void createStudentFromUser(ApplicationUser user) {
+        Student newStudent = new Student();
+        newStudent.setUser(userRepository.findByEmail(user.getEmail()).get());
+        studentRepository.save(newStudent);
 
-    private void sendVerificationEmail(Student user)
-            throws MessagingException, UnsupportedEncodingException {
-        String toAddress = user.getEmail();
-        String fromAddress = "prashantkalsariya001@gmail.com";
-        String senderName = "EShiksha";
-        String subject = "Please verify your registration";
-        String content = "Dear [[name]],<br>"
-                + "Please click the link below to verify your registration:<br>"
-                + "<h3><a href=\"[[URL]]\" target=\"_self\">VERIFY</a></h3>"
-                + "Thank you,<br>"
-                + "EShiksha.";
-
-        MimeMessage message = mailSender.createMimeMessage();
-        MimeMessageHelper helper = new MimeMessageHelper(message);
-
-        helper.setFrom(fromAddress, senderName);
-        helper.setTo(toAddress);
-        helper.setSubject(subject);
-
-        content = content.replace("[[name]]", user.getFirstName());
-        String verifyURL =  "http://localhost:3000/verify?code=" + user.getVerificationCode();
-        content = content.replace("[[URL]]", verifyURL);
-
-        helper.setText(content, true);
-
-        mailSender.send(message);
     }
+
 }
