@@ -10,17 +10,18 @@ import java.util.Optional;
 
 @Repository
 public interface StudentRepository extends JpaRepository<Student, Integer> {
+    // Find a student by their associated user
+    Optional<Student> findByUser(ApplicationUser user);
 
-    // Find student by email (inherited from ApplicationUser)
-    Optional<Student> findByEmail(String email);
+    // Find a student by user ID
+//    Optional<Student> findByUserId(Integer userId);
 
-    Optional<ApplicationUser> findByVarificationCode(String varificationCode);
+    // Check if a student exists by user ID
+//    boolean existsByUserId(Integer userId);
 
+    // Find all students enrolled in a specific course (Assuming enrolledCourses contains Course ID)
+//    List<Student> findByEnrolledCoursesId(Integer courseId);
 
-    // Find all students enrolled in a specific course
-    @Query("SELECT s FROM Student s JOIN s.enrolledCourses c WHERE c.id = :courseId")
-    List<Student> findStudentsByCourseId(Integer courseId);
-
-    // Delete student by email
-    void deleteByEmail(String email);
+    // Delete a student by user ID
+//    void deleteByUserId(Integer userId);
 }

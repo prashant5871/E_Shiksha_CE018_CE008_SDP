@@ -30,7 +30,7 @@ public class Course {
 	@JoinTable(
 			name = "enrolled_students",
 			joinColumns = @JoinColumn(name = "courseId"),
-			inverseJoinColumns = @JoinColumn(name="userId")
+			inverseJoinColumns = @JoinColumn(name="studetnId")
 	)
 	private List<Student> enrolledStudents;
 
