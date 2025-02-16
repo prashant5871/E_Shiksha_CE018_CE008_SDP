@@ -1,13 +1,19 @@
 package com.Eshiksha.controllers;
 
 import com.Eshiksha.Entities.ApplicationUser;
+import com.Eshiksha.Entities.Role;
 import com.Eshiksha.Entities.Student;
 import com.Eshiksha.Entities.Teacher;
 import com.Eshiksha.Utils.JwtUtils;
 import com.Eshiksha.dto.JwtResponse;
+import com.Eshiksha.repositories.RoleRepository;
+import com.Eshiksha.repositories.StudentRepository;
+import com.Eshiksha.repositories.TeacherRepository;
+import com.Eshiksha.repositories.UserRepository;
 import com.Eshiksha.services.AuthService;
 import com.Eshiksha.services.StudentService;
 import com.Eshiksha.services.UserDetailsServiceImpl;
+import org.apache.coyote.Response;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -17,52 +23,57 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashSet;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
+
 @RestController
 @RequestMapping("/auth")
 public class AuthController {
 
     private final AuthenticationManager authenticationManager;
-    private final UserDetailsServiceImpl userDetailsService;
-    private final PasswordEncoder passwordEncoder;
-    private final StudentService studentService;
+
     private final JwtUtils jwtUtils;
     private final AuthService authService;
 
-    public AuthController(StudentService studentService, AuthenticationManager authenticationManager,
-                          UserDetailsServiceImpl userDetailsService, PasswordEncoder passwordEncoder,
-                          JwtUtils jwtUtils, AuthService authService) {
-        this.studentService = studentService;
+
+    public AuthController(AuthenticationManager authenticationManager, PasswordEncoder passwordEncoder,
+                          JwtUtils jwtUtils, AuthService authService, UserRepository userRepository) {
         this.authenticationManager = authenticationManager;
-        this.userDetailsService = userDetailsService;
-        this.passwordEncoder = passwordEncoder;
         this.jwtUtils = jwtUtils;
         this.authService = authService;
     }
 
     @PostMapping("/student/signup")
-    public ResponseEntity<?> signup(@RequestBody Student student) {
-        if (userDetailsService.loadUserByUsername(student.getEmail()) != null) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse("UserName already exists!", false));
-        }
-
+    public ResponseEntity<?> signup(@RequestBody ApplicationUser student) {
         try {
-            student.setPassword(passwordEncoder.encode(student.getPassword()));
-            studentService.createStudent(student);
-            return ResponseEntity.status(HttpStatus.CREATED).body(new ApiResponse("Student registered successfully", true));
+
+            authService.createStudent(student);
+
+            return ResponseEntity.status((HttpStatus.CREATED)).body(new AuthController.ApiResponse("registred succsefully", true));
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(new ApiResponse("Failed to register student", false));
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new AuthController.ApiResponse(e.getMessage(), false));
         }
     }
 
+
     @PostMapping("/student/login")
-    public ResponseEntity<?> loginStudent(@RequestBody Student student) {
+    public ResponseEntity<?> loginStudent(@RequestBody ApplicationUser student) {
         try {
+            if (!authService.isStudent(student)) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body(new ApiResponse("Invalid username or password!", false));
+
+            }
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(student.getUsername(), student.getPassword()));
             SecurityContextHolder.getContext().setAuthentication(authentication);
             String jwt = jwtUtils.generateJwtToken(authentication);
-            return ResponseEntity.ok(new JwtResponse(jwt, student.getUsername(), student.getUserId()));
+            ApplicationUser user = authService.getUserByEmailId(student.getEmail());
+
+            return ResponseEntity.ok(new JwtResponse(jwt, student.getUsername(), user.getUserId()));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(new ApiResponse("Invalid username or password!", false));
@@ -70,16 +81,25 @@ public class AuthController {
     }
 
     @PostMapping("/teacher/login")
-    public ResponseEntity<?> loginTeacher(@RequestBody Teacher teacher) {
+    public ResponseEntity<?> loginTeacher(@RequestBody ApplicationUser teacher) {
         try {
+            if (!authService.isTeacher(teacher)) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body(new ApiResponse("Invalid username or password!(first)", false));
+
+            }
+            System.out.println("before authenticate method\n");
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(teacher.getUsername(), teacher.getPassword()));
+            System.out.println("After authenticate method\n");
             SecurityContextHolder.getContext().setAuthentication(authentication);
             String jwt = jwtUtils.generateJwtToken(authentication);
-            return ResponseEntity.ok(new JwtResponse(jwt, teacher.getUsername(), teacher.getUserId()));
+
+            ApplicationUser user = authService.getUserByEmailId(teacher.getEmail());
+            return ResponseEntity.ok(new JwtResponse(jwt, teacher.getUsername(), user.getUserId()));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(new ApiResponse("Invalid username or password!", false));
+                    .body(new ApiResponse("Invalid username or password!(second)", false));
         }
     }
 
@@ -95,23 +115,29 @@ public class AuthController {
         }
     }
 
-    @PostMapping("/teacher/signup")
-    public ResponseEntity<?> signupTeacher(@RequestBody Teacher teacher) {
-        if (userDetailsService.loadUserByUsername(teacher.getEmail()) != null) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse("UserName already exists!", false));
-        }
-
+    @PostMapping("/send-varification-code/{userId}")
+    public ResponseEntity<?> sendVarificationCode(@PathVariable int userId) {
         try {
-            teacher.setPassword(passwordEncoder.encode(teacher.getPassword()));
-            authService.createTeacher(teacher);
-            return ResponseEntity.status(HttpStatus.CREATED).body(new ApiResponse("Teacher registered successfully", true));
+            authService.sendVerificationEmailFromUserId(userId);
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).body(new ApiResponse("Varification email sent succesfully...", true));
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(new ApiResponse("Failed to register teacher", false));
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ApiResponse(e.getMessage(), true));
         }
     }
 
-    // Helper response structure for consistent API responses
+    @PostMapping("/teacher/signup")
+    public ResponseEntity<?> signupTeacher(@RequestBody ApplicationUser teacher) {
+
+        try {
+            authService.createTeacher(teacher);
+            return ResponseEntity.status(HttpStatus.CREATED).body(new ApiResponse("Teacher registered successfully", true));
+
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ApiResponse(e.getMessage(), false));
+        }
+    }
+
     public static class ApiResponse {
         private String message;
         private boolean success;
