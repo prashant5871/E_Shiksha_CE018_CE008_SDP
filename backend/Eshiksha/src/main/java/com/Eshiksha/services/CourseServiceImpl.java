@@ -7,6 +7,7 @@ import com.Eshiksha.Entities.Teacher;
 import com.Eshiksha.Utils.JwtUtils;
 import com.Eshiksha.repositories.CourseCategoryRepository;
 import com.Eshiksha.repositories.CourseRepository;
+import com.Eshiksha.repositories.TeacherRepository;
 import com.Eshiksha.repositories.UserRepository;
 import org.springframework.stereotype.Service;
 
@@ -19,7 +20,10 @@ public class CourseServiceImpl implements CourseService {
 
     private JwtUtils jwtUtils;
     private UserRepository userRepository;
-    public CourseServiceImpl(CourseRepository courseRepository, CourseCategoryRepository courseCategoryRepository, JwtUtils jwtUtils, UserRepository userRepository) {
+    private TeacherRepository teacherRepository;
+
+    public CourseServiceImpl(CourseRepository courseRepository, CourseCategoryRepository courseCategoryRepository, JwtUtils jwtUtils, UserRepository userRepository,TeacherRepository teacherRepository) {
+        this.teacherRepository = teacherRepository;
         this.courseRepository = courseRepository;
         this.courseCategoryRepository = courseCategoryRepository;
         this.jwtUtils = jwtUtils;
@@ -37,10 +41,10 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
-    public void create(String courseName, String description, float price, int categoryId, String jwtToken, String documentUrl, String thumbnailUrl) {
-        Course course = new Course(courseName,description,price);
+    public void create(String courseName, String description, float price, int categoryId, String jwtToken, String documentUrl, String thumbnailUrl, String demoVideoUrl) throws Exception {
+        Course course = new Course(courseName, description, price);
 
-        CourseCategory category = this.courseCategoryRepository.findById(categoryId).orElseThrow(()->new RuntimeException("Invalid Course Category"));
+        CourseCategory category = this.courseCategoryRepository.findById(categoryId).orElseThrow(() -> new RuntimeException("Invalid Course Category"));
 
         course.setCategory(category);
 
@@ -50,15 +54,15 @@ public class CourseServiceImpl implements CourseService {
 
         System.out.println(usernameFromToken);
 
-        ApplicationUser user = this.userRepository.findByEmail(usernameFromToken).orElseThrow(()->new RuntimeException("user not found!"));
+        ApplicationUser user = this.userRepository.findByEmail(usernameFromToken).orElseThrow(() -> new RuntimeException("user not found!"));
 
 
-        Teacher teacher = new Teacher();
-        teacher.setUser(user);
+        Teacher teacher = teacherRepository.findByUser(user).orElseThrow(()->new Exception("not found such a user"));
 
         course.setTeacher(teacher);
         course.setDocumentUrl(documentUrl);
         course.setThumbnail(thumbnailUrl);
+        course.setDemoVideo(demoVideoUrl);
 //        System.out.println("Teacher = " + teacher.getUserId());
 
 
