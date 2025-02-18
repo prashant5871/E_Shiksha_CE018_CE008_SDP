@@ -6,179 +6,190 @@ import jakarta.persistence.*;
 
 @Entity
 public class Course {
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private int courseId;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private int courseId;
 
-	private String courseName;
+    private String courseName;
 
-	private String description;
+    private String description;
 
-	private float price;
-
-
-	@ManyToOne
-	private CourseCategory category;
-
-	@OneToMany
-	List<Lession> lessions;
-
-	@ManyToOne
-	private Teacher teacher;
-
-	@ManyToMany
-	@JoinTable(
-			name = "enrolled_students",
-			joinColumns = @JoinColumn(name = "courseId"),
-			inverseJoinColumns = @JoinColumn(name="studetnId")
-	)
-	private List<Student> enrolledStudents;
-
-	@OneToMany(cascade = CascadeType.ALL)
-	private List<CourseReview> reviews;
-
-	private String status;
-
-	private String documentUrl;
-
-	private String thumbnail;
+    private float price;
 
 
-	public String getThumbnail() {
-		return thumbnail;
-	}
+    @ManyToOne
+    private CourseCategory category;
 
-	public void setThumbnail(String thumbnail) {
-		this.thumbnail = thumbnail;
-	}
+    @OneToMany
+    List<Lession> lessions;
 
-	public Course(int courseId, String courseName, String description, float price, CourseCategory category, List<Lession> lessions, Teacher teacher, List<Student> enrolledStudents, List<CourseReview> reviews, String status, String documentUrl, String thumbnail) {
-		this.courseId = courseId;
-		this.courseName = courseName;
-		this.description = description;
-		this.price = price;
-		this.category = category;
-		this.lessions = lessions;
-		this.teacher = teacher;
-		this.enrolledStudents = enrolledStudents;
-		this.reviews = reviews;
-		this.status = status;
-		this.documentUrl = documentUrl;
-		this.thumbnail = thumbnail;
-	}
+    @ManyToOne
+    private Teacher teacher;
+
+    @ManyToMany
+    @JoinTable(
+            name = "enrolled_students",
+            joinColumns = @JoinColumn(name = "courseId"),
+            inverseJoinColumns = @JoinColumn(name = "studetnId")
+    )
+    private List<Student> enrolledStudents;
+
+    @OneToMany(cascade = CascadeType.ALL)
+    private List<CourseReview> reviews;
+
+    private String status;
+
+    private String documentUrl;
+
+    private String thumbnail;
+
+    public String getDemoVideo() {
+        return demoVideo;
+    }
+
+    public void setDemoVideo(String demoVideo) {
+        this.demoVideo = demoVideo;
+    }
+
+    public Course(int courseId, String courseName, String description, float price, CourseCategory category, List<Lession> lessions, Teacher teacher, List<Student> enrolledStudents, List<CourseReview> reviews, String status, String documentUrl, String thumbnail, String demoVideo) {
+        this.courseId = courseId;
+        this.courseName = courseName;
+        this.description = description;
+        this.price = price;
+        this.category = category;
+        this.lessions = lessions;
+        this.teacher = teacher;
+        this.enrolledStudents = enrolledStudents;
+        this.reviews = reviews;
+        this.status = status;
+        this.documentUrl = documentUrl;
+        this.thumbnail = thumbnail;
+        this.demoVideo = demoVideo;
+    }
+
+    private String demoVideo;
 
 
-	public Course() {
+    public String getThumbnail() {
+        return thumbnail;
+    }
 
-	}
+    public void setThumbnail(String thumbnail) {
+        this.thumbnail = thumbnail;
+    }
 
 
-	public Course(String courseName, String description, float price) {
-		this.courseName = courseName;
-		this.description = description;
-		this.price = price;
-	}
+    public Course() {
 
-	public int getCourseId() {
-		return courseId;
-	}
+    }
 
-	public void setCourseId(int courseId) {
-		this.courseId = courseId;
-	}
 
-	public String getCourseName() {
-		return courseName;
-	}
+    public Course(String courseName, String description, float price) {
+        this.courseName = courseName;
+        this.description = description;
+        this.price = price;
+    }
 
-	public void setCourseName(String courseName) {
-		this.courseName = courseName;
-	}
+    public int getCourseId() {
+        return courseId;
+    }
 
-	public String getDescription() {
-		return description;
-	}
+    public void setCourseId(int courseId) {
+        this.courseId = courseId;
+    }
 
-	public void setDescription(String description) {
-		this.description = description;
-	}
+    public String getCourseName() {
+        return courseName;
+    }
 
-	public float getPrice() {
-		return price;
-	}
+    public void setCourseName(String courseName) {
+        this.courseName = courseName;
+    }
 
-	public void setPrice(float price) {
-		this.price = price;
-	}
+    public String getDescription() {
+        return description;
+    }
 
-	public CourseCategory getCategory() {
-		return category;
-	}
+    public void setDescription(String description) {
+        this.description = description;
+    }
 
-	public void setCategory(CourseCategory category) {
-		this.category = category;
-	}
+    public float getPrice() {
+        return price;
+    }
 
-	public List<Lession> getLessions() {
-		return lessions;
-	}
+    public void setPrice(float price) {
+        this.price = price;
+    }
 
-	public void setLessions(List<Lession> lessions) {
-		this.lessions = lessions;
-	}
+    public CourseCategory getCategory() {
+        return category;
+    }
 
-	public Teacher getTeacher() {
-		return teacher;
-	}
+    public void setCategory(CourseCategory category) {
+        this.category = category;
+    }
 
-	public void setTeacher(Teacher teacher) {
-		this.teacher = teacher;
-	}
+    public List<Lession> getLessions() {
+        return lessions;
+    }
 
-	public List<Student> getEnrolledStudents() {
-		return enrolledStudents;
-	}
+    public void setLessions(List<Lession> lessions) {
+        this.lessions = lessions;
+    }
 
-	public void setEnrolledStudents(List<Student> enrolledStudents) {
-		this.enrolledStudents = enrolledStudents;
-	}
+    public Teacher getTeacher() {
+        return teacher;
+    }
 
-	public List<CourseReview> getReviews() {
-		return reviews;
-	}
+    public void setTeacher(Teacher teacher) {
+        this.teacher = teacher;
+    }
 
-	public void setReviews(List<CourseReview> reviews) {
-		this.reviews = reviews;
-	}
+    public List<Student> getEnrolledStudents() {
+        return enrolledStudents;
+    }
 
-	@Override
-	public String toString() {
-		return "Course{" +
-				"courseId=" + courseId +
-				", courseName=" + courseName +
-				", description='" + description + '\'' +
-				", price=" + price +
-				", category=" + category +
-				", lessions=" + lessions +
-				", teacher=" + teacher +
-				", enrolledStudents=" + enrolledStudents +
-				", reviews=" + reviews +
-				'}';
-	}
+    public void setEnrolledStudents(List<Student> enrolledStudents) {
+        this.enrolledStudents = enrolledStudents;
+    }
 
-	public String getStatus() {
-		return status;
-	}
+    public List<CourseReview> getReviews() {
+        return reviews;
+    }
 
-	public void setStatus(String status) {
-		this.status = status;
-	}
+    public void setReviews(List<CourseReview> reviews) {
+        this.reviews = reviews;
+    }
 
-	public String getDocumentUrl() {
-		return documentUrl;
-	}
+    @Override
+    public String toString() {
+        return "Course{" +
+                "courseId=" + courseId +
+                ", courseName=" + courseName +
+                ", description='" + description + '\'' +
+                ", price=" + price +
+                ", category=" + category +
+                ", lessions=" + lessions +
+                ", teacher=" + teacher +
+                ", enrolledStudents=" + enrolledStudents +
+                ", reviews=" + reviews +
+                '}';
+    }
 
-	public void setDocumentUrl(String documentUrl) {
-		this.documentUrl = documentUrl;
-	}
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public String getDocumentUrl() {
+        return documentUrl;
+    }
+
+    public void setDocumentUrl(String documentUrl) {
+        this.documentUrl = documentUrl;
+    }
 }
