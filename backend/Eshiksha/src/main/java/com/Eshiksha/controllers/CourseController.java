@@ -21,7 +21,9 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @RestController
@@ -163,7 +165,22 @@ public class CourseController {
         }
     }
 
+    @PostMapping("/bookmark/{courseId}/{userId}")
+    public ResponseEntity<Map<String,String>> bookMarkCourse(@PathVariable int courseId,@PathVariable int userId)
+    {
+        Map<String ,String > response = new HashMap<>();
+        boolean flag = courseService.bookMarkCourse(courseId,userId);
 
+        if(flag)
+        {
+            response.put("message","Course Bookmarked succesfully");
+
+            return ResponseEntity.status(HttpStatus.OK).body(response);
+        }
+        response.put("message","can not bookmark right now ! please try again later");
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+
+    }
 
 /*
     @PostMapping("/")

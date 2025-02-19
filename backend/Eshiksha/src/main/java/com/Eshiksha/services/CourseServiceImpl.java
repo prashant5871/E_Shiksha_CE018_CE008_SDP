@@ -1,17 +1,12 @@
 package com.Eshiksha.services;
 
-import com.Eshiksha.Entities.ApplicationUser;
-import com.Eshiksha.Entities.Course;
-import com.Eshiksha.Entities.CourseCategory;
-import com.Eshiksha.Entities.Teacher;
+import com.Eshiksha.Entities.*;
 import com.Eshiksha.Utils.JwtUtils;
-import com.Eshiksha.repositories.CourseCategoryRepository;
-import com.Eshiksha.repositories.CourseRepository;
-import com.Eshiksha.repositories.TeacherRepository;
-import com.Eshiksha.repositories.UserRepository;
+import com.Eshiksha.repositories.*;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class CourseServiceImpl implements CourseService {
@@ -22,7 +17,10 @@ public class CourseServiceImpl implements CourseService {
     private UserRepository userRepository;
     private TeacherRepository teacherRepository;
 
-    public CourseServiceImpl(CourseRepository courseRepository, CourseCategoryRepository courseCategoryRepository, JwtUtils jwtUtils, UserRepository userRepository,TeacherRepository teacherRepository) {
+    private StudentRepository studentRepository;
+
+    public CourseServiceImpl(CourseRepository courseRepository, CourseCategoryRepository courseCategoryRepository, JwtUtils jwtUtils, UserRepository userRepository, TeacherRepository teacherRepository, StudentRepository studentRepository) {
+        this.studentRepository = studentRepository;
         this.teacherRepository = teacherRepository;
         this.courseRepository = courseRepository;
         this.courseCategoryRepository = courseCategoryRepository;
@@ -57,7 +55,7 @@ public class CourseServiceImpl implements CourseService {
         ApplicationUser user = this.userRepository.findByEmail(usernameFromToken).orElseThrow(() -> new RuntimeException("user not found!"));
 
 
-        Teacher teacher = teacherRepository.findByUser(user).orElseThrow(()->new Exception("not found such a user"));
+        Teacher teacher = teacherRepository.findByUser(user).orElseThrow(() -> new Exception("not found such a user"));
 
         course.setTeacher(teacher);
         course.setDocumentUrl(documentUrl);
@@ -74,5 +72,35 @@ public class CourseServiceImpl implements CourseService {
     @Override
     public Course getCourseById(int courseId) {
         return courseRepository.findById(courseId).orElseThrow(() -> new RuntimeException("Course not found"));
+    }
+
+    @Override
+    public boolean bookMarkCourse(int courseId, int userId) {
+        Optional<ApplicationUser> userOptional = userRepository.findByUserId(userId);
+        if (userOptional.isEmpty()) return false;
+        ApplicationUser user = userOptional.get();
+        Optional<Student> studentOptional = this.studentRepository.findByUser(user);
+
+        if(studentOptional.isEmpty()) return false;
+
+        Optional<Course> courseOptional = courseRepository.findById(courseId);
+
+        if(courseOptional.isEmpty()) return false;
+
+        Course course = courseOptional.get();
+
+        Student student = studentOptional.get();
+
+        List<Course> bookMarkedCourses = student.getBookMarkedCourses();
+
+        bookMarkedCourses.add(course);
+
+        student.setBookMarkedCourses(bookMarkedCourses);
+
+        studentRepository.save(student);
+
+        return true;
+
+
     }
 }

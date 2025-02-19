@@ -12,4 +12,6 @@ public interface CourseService {
     public void create(String courseName, String description, float price, int categoryId, String jwtToken, String documentUrl, String thumbnailUrl, String demoVideoUrl) throws Exception;
 
     public Course getCourseById(int courseId);
+
+    boolean bookMarkCourse(int courseId, int userId);
 }
