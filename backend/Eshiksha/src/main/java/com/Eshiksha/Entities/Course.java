@@ -1,5 +1,6 @@
 package com.Eshiksha.Entities;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import jakarta.persistence.*;
@@ -34,7 +35,7 @@ public class Course {
     )
     private List<Student> enrolledStudents;
 
-    @OneToMany(cascade = CascadeType.ALL)
+    @OneToMany(cascade = CascadeType.ALL,mappedBy = "course")
     private List<CourseReview> reviews;
 
     private String status;
@@ -42,6 +43,7 @@ public class Course {
     private String documentUrl;
 
     private String thumbnail;
+
 
     public String getDemoVideo() {
         return demoVideo;

@@ -13,15 +13,8 @@ public interface StudentRepository extends JpaRepository<Student, Integer> {
     // Find a student by their associated user
     Optional<Student> findByUser(ApplicationUser user);
 
-    // Find a student by user ID
-//    Optional<Student> findByUserId(Integer userId);
 
-    // Check if a student exists by user ID
-//    boolean existsByUserId(Integer userId);
+    @Query("SELECT s FROM Student s WHERE s.user.id = :userId")
+    Optional<Student> findByUserId(Integer userId);
 
-    // Find all students enrolled in a specific course (Assuming enrolledCourses contains Course ID)
-//    List<Student> findByEnrolledCoursesId(Integer courseId);
-
-    // Delete a student by user ID
-//    void deleteByUserId(Integer userId);
 }
