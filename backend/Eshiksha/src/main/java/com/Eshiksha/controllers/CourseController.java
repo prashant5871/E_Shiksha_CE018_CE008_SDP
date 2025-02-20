@@ -113,6 +113,8 @@ public class CourseController {
                 }
 
                 try {
+
+
                     String documentName = System.currentTimeMillis() + "_" + document.getOriginalFilename();
                     Path documentPath = Paths.get("./documents/" + documentName);
 
@@ -252,3 +254,5 @@ public class CourseController {
  */
 
 }
+
+//Hello world
