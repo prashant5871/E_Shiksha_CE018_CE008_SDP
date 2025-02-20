@@ -53,12 +53,13 @@ public class CourseServiceImpl implements CourseService {
         ApplicationUser user = this.userRepository.findByEmail(usernameFromToken).orElseThrow(()->new RuntimeException("user not found!"));
 
 
-        Teacher teacher = new Teacher(user);
+        Teacher teacher = new Teacher();
+        teacher.setUser(user);
 
         course.setTeacher(teacher);
         course.setDocumentUrl(documentUrl);
         course.setThumbnail(thumbnailUrl);
-        System.out.println("Teacher = " + teacher.getUserId());
+//        System.out.println("Teacher = " + teacher.getUserId());
 
 
         this.courseRepository.save(course);
