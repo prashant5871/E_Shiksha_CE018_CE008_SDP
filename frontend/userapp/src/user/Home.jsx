@@ -1,5 +1,5 @@
 import React from 'react'
-
+import Detail from '../shared/components/detail'
 const cardData = [
   { id: 1, title: 'The Coldest Sunset', image: 'https://th.bing.com/th/id/OIP.cdaqahKneD7uo0_UQX_W7QHaEK?w=304&h=180&c=7&r=0&o=5&dpr=2.2&pid=1.7', description: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit.' },
   { id: 2, title: 'The Warmest Beach', image: 'https://th.bing.com/th/id/OIP.cdaqahKneD7uo0_UQX_W7QHaEK?w=304&h=180&c=7&r=0&o=5&dpr=2.2&pid=1.7', description: 'Sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt.' },
@@ -16,7 +16,8 @@ const cardData = [
 export default function Home() {
   return (
     <>
-        <div>Hello Word</div>      
+        <div>Hello Word</div>  
+        <Detail/>    
       <div className="m-2 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
         {cardData.map(card => (
           <div key={card.id} className="max-w-sm rounded overflow-hidden shadow-lg">

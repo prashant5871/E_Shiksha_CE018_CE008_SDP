@@ -3,10 +3,11 @@ import { BellIcon, MagnifyingGlassIcon } from '@heroicons/react/24/outline'
 import Auth from '../../user/auth'
 import { useContext, useState } from 'react'
 import { AuthContext } from '../context/auth-context'
+import { NavLink } from 'react-router-dom'
 
 const navigation = [
-  { name: 'Dashboard', href: '#', current: true },
-  { name: 'Team', href: '#', current: false },
+  { name: 'Dashboard', href: '/', current: true },
+  { name: 'Saved', href: '/saved', current: false },
   { name: 'Projects', href: '#', current: false },
   { name: 'Calendar', href: '#', current: false },
 ]
@@ -18,7 +19,7 @@ function classNames(...classes) {
 export default function Navbar() {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const toggleModal = () => setIsModalOpen(!isModalOpen)
-      const auth = useContext(AuthContext);
+  const auth = useContext(AuthContext)
 
   return (
     <>
@@ -37,17 +38,18 @@ export default function Navbar() {
               <div className="ml-6">
                 <div className="flex space-x-4">
                   {navigation.map((item) => (
-                    <a
+                    <NavLink
                       key={item.name}
-                      href={item.href}
-                      aria-current={item.current ? 'page' : undefined}
-                      className={classNames(
-                        item.current ? 'bg-gray-900 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white',
-                        'rounded-md px-3 py-2 text-sm font-medium'
-                      )}
+                      to={item.href}
+                      className={({ isActive }) =>
+                        classNames(
+                          isActive ? 'bg-gray-900 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white',
+                          'rounded-md px-3 py-2 text-sm font-medium'
+                        )
+                      }
                     >
                       {item.name}
-                    </a>
+                    </NavLink>
                   ))}
                 </div>
               </div>
@@ -90,20 +92,20 @@ export default function Navbar() {
 
                 <Menu.Items className="absolute right-0 z-10 mt-2 w-30 origin-top-right rounded-md bg-white py-1 ring-1 shadow-lg ring-black/5 focus:outline-hidden">
                   <MenuItem>
-                    <a
-                      href="#"
+                    <NavLink
+                      to="/profile"
                       className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                     >
                       Your Profile
-                    </a>
+                    </NavLink>
                   </MenuItem>
                   <MenuItem>
-                    <a
-                      href="#"
+                    <NavLink
+                      to="/settings"
                       className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                     >
                       Settings
-                    </a>
+                    </NavLink>
                   </MenuItem>
                   <MenuItem>
                     <a
@@ -117,11 +119,11 @@ export default function Navbar() {
               </Menu>
             </div>
 
-
-
             <div className="ml-6">
               <div className="flex space-x-4">
-                <a onClick={auth.isLoggedIn ? auth.logout : toggleModal} className='text-red-500 hover:bg-gray-700 hover:text-white rounded-md px-3 py-2 text-sm font-medium'>{auth.isLoggedIn ? 'Logout' : 'Authenticate'}</a>
+                <a onClick={auth.isLoggedIn ? auth.logout : toggleModal} className='text-red-500 hover:bg-gray-700 hover:text-white rounded-md px-3 py-2 text-sm font-medium'>
+                  {auth.isLoggedIn ? 'Logout' : 'Authenticate'}
+                </a>
               </div>
             </div>
           </div>
