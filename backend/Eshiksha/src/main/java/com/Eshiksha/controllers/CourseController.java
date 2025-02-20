@@ -21,7 +21,9 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @RestController
@@ -42,11 +44,9 @@ public class CourseController {
     }
 
     @GetMapping("/")
-    public ResponseEntity<?> getAllCourses()
-    {
-        List<Course> courses =  this.courseService.findAll();
-        if(!courses.isEmpty())
-        {
+    public ResponseEntity<?> getAllCourses() {
+        List<Course> courses = this.courseService.findAll();
+        if (!courses.isEmpty()) {
             return ResponseEntity.ok(courses);
         }
 
@@ -54,16 +54,14 @@ public class CourseController {
     }
 
     @PostMapping("/test")
-    public String testing()
-    {
+    public String testing() {
         return "testing succesfully...";
     }
 
     @GetMapping("/{id}")
     public Course getById(
             @PathVariable int id
-    )
-    {
+    ) {
         return this.courseService.findById(id);
     }
 
@@ -90,7 +88,6 @@ public class CourseController {
      */
 
 
-
     @PostMapping("/")
     public ResponseEntity<String> createCourse(@RequestParam String courseName,
                                                @RequestParam String description,
@@ -98,67 +95,62 @@ public class CourseController {
                                                @RequestParam int categoryId,
                                                @RequestParam MultipartFile document,
                                                @RequestParam MultipartFile thumbnail,
-//                                               @RequestPart("course") String courseJson,
-//                                               @RequestPart("document") MultipartFile document,
-//                                               @RequestPart("thumbnail") MultipartFile thumbnail,
+                                               @RequestParam MultipartFile demoVideo,
                                                HttpServletRequest request) {
         try {
             System.out.println("inside create course method...\n");
-            ObjectMapper objectMapper = new ObjectMapper();
-//            CourseDTO course = objectMapper.readValue(courseJson, CourseDTO.class);
-
-            CourseDTO course = new CourseDTO();
-            course.setCourseName(courseName);
-            course.setDescription(description);
-            course.setPrice(price);
-            course.setCategoryId(categoryId);
             String authorizationHeader = request.getHeader("Authorization");
 
             if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
                 String jwtToken = authorizationHeader.substring(7);
 
-                // Validate document type
                 if (document.isEmpty() || !document.getContentType().equals("application/pdf")) {
                     return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid document format. Only PDF files are allowed.");
                 }
 
-                if(thumbnail.isEmpty())
-                {
+                if (thumbnail.isEmpty()) {
                     return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("thumbnail is not provided");
                 }
 
                 try {
-                    // Store document in ./documents folder
+
+
                     String documentName = System.currentTimeMillis() + "_" + document.getOriginalFilename();
                     Path documentPath = Paths.get("./documents/" + documentName);
 
                     String thumbnailName = System.currentTimeMillis() + "_" + thumbnail.getOriginalFilename();
                     Path thumbnailPath = Paths.get("./thumbnails/" + thumbnailName);
 
-                    File folder  = new File("./documents");
+                    String demoVideoName = System.currentTimeMillis() + "_" + demoVideo.getOriginalFilename();
+                    Path demoVideoPath = Paths.get("./video/" + demoVideoName);
 
+                    File vFolder = new File("./video");
+                    if (!vFolder.exists()) {
+                        Files.createDirectories(demoVideoPath.getParent());
+                    }
+                    File folder = new File("./documents");
 
-
-                    if(!folder.exists()) {
+                    if (!folder.exists()) {
                         Files.createDirectories(documentPath.getParent());
                     }
 
                     File thumbnailFolder = new File("./thumbnails");
 
-                    if(!thumbnailFolder.exists())
-                    {
+                    if (!thumbnailFolder.exists()) {
                         Files.createDirectories(thumbnailPath.getParent());
                     }
 
                     Files.write(documentPath, document.getBytes());
                     Files.write(thumbnailPath, thumbnail.getBytes());
+                    Files.write(demoVideoPath, demoVideo.getBytes());
 
                     String documentUrl = documentPath.toString();
                     String thumbnailUrl = thumbnailPath.toString();
+                    String demoVideoUrl = demoVideoPath.toString();
 
                     // Call service method with updated document URL
-                    this.courseService.create(course.getCourseName(), course.getDescription(), course.getPrice(),
-                            course.getCategoryId(), jwtToken, documentUrl,thumbnailUrl);
+                    this.courseService.create(courseName, description, price,
+                            categoryId, jwtToken, documentUrl, thumbnailUrl,demoVideoUrl);
 
                     return ResponseEntity.status(HttpStatus.CREATED).body("Course created successfully");
 
@@ -175,7 +167,22 @@ public class CourseController {
         }
     }
 
+    @PostMapping("/bookmark/{courseId}/{userId}")
+    public ResponseEntity<Map<String,String>> bookMarkCourse(@PathVariable int courseId,@PathVariable int userId)
+    {
+        Map<String ,String > response = new HashMap<>();
+        boolean flag = courseService.bookMarkCourse(courseId,userId);
 
+        if(flag)
+        {
+            response.put("message","Course Bookmarked succesfully");
+
+            return ResponseEntity.status(HttpStatus.OK).body(response);
+        }
+        response.put("message","can not bookmark right now ! please try again later");
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+
+    }
 
 /*
     @PostMapping("/")
@@ -247,3 +254,5 @@ public class CourseController {
  */
 
 }
+
+//Hello world

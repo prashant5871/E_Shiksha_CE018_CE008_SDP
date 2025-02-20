@@ -9,7 +9,9 @@ public interface CourseService {
 
     public Course findById(int id);
 
-    public void create(String courseName, String description, float price, int categoryId, String jwtToken, String documentUrl, String thumbnailUrl);
+    public void create(String courseName, String description, float price, int categoryId, String jwtToken, String documentUrl, String thumbnailUrl, String demoVideoUrl) throws Exception;
 
     public Course getCourseById(int courseId);
+
+    boolean bookMarkCourse(int courseId, int userId);
 }

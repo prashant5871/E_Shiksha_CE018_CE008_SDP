@@ -3,6 +3,8 @@ package com.Eshiksha.Entities;
 import jakarta.persistence.*;
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 public class Lession {
@@ -33,6 +35,10 @@ public class Lession {
 	private LocalDateTime createdAt;
 
 	private LocalDateTime updatedAt;
+
+	@OneToMany(mappedBy = "lession", cascade = CascadeType.ALL, orphanRemoval = true)
+	private List<LessionDoubt> doubts = new ArrayList<>();
+
 
 	// Constructors
 	public Lession() {
@@ -167,5 +173,13 @@ public class Lession {
 				", createdAt=" + createdAt +
 				", updatedAt=" + updatedAt +
 				'}';
+	}
+
+	public List<LessionDoubt> getDoubts() {
+		return doubts;
+	}
+
+	public void setDoubts(List<LessionDoubt> doubts) {
+		this.doubts = doubts;
 	}
 }

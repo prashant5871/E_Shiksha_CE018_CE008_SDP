@@ -103,7 +103,7 @@ public class AuthController {
         }
     }
 
-    @PostMapping("/verify/{verificationCode}")
+    @PostMapping("/varify/{verificationCode}")
     public ResponseEntity<String> verify(@PathVariable String verificationCode) {
         ApplicationUser appUser = this.authService.varifyUser(verificationCode);
 

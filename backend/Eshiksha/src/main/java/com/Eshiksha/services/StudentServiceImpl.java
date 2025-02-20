@@ -1,10 +1,8 @@
 package com.Eshiksha.services;
 
-import com.Eshiksha.Entities.ApplicationUser;
-import com.Eshiksha.Entities.Role;
-import com.Eshiksha.Entities.Student;
+import com.Eshiksha.Entities.*;
+import com.Eshiksha.dto.PaymentDTO;
 import com.Eshiksha.repositories.*;
-import org.springframework.mail.javamail.JavaMailSender;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,7 +18,13 @@ public class StudentServiceImpl implements StudentService {
 
     private UserRepository userRepository;
 
-    public StudentServiceImpl(StudentRepository studentRepository, RoleRepository roleRepository, UserRepository userRepository) {
+    private CourseRepository courseRepository;
+
+    private PaymentRepository paymentRepository;
+
+    public StudentServiceImpl(StudentRepository studentRepository, RoleRepository roleRepository, UserRepository userRepository, CourseRepository courseRepository, PaymentRepository paymentRepository) {
+        this.paymentRepository = paymentRepository;
+        this.courseRepository = courseRepository;
         this.studentRepository = studentRepository;
         this.roleRepository = roleRepository;
         this.userRepository = userRepository;
@@ -75,6 +79,42 @@ public class StudentServiceImpl implements StudentService {
         Student newStudent = new Student();
         newStudent.setUser(userRepository.findByEmail(user.getEmail()).get());
         studentRepository.save(newStudent);
+
+    }
+
+    @Override
+    @Transactional
+    public void enrollStudent(int courseId, int userId, PaymentDTO paymentDTO) throws Exception {
+        ApplicationUser appUser = userRepository.findById(userId)
+                .orElseThrow(() -> new Exception("User not found"));
+
+        Student student = studentRepository.findByUser(appUser)
+                .orElseThrow(() -> new Exception("Student not found for userId: " + userId));
+
+        Course course = courseRepository.findById(courseId)
+                .orElseThrow(() -> new Exception("Course not found"));
+
+
+        if (!student.getEnrolledCourses().contains(course)) {
+            student.getEnrolledCourses().add(course);
+            course.getEnrolledStudents().add(student);
+            studentRepository.save(student);
+            courseRepository.save(course);
+            if (course.getPrice() <= 0) return;
+            processPayment(student, course);
+        } else {
+            throw new Exception("Student already enrolled in the course");
+        }
+    }
+
+    public void processPayment(Student student, Course course) throws Exception {
+
+        // Generate a fake transaction ID
+        String transactionId = UUID.randomUUID().toString();
+
+        // Create and save the payment record
+        Payment payment = new Payment(student, course, course.getPrice(), transactionId, "SUCCESS");
+        paymentRepository.save(payment);
 
     }
 

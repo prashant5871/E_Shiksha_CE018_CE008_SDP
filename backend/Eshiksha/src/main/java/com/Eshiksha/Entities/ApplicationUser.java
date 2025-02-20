@@ -1,27 +1,11 @@
 package com.Eshiksha.Entities;
 
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
+import jakarta.persistence.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Inheritance;
-import jakarta.persistence.InheritanceType;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinTable;
-import jakarta.persistence.ManyToMany;
-import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "users")
@@ -40,6 +24,9 @@ public class ApplicationUser implements UserDetails {
     private String lastName;
     private boolean enabled;
 
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<CourseReview> reviews = new ArrayList<>();
 
     public ApplicationUser(int userId, String email, String password, String firstName, String lastName, boolean enabled, String varificationCode, Set<Role> roles) {
         this.userId = userId;
@@ -153,4 +140,11 @@ public class ApplicationUser implements UserDetails {
         return this.email;
     }
 
+    public List<CourseReview> getReviews() {
+        return reviews;
+    }
+
+    public void setReviews(List<CourseReview> reviews) {
+        this.reviews = reviews;
+    }
 }

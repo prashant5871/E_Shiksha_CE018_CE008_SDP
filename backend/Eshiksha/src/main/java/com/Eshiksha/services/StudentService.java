@@ -1,7 +1,7 @@
 package com.Eshiksha.services;
 
 import com.Eshiksha.Entities.ApplicationUser;
-import com.Eshiksha.Entities.Student;
+import com.Eshiksha.dto.PaymentDTO;
 
 public interface StudentService {
     public ApplicationUser createStudent(ApplicationUser student);
@@ -11,4 +11,6 @@ public interface StudentService {
     public ApplicationUser findByUserName(String username);
 
     void createStudentFromUser(ApplicationUser user);
+
+    void enrollStudent(int courseId, int userId, PaymentDTO paymentDTO) throws Exception;
 }
