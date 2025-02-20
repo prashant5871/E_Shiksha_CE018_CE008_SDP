@@ -12,6 +12,7 @@ import {
 } from "react-router-dom"
 import Home from './user/Home'
 import Footer from './shared/components/Footer'
+import Saved from './student/Saved'
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -43,7 +44,6 @@ function App() {
       <Routes>
         <Route exact path="/" element={<Home />} />
         {/* <Route path="/" element={<>hello world</>} /> */}
-        {/* <Route path="/wishlist" element={<WishList />} /> */}
         {/* <Route path="/triplist" element={<TripList />} /> */}
         {/* <Route path="/allBookings" element={<AllBookings />} /> */}
         {/* <Route path="/bookings" element={<Bookings />} /> */}
@@ -55,6 +55,7 @@ function App() {
   } else {
     routes = (
       <Routes>
+        <Route path="/saved" element={<Saved />}/>
         <Route exact path="/" element={<Home />} />
         {/* <Route path="/" element={<>hello world</>} /> */}
 
