@@ -382,7 +382,7 @@ public class LessionController {
                         long adjustedTimeDiff = Math.max(timeDiff - watchTimeMillis, 1); // Ensure non-zero
 
                         // **Calculate Speed**
-                        double speedBytesPerSec = (double) contentLength / (adjustedTimeDiff / 1000.0);
+                        double speedBytesPerSec = (double) content2wLength / (adjustedTimeDiff / 1000.0);
                         double speedMbps = (speedBytesPerSec * 8) / 1_000_000;
 
                         System.out.println("User " + userIp + " Speed: " + speedMbps + " Mbps");
