@@ -13,6 +13,7 @@ import {
 import Home from './user/Home'
 import Footer from './shared/components/Footer'
 import Saved from './student/Saved'
+import Course from './student/Course'
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -38,11 +39,14 @@ function App() {
   
   let routes;
   if (isLoading) {
+    console.log("Loading...");
     routes = <Loading />;
   } else if (isLoggedIn) {
     routes = (
       <Routes>
         <Route exact path="/" element={<Home />} />
+        <Route path="/course/{courseId}" element={<Course/>}/>
+
         {/* <Route path="/" element={<>hello world</>} /> */}
         {/* <Route path="/triplist" element={<TripList />} /> */}
         {/* <Route path="/allBookings" element={<AllBookings />} /> */}
@@ -53,10 +57,12 @@ function App() {
       </Routes>
     );
   } else {
+    console.log("not loged in...");
     routes = (
       <Routes>
-        <Route path="/saved" element={<Saved />}/>
         <Route exact path="/" element={<Home />} />
+        <Route path="/saved" element={<Saved />}/>
+        <Route path="/course/:courseId" element={<Course/>}/>
         {/* <Route path="/" element={<>hello world</>} /> */}
 
       </Routes>
