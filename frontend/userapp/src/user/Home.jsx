@@ -16,10 +16,11 @@ export default function CourseList() {
         if (!response.ok) {
           throw new Error("Failed to fetch courses");
         }
+        console.log(response);
         return response.json();
       })
       .then((data) => {
-        setCourses(data);
+        setCourses(data.filter(d => d.status === "APPROVED"));
         setLoading(false);
       })
       .catch((error) => {
@@ -149,7 +150,7 @@ export default function CourseList() {
               >
                 Close
               </button>
-              <Link to={`/enroll/${selectedCourse.id}`}>
+              <Link to={`/enroll/${selectedCourse.courseId}`}>
                 <button className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
                   Enroll Now
                 </button>

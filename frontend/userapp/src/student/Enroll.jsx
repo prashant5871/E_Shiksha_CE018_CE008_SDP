@@ -1,14 +1,21 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import { useParams } from "react-router-dom";
+import { AuthContext } from "../shared/context/auth-context";
+
 
 const Enroll = () => {
-  const { courseId } = useParams(); // Get courseId from URL
+  const { courseId } = useParams();
   const [cardNumber, setCardNumber] = useState("");
-  const [amount, setAmount] = useState(""); // Placeholder for actual amount
+  const [amount, setAmount] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
   const [message, setMessage] = useState("");
+  const { userId } = useContext(AuthContext); // Get userId from AuthContext
+  // const {token} = useContext(AuthContext);
+  
 
-  const handlePayment = () => {
+  console.log("user id : ",userId);
+
+  const handlePayment = async () => {
     if (cardNumber.length !== 16) {
       setMessage("Invalid card number. Must be 16 digits.");
       return;
@@ -19,22 +26,49 @@ const Enroll = () => {
       return;
     }
 
+    if (!userId) {
+      setMessage("User not logged in.");
+      return;
+    }
+
     setIsProcessing(true);
     setMessage("");
 
-    setTimeout(() => {
+    try {
+      console.log("USer id : " , userId);
+      console.log("token is : ",localStorage.getItem("authToken"));
+      const response = await fetch(`http://localhost:8000/student/enroll/${courseId}/${userId}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Berear ${localStorage.getItem("authToken")}`
+        },
+        body: JSON.stringify({
+          debitCardNumber: cardNumber,
+          amount: amount,
+        }),
+      });
+
+      if (response.ok) {
+        setMessage("Payment Successful! 🎉 You are enrolled.");
+      } else {
+        const errorData = await response.json();
+        setMessage(`Payment failed: ${errorData.message || "Unknown error"}`);
+        console.log(errorData);
+      }
+    } catch (error) {
+      console.error("Payment error:", error);
+      setMessage("Payment failed: An unexpected error occurred.");
+    } finally {
       setIsProcessing(false);
-      setMessage("Payment Successful! 🎉 You are enrolled.");
-    }, 2000);
+    }
   };
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-6">
       <div className="bg-white shadow-lg rounded-lg p-6 w-full max-w-md">
         <h2 className="text-2xl font-bold text-gray-800 mb-4">Enroll in Course</h2>
-        <p className="text-gray-600">Course ID: <span className="font-semibold">{courseId}</span></p>
 
-        {/* Card Number Input */}
         <div className="mt-4">
           <label className="block text-gray-700 font-medium">Debit Card Number</label>
           <input
@@ -47,7 +81,6 @@ const Enroll = () => {
           />
         </div>
 
-        {/* Amount Input */}
         <div className="mt-4">
           <label className="block text-gray-700 font-medium">Amount (₹)</label>
           <input
@@ -59,7 +92,6 @@ const Enroll = () => {
           />
         </div>
 
-        {/* Payment Button */}
         <button
           onClick={handlePayment}
           disabled={isProcessing}
@@ -70,7 +102,6 @@ const Enroll = () => {
           {isProcessing ? "Processing..." : "Pay Now"}
         </button>
 
-        {/* Status Message */}
         {message && (
           <p className={`mt-4 text-sm font-medium ${message.includes("Successful") ? "text-green-600" : "text-red-600"}`}>
             {message}

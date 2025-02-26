@@ -1,5 +1,6 @@
 package com.Eshiksha.controllers;
 
+import com.Eshiksha.Entities.Course;
 import com.Eshiksha.dto.PaymentDTO;
 import com.Eshiksha.services.StudentService;
 import org.springframework.http.HttpStatus;
@@ -7,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -32,6 +34,12 @@ public class StudentController {
             response.put("message", "Enrollment failed: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
+    }
+
+    @GetMapping("/{userId}")
+    public ResponseEntity<List<Course>> getMyCourses(@PathVariable int userId) throws Exception {
+        List<Course> myCourses = studentService.getMyCourses(userId);
+        return ResponseEntity.status(HttpStatus.OK).body(myCourses);
     }
 
 

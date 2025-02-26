@@ -47,7 +47,7 @@ public class SecurityConfig implements WebMvcConfigurer {
                             .requestMatchers("/lessions/**").permitAll()
                             .requestMatchers("/review/**").hasRole("STUDENT")
                             .requestMatchers("/doubts/**").hasRole("STUDENT")
-                            .requestMatchers("/student/**").hasRole("STUDENT")
+                            .requestMatchers("/student/**").permitAll()
                             .requestMatchers("/teacher/**").hasRole("TEACHER")
                             .anyRequest().permitAll();
                 })

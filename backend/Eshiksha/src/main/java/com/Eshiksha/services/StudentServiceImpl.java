@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -94,17 +95,30 @@ public class StudentServiceImpl implements StudentService {
         Course course = courseRepository.findById(courseId)
                 .orElseThrow(() -> new Exception("Course not found"));
 
+        if (course.getPrice() > 0 && paymentDTO.getAmount() != course.getPrice())
+            throw new Exception("Please enter valid amount");
+
 
         if (!student.getEnrolledCourses().contains(course)) {
+            if (course.getPrice() > 0)
+                processPayment(student, course);
             student.getEnrolledCourses().add(course);
             course.getEnrolledStudents().add(student);
             studentRepository.save(student);
             courseRepository.save(course);
-            if (course.getPrice() <= 0) return;
-            processPayment(student, course);
+
         } else {
             throw new Exception("Student already enrolled in the course");
         }
+    }
+
+    @Override
+    public List<Course> getMyCourses(int userId) throws Exception {
+        ApplicationUser user = userRepository.findByUserId(userId).orElseThrow(()->new Exception("no user found"));
+        Student student = studentRepository.findByUser(user).orElseThrow();
+
+        return student.getEnrolledCourses();
+
     }
 
     public void processPayment(Student student, Course course) throws Exception {
