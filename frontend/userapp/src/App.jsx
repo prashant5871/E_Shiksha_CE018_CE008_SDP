@@ -14,6 +14,8 @@ import Home from './user/Home'
 import Footer from './shared/components/Footer'
 import Saved from './student/Saved'
 import Course from './student/Course'
+import Enroll from './student/Enroll'
+import EnrolledCourses from './student/EnrolledCourses'
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -45,7 +47,10 @@ function App() {
     routes = (
       <Routes>
         <Route exact path="/" element={<Home />} />
-        <Route path="/course/{courseId}" element={<Course/>}/>
+        <Route path="/course/:courseId" element={<Course/>}/>
+        <Route path="/enroll/:courseId" element={<Enroll/>} />
+        <Route path="/enrolled-courses" element = {<EnrolledCourses />} />
+
 
         {/* <Route path="/" element={<>hello world</>} /> */}
         {/* <Route path="/triplist" element={<TripList />} /> */}
@@ -63,6 +68,9 @@ function App() {
         <Route exact path="/" element={<Home />} />
         <Route path="/saved" element={<Saved />}/>
         <Route path="/course/:courseId" element={<Course/>}/>
+        <Route path="/enroll/:courseId" element={<Enroll/>} />
+        <Route path="/enrolled-courses" element = {<EnrolledCourses />} />
+
         {/* <Route path="/" element={<>hello world</>} /> */}
 
       </Routes>

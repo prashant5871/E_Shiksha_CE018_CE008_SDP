@@ -196,4 +196,12 @@ public class Course {
     public void setDocumentUrl(String documentUrl) {
         this.documentUrl = documentUrl;
     }
+
+    public int getDuration() {
+        return duration;
+    }
+
+    public void setDuration(int duration) {
+        this.duration = duration;
+    }
 }

@@ -1,8 +1,10 @@
 package com.Eshiksha.controllers;
 
 import com.Eshiksha.Entities.Course;
+import com.Eshiksha.Entities.Course;
 import com.Eshiksha.dto.CourseDTO;
 import com.Eshiksha.services.CourseService;
+import com.Eshiksha.services.VideoService;
 import com.azure.storage.blob.BlobClient;
 import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.BlobServiceClient;
@@ -11,13 +13,18 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -39,7 +46,10 @@ public class CourseController {
     private String thumbnailsContainer;
     private CourseService courseService;
 
-    public CourseController(CourseService courseService) {
+    private VideoService videoService;
+
+    public CourseController(CourseService courseService,VideoService videoService) {
+        this.videoService = videoService;
         this.courseService = courseService;
     }
 
@@ -63,6 +73,77 @@ public class CourseController {
             @PathVariable int id
     ) {
         return this.courseService.findById(id);
+    }
+
+    @GetMapping("/stream/{courseId}/master.m3u8")
+    public ResponseEntity<Resource> getMasterPlaylist(@PathVariable int courseId) {
+        try {
+            System.out.println("Come for master.m3u8 file...");
+            Course lession = courseService.findById(courseId);
+            String basePath = lession.getDemoVideo();
+            Path path = Paths.get(basePath, "master.m3u8");
+            Resource resource = new UrlResource(path.toUri());
+
+            if (resource.exists()) {
+                return ResponseEntity.ok()
+                        .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=master.m3u8")
+                        .contentType(MediaType.APPLICATION_OCTET_STREAM) // For .ts segments, if needed
+                        .contentType(MediaType.valueOf("application/x-mpegURL")) // For .m3u8
+                        .body(resource);
+            } else {
+                return ResponseEntity.notFound().build();
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(500).build();
+        }
+    }
+
+    @GetMapping("/stream/{courseId}/{resolution}/playlist.m3u8")
+    public ResponseEntity<Resource> getResolutionPlaylist(
+            @PathVariable int courseId,
+            @PathVariable String resolution) {
+        try {
+
+            Course lession = courseService.findById(courseId);
+            String base_path = lession.getDemoVideo();
+            Path playlistPath = Paths.get(base_path, resolution, "playlist.m3u8");
+
+            if (!Files.exists(playlistPath)) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+            }
+
+            Resource resource = new UrlResource(playlistPath.toUri());
+            return ResponseEntity.ok()
+                    .contentType(MediaType.parseMediaType("application/vnd.apple.mpegurl"))
+                    .body(resource);
+
+        } catch (MalformedURLException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+    }
+
+    @GetMapping("/stream/{courseId}/{resolution}/{segmentName:.+\\.ts}")
+    public ResponseEntity<Resource> getVideoSegment(
+            @PathVariable int courseId,
+            @PathVariable String resolution,
+            @PathVariable String segmentName) {
+        try {
+            Course lession = courseService.findById(courseId);
+            String basePath = lession.getDemoVideo();
+            Path segmentPath = Paths.get(basePath, resolution, segmentName);
+            System.out.println(segmentPath.toString());
+            if (!Files.exists(segmentPath)) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+            }
+
+            Resource resource = new UrlResource(segmentPath.toUri());
+            return ResponseEntity.ok()
+                    .contentType(MediaType.parseMediaType("video/MP2T"))
+                    .body(resource);
+
+        } catch (MalformedURLException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
     }
 
     /*
@@ -96,6 +177,7 @@ public class CourseController {
                                                @RequestParam MultipartFile document,
                                                @RequestParam MultipartFile thumbnail,
                                                @RequestParam MultipartFile demoVideo,
+                                               @RequestParam int duration,
                                                HttpServletRequest request) {
         try {
             System.out.println("inside create course method...\n");
@@ -124,10 +206,11 @@ public class CourseController {
                     String demoVideoName = System.currentTimeMillis() + "_" + demoVideo.getOriginalFilename();
                     Path demoVideoPath = Paths.get("./video/" + demoVideoName);
 
-                    File vFolder = new File("./video");
-                    if (!vFolder.exists()) {
-                        Files.createDirectories(demoVideoPath.getParent());
-                    }
+
+//                    File vFolder = new File("./video");
+//                    if (!vFolder.exists()) {
+//                        Files.createDirectories(demoVideoPath.getParent());
+//                    }
                     File folder = new File("./documents");
 
                     if (!folder.exists()) {
@@ -142,15 +225,19 @@ public class CourseController {
 
                     Files.write(documentPath, document.getBytes());
                     Files.write(thumbnailPath, thumbnail.getBytes());
-                    Files.write(demoVideoPath, demoVideo.getBytes());
+//                    Files.write(demoVideoPath, demoVideo.getBytes());
 
-                    String documentUrl = documentPath.toString();
-                    String thumbnailUrl = thumbnailPath.toString();
-                    String demoVideoUrl = demoVideoPath.toString();
+                    String documentUrl = documentPath.toAbsolutePath().toString();
+                    String thumbnailUrl = thumbnailPath.toAbsolutePath().toString();
+//                    String demoVideoUrl = demoVideoPath.toString();
+
+//                    Path videoPath = Paths.get("./video");
+                    String s = this.videoService.processDummyVideo(demoVideo);
 
                     // Call service method with updated document URL
                     this.courseService.create(courseName, description, price,
-                            categoryId, jwtToken, documentUrl, thumbnailUrl,demoVideoUrl);
+                            categoryId, jwtToken, documentName, thumbnailName,s,duration);
+
 
                     return ResponseEntity.status(HttpStatus.CREATED).body("Course created successfully");
 
