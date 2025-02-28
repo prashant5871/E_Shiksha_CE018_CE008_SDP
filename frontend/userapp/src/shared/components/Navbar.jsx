@@ -6,7 +6,7 @@ import { AuthContext } from '../context/auth-context'
 import { NavLink } from 'react-router-dom'
 
 const navigation = [
-  { name: 'Dashboard', href: '/', current: true },
+  { name: 'Home', href: '/', current: true },
   { name: 'Saved', href: '/saved', current: false },
   { name: 'Projects', href: '#', current: false },
   { name: 'Calendar', href: '#', current: false },
@@ -68,17 +68,17 @@ export default function Navbar() {
             </div>
 
             {/* Notification Icon */}
-            <div className="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
+            {/* <div className="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
               <button
                 type="button"
                 className="relative rounded-full bg-gray-800 p-1 text-gray-400 hover:text-white focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800 focus:outline-hidden"
               >
                 <span className="sr-only">View notifications</span>
                 <BellIcon aria-hidden="true" className="h-6 w-6" />
-              </button>
+              </button> */}
 
               {/* Profile dropdown */}
-              <Menu as="div" className="relative ml-3">
+              {/* <Menu as="div" className="relative ml-3">
                 <div>
                   <MenuButton className="relative flex rounded-full bg-gray-800 text-sm focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800 focus:outline-hidden">
                     <span className="sr-only">Open user menu</span>
@@ -117,7 +117,7 @@ export default function Navbar() {
                   </MenuItem>
                 </Menu.Items>
               </Menu>
-            </div>
+            </div> */}
 
             <div className="ml-6">
               <div className="flex space-x-4">
