@@ -44,10 +44,12 @@ public class Course {
 
     private String thumbnail;
 
+    private int duration; //in days
 
     public String getDemoVideo() {
         return demoVideo;
     }
+
 
     public void setDemoVideo(String demoVideo) {
         this.demoVideo = demoVideo;
