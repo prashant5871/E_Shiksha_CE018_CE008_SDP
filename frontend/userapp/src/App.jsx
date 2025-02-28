@@ -1,26 +1,66 @@
-import { useState, useCallback } from 'react'
-import Navbar from './shared/components/Navbar'
-import './App.css'
-import { AuthContext } from './shared/context/auth-context'
-import { useHttpClient } from './shared/hooks/http-hook'
-import { ToastContainer } from 'react-toastify'
+import { useState, useCallback, useEffect } from "react";
+import Navbar from "./shared/components/Navbar";
+import "./App.css";
+import { AuthContext } from "./shared/context/auth-context";
+import { useHttpClient } from "./shared/hooks/http-hook";
+import { ToastContainer } from "react-toastify";
 import {
   BrowserRouter as Router,
   Route,
   Routes,
-  Navigate,
-} from "react-router-dom"
-import Home from './user/Home'
-import Footer from './shared/components/Footer'
-import Saved from './student/Saved'
-import Course from './student/Course'
+} from "react-router-dom";
+import Home from "./user/Home";
+import Footer from "./shared/components/Footer";
+import Saved from "./student/Saved";
+import Course from "./student/Course";
+import Enroll from "./student/Enroll";
+import EnrolledCourses from "./student/EnrolledCourses";
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [userId, setUserId] = useState(false);
-  const [userMail, setUserMail] = useState(false);
+  const [userId, setUserId] = useState(null);
+  const [userMail, setUserMail] = useState(null);
   const [isStudent, setIsStudent] = useState(true);
   const { isLoading, error, sendRequest, clearError } = useHttpClient();
+
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const toggleModal = () => setIsModalOpen(!isModalOpen)
+
+  // Function to verify JWT token with the backend
+  const verifyToken = useCallback(async () => {
+    const token = localStorage.getItem("authToken");
+    if (!token) {
+      console.log("token is not there in localStorage");
+      return;
+    }
+    try {
+      const response = await fetch("http://localhost:8000/auth/jwt-varify", {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      const data = await response.json();
+      if (response.ok) {
+        console.log("If gets executed..");
+        setIsLoggedIn(true);
+        setUserId(data.userId);
+        setUserMail(data.email);
+        setIsStudent(data.isStudent);
+      } else {
+        console.log("token is not valid , it is expires please try again later...");
+        localStorage.removeItem("authToken");
+      }
+    } catch (err) {
+      console.error("Token verification failed:", err);
+      localStorage.removeItem("authToken");
+    }
+  }, []);
+
+  useEffect(() => {
+    verifyToken();
+  }, [verifyToken]);
 
   const login = useCallback((uid, umail, authToken) => {
     localStorage.setItem("authToken", authToken);
@@ -36,70 +76,60 @@ function App() {
     setUserId(null);
     setUserMail(null);
   }, []);
-  
+
   let routes;
   if (isLoading) {
-    console.log("Loading...");
-    routes = <Loading />;
+    routes = <p>Loading...</p>;
   } else if (isLoggedIn) {
     routes = (
       <Routes>
-        <Route exact path="/" element={<Home />} />
-        <Route path="/course/{courseId}" element={<Course/>}/>
-
-        {/* <Route path="/" element={<>hello world</>} /> */}
-        {/* <Route path="/triplist" element={<TripList />} /> */}
-        {/* <Route path="/allBookings" element={<AllBookings />} /> */}
-        {/* <Route path="/bookings" element={<Bookings />} /> */}
-
-
-        {/* <Route exact path="/payment" element={<Payment />} /> */}
+        <Route exact path="/" element={<Home toggleModal={toggleModal} />} />
+        <Route path="/course/:courseId" element={<Course />} />
+        <Route path="/saved" element={<Saved />} />
+        <Route path="/enroll/:courseId" element={<Enroll />} />
+        <Route path="/enrolled-courses" element={<EnrolledCourses />} />
       </Routes>
     );
   } else {
-    console.log("not loged in...");
     routes = (
       <Routes>
-        <Route exact path="/" element={<Home />} />
-        <Route path="/saved" element={<Saved />}/>
-        <Route path="/course/:courseId" element={<Course/>}/>
-        {/* <Route path="/" element={<>hello world</>} /> */}
-
+        <Route exact path="/" element={<Home toggleModal={toggleModal} />} />
+        <Route path="/course/:courseId" element={<Course />} />
+        <Route path="/saved" element={<Saved />} />
+        <Route path="/enroll/:courseId" element={<Enroll />} />
+        <Route path="/enrolled-courses" element={<EnrolledCourses />} />
       </Routes>
     );
   }
+
   return (
-    <>
     <AuthContext.Provider
-    value={{
-      isLoggedIn: isLoggedIn,
-      userId: userId,
-      userMail: userMail,
-      login: login,
-      logout: logout,
-      isStudent: isStudent,
-      setIsStudent: setIsStudent,
-    }}
+      value={{
+        isLoggedIn,
+        userId,
+        userMail,
+        login,
+        logout,
+        isStudent,
+        setIsStudent,
+      }}
     >
-    <Router>
-    <Navbar />
-          <main>{routes}</main>
-          <ToastContainer
-            position="bottom-center"
-            autoClose={3000} // duration in ms
-            hideProgressBar={false}
-            closeOnClick
-            pauseOnHover
-            draggable
-            pauseOnFocusLoss
-          />
-    </Router>
-    <Footer/>
+      <Router>
+        <Navbar toggleModal={toggleModal} isModalOpen = {isModalOpen}/>
+        <main>{routes}</main>
+        <ToastContainer
+          position="bottom-center"
+          autoClose={3000}
+          hideProgressBar={false}
+          closeOnClick
+          pauseOnHover
+          draggable
+          pauseOnFocusLoss
+        />
+        <Footer />
+      </Router>
     </AuthContext.Provider>
-    </>
-  )
+  );
 }
 
-export default App
-
-
+export default App;

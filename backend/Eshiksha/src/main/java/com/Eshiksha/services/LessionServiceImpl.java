@@ -114,11 +114,21 @@ public class LessionServiceImpl implements LessionService {
             lession.setUpdatedAt(LocalDateTime.now());
 
             saveLession(lession);
+            System.out.println("lession id : " + lession.getLessionId());
+
+            course.getLessions().add(lession);
+
+            courseService.saveCourse(course);
 
             return lession;
         }catch (Exception e){
             throw new Exception(e.getMessage());
         }
+    }
+
+    @Override
+    public List<Lession> getAllLessions() {
+        return lessionRepository.findAll();
     }
 
     /**

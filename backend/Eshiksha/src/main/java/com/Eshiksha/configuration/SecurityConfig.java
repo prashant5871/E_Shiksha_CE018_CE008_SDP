@@ -42,14 +42,14 @@ public class SecurityConfig implements WebMvcConfigurer {
         // Security configuration
         http.authorizeHttpRequests(auth -> {
                     auth.requestMatchers("/auth/**").permitAll()
-                            .requestMatchers("/admin/**").hasRole("ADMIN")
+                            .requestMatchers("/home/admin").hasRole("ADMIN")
                             .requestMatchers("/courses/**").permitAll()
                             .requestMatchers("/lessions/**").permitAll()
-                            .requestMatchers("/review/**").hasRole("STUDENT")
+                            .requestMatchers("/review/**").permitAll()
                             .requestMatchers("/doubts/**").hasRole("STUDENT")
-                            .requestMatchers("/student/**").hasRole("STUDENT")
+                            .requestMatchers("/student/**").permitAll()
                             .requestMatchers("/teacher/**").hasRole("TEACHER")
-                            .anyRequest().authenticated();
+                            .anyRequest().permitAll();
                 })
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 

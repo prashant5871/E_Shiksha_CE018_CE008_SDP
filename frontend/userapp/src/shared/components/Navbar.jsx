@@ -9,15 +9,15 @@ import Logo from './Logo'
 const navigation = [
   { name: 'Home', href: '/', current: true },
   { name: 'Saved', href: '/saved', current: false },
+  { name : 'My Courses', href:"enrolled-courses", current: false}
 ]
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(' ')
 }
 
-export default function Navbar() {
-  const [isModalOpen, setIsModalOpen] = useState(false)
-  const toggleModal = () => setIsModalOpen(!isModalOpen)
+export default function Navbar({toggleModal,isModalOpen}) {
+  
   const auth = useContext(AuthContext)
 
   return (
@@ -114,9 +114,9 @@ export default function Navbar() {
                 // If user is NOT logged in, show Authenticate button
                 <button
                   onClick={toggleModal}
-                  className="text-yellow-400 hover:bg-gray-700 hover:text-white rounded-md px-3 py-2 text-sm font-medium transition duration-200"
+                  className="text-blue-400 hover:bg-gray-700 hover:text-white rounded-md px-3 py-2 text-sm font-medium transition duration-200 hover:cursor-pointer"
                 >
-                  Authenticate
+                  Sign In
                 </button>
               )}
             </div>

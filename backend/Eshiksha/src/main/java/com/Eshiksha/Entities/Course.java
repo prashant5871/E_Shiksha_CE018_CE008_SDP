@@ -3,6 +3,7 @@ package com.Eshiksha.Entities;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 @Entity
@@ -33,6 +34,7 @@ public class Course {
             joinColumns = @JoinColumn(name = "courseId"),
             inverseJoinColumns = @JoinColumn(name = "studetnId")
     )
+    @JsonIgnore
     private List<Student> enrolledStudents;
 
     @OneToMany(cascade = CascadeType.ALL,mappedBy = "course")
@@ -195,5 +197,13 @@ public class Course {
 
     public void setDocumentUrl(String documentUrl) {
         this.documentUrl = documentUrl;
+    }
+
+    public int getDuration() {
+        return duration;
+    }
+
+    public void setDuration(int duration) {
+        this.duration = duration;
     }
 }

@@ -1,7 +1,10 @@
 package com.Eshiksha.services;
 
 import com.Eshiksha.Entities.ApplicationUser;
+import com.Eshiksha.Entities.Course;
 import com.Eshiksha.dto.PaymentDTO;
+
+import java.util.List;
 
 public interface StudentService {
     public ApplicationUser createStudent(ApplicationUser student);
@@ -13,4 +16,6 @@ public interface StudentService {
     void createStudentFromUser(ApplicationUser user);
 
     void enrollStudent(int courseId, int userId, PaymentDTO paymentDTO) throws Exception;
+
+    List<Course> getMyCourses(int userId) throws Exception;
 }
