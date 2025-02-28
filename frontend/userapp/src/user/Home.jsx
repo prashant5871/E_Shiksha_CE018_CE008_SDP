@@ -1,16 +1,21 @@
 // Home.jsx
-import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { useState, useEffect, useContext } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import VideoPlayer from "../student/VideoPlayer";
+import { AuthContext } from "../shared/context/auth-context";
 
-export default function CourseList() {
+export default function CourseList({toggleModal}) {
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedCourse, setSelectedCourse] = useState(null);
   const [bookmarked, setBookmarked] = useState({});
+  const { isLoggedIn,isStudent } = useContext(AuthContext);
+
+  const navigate = useNavigate();
 
   useEffect(() => {
+
     fetch("http://localhost:8000/courses/")
       .then((response) => {
         if (!response.ok) {
@@ -150,11 +155,24 @@ export default function CourseList() {
               >
                 Close
               </button>
-              <Link to={`/enroll/${selectedCourse.courseId}`}>
+
+              {isLoggedIn && <Link to={`/enroll/${selectedCourse.courseId}`}>
                 <button className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
                   Enroll Now
                 </button>
               </Link>
+              }
+
+              {!isStudent && isLoggedIn && <button className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
+                Update Now
+              </button>}
+
+              {!isLoggedIn && <button
+                  onClick={toggleModal}
+                  className="text-blue-900 hover:bg-gray-700 hover:text-white rounded-md px-3 py-2 text-sm font-medium transition duration-200 hover:cursor-pointer"
+                >
+                  Sign In to enroll
+                </button>}
             </div>
           </div>
         </div>

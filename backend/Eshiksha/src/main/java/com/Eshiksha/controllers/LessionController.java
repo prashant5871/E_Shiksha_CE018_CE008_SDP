@@ -63,6 +63,15 @@ public class LessionController {
 
     @Autowired
     private LessionService lessionService;
+
+    @GetMapping
+    public ResponseEntity<?> getAllLessions()
+    {
+        List<Lession> lessions = lessionService.getAllLessions();
+
+        return ResponseEntity.ok().body(lessions);
+    }
+
     @PostMapping("/{courseId}")
     public ResponseEntity<String> createLesson(@PathVariable int courseId,
                                                @RequestParam("title") String title,

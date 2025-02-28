@@ -158,7 +158,7 @@ export default function Auth({ isOpen, onClose }) {
 
                                     <div className="sm:mx-auto sm:w-full sm:max-w-sm">
                                         <div className='mx-auto w-23'>
-                                            <Logo h={"20"} w={"20"} color={"#000000"}/>
+                                            <Logo h={"20"} w={"20"} color={"#000000"} />
                                         </div>
 
                                         <h5 className="mt-2  font-mono italic font-light  text-gray-900 text-center"> Welcome to ई-शिक्षा :)</h5>
@@ -222,7 +222,7 @@ export default function Auth({ isOpen, onClose }) {
                                                 Already have account?{' '}
                                                 <a onClick={() => {
                                                     setIsLoggedInPage(!isLoggedInPage); resetVal();
-                                                }} className="font-semibold text-indigo-600 hover:text-indigo-500">
+                                                }} className="font-semibold cursor-pointer text-indigo-600 hover:text-indigo-500">
                                                     Sign in
                                                 </a>
                                             </p>
@@ -244,7 +244,7 @@ export default function Auth({ isOpen, onClose }) {
                                                 Create new Account?{' '}
                                                 <a onClick={() => {
                                                     setIsLoggedInPage(!isLoggedInPage); resetVal()
-                                                }} className="font-semibold text-indigo-600 hover:text-indigo-500">
+                                                }} className="font-semibold cursor-pointer text-indigo-600 hover:text-indigo-500">
                                                     Sign up
                                                 </a>
                                             </p>

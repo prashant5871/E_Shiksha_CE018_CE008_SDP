@@ -16,9 +16,8 @@ function classNames(...classes) {
   return classes.filter(Boolean).join(' ')
 }
 
-export default function Navbar() {
-  const [isModalOpen, setIsModalOpen] = useState(false)
-  const toggleModal = () => setIsModalOpen(!isModalOpen)
+export default function Navbar({toggleModal,isModalOpen}) {
+  
   const auth = useContext(AuthContext)
 
   return (

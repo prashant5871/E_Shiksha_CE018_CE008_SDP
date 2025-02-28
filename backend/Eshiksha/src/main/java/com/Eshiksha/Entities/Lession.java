@@ -1,5 +1,6 @@
 package com.Eshiksha.Entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -25,6 +26,7 @@ public class Lession {
 
 	@ManyToOne
 	@JoinColumn(name = "courseId", nullable = false)
+	@JsonIgnore
 	private Course course;
 
 	@Column(length = 2000)

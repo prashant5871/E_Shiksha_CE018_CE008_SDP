@@ -14,6 +14,7 @@ import com.Eshiksha.services.AuthService;
 import com.Eshiksha.services.StudentService;
 import com.Eshiksha.services.UserDetailsServiceImpl;
 import org.apache.coyote.Response;
+import org.apache.tomcat.util.http.parser.Authorization;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -23,10 +24,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 @RestController
 @RequestMapping("/auth")
@@ -136,6 +134,25 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(new ApiResponse(e.getMessage(), false));
         }
+    }
+
+    @GetMapping("/jwt-varify")
+    public ResponseEntity<Map<String,Boolean>> varifyToken(@RequestHeader("Authorization") String authHeader )
+    {
+        
+        Map<String,Boolean> response = new HashMap<>();
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            response.put("isValid",false);
+
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
+        }
+
+        String token = authHeader.substring(7);
+
+        response.put("isValid",true);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+
+
     }
 
     public static class ApiResponse {
