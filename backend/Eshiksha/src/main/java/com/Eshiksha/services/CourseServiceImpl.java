@@ -103,4 +103,15 @@ public class CourseServiceImpl implements CourseService {
 
 
     }
+
+//    ...............sali karelo area
+    @Override
+public void changeStatus(int id, String status) {
+    Course course = courseRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Course not found"));
+    course.setStatus(status);
+    courseRepository.save(course); // Save the updated course status
+}
+
+//    .....................
 }

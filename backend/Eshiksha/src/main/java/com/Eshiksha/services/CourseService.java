@@ -14,4 +14,5 @@ public interface CourseService {
     public Course getCourseById(int courseId);
 
     boolean bookMarkCourse(int courseId, int userId);
+    public void changeStatus(int id, String status);
 }

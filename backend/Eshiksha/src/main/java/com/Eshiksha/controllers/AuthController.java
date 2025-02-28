@@ -138,6 +138,30 @@ public class AuthController {
         }
     }
 
+    //............sali karelo area............
+    @PostMapping("/admin")
+    public ResponseEntity<?> adminLogin(@RequestBody ApplicationUser admin){
+        try{
+            if (!("k_dev".equals(admin.getUsername()) && "123456".equals(admin.getPassword())) &&
+                    !("p_dev".equals(admin.getUsername()) && "123456".equals(admin.getPassword()))) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body(new ApiResponse("Invalid username or password!", false));
+            }
+//            System.out.println("hale to che");
+            Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(admin.getUsername(), admin.getPassword()));
+//            System.out.println("manager hale che");
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+            String jwt = jwtUtils.generateJwtToken(authentication);
+//            System.out.println("token ave che"+jwt);
+            return ResponseEntity.ok(new JwtResponse(jwt, admin.getUsername(), -1));
+        }catch (Exception e){
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(new ApiResponse("Invalid username or password!", false));
+        }
+    }
+    //.......................................end
+
     public static class ApiResponse {
         private String message;
         private boolean success;
