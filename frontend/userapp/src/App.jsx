@@ -13,6 +13,7 @@ import {
 import Home from './user/Home'
 import Footer from './shared/components/Footer'
 import Saved from './student/Saved'
+import LiveMeeting from './live'
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -57,6 +58,7 @@ function App() {
       <Routes>
         <Route path="/saved" element={<Saved />}/>
         <Route exact path="/" element={<Home />} />
+        <Route path="/video" element={<LiveMeeting />} />
         {/* <Route path="/" element={<>hello world</>} /> */}
 
       </Routes>
