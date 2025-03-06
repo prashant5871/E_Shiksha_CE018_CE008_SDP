@@ -16,6 +16,7 @@ import Course from "./student/Course";
 import Enroll from "./student/Enroll";
 import EnrolledCourses from "./student/EnrolledCourses";
 import Verify from "./shared/components/Verify";
+import CreateCourse from "./teacher/CreateCourse";
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -75,10 +76,11 @@ function App() {
     setIsEnabled(isEnabled);
     console.log("user from the login method , ",user);
 
-    if(user && !user.enrolledCourses)
-    {
-      setIsStudent(false);
-    }
+    // if(!user || !user.enrolledCourses)
+    // {
+    //   console.log("setting student to be false");
+    //   setIsStudent(false);
+    // }
   }, []);
 
   const logout = useCallback(() => {
@@ -101,6 +103,8 @@ function App() {
         <Route path="/enroll/:courseId" element={<Enroll />} />
         <Route path="/enrolled-courses" element={<EnrolledCourses />} />
         <Route path="/verify" element={<Verify />} />
+        <Route path="/create" element={<CreateCourse/>} />
+      
       </Routes>
     );
   } else {
@@ -112,6 +116,7 @@ function App() {
         <Route path="/enroll/:courseId" element={<Enroll />} />
         <Route path="/enrolled-courses" element={<EnrolledCourses />} />
         <Route path="/verify" element={<Verify />} />
+        <Route path="/create" element={<CreateCourse/>} />
       </Routes>
     );
   }

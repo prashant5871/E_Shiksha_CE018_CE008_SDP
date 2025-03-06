@@ -2,6 +2,7 @@ package com.Eshiksha.controllers;
 
 import com.Eshiksha.Entities.Course;
 import com.Eshiksha.Entities.Course;
+import com.Eshiksha.Entities.CourseCategory;
 import com.Eshiksha.dto.CourseDTO;
 import com.Eshiksha.services.CourseService;
 import com.Eshiksha.services.VideoService;
@@ -167,6 +168,22 @@ public class CourseController {
     }
 
      */
+
+    @GetMapping("/get-categories")
+    public ResponseEntity<?> getAllCategories()
+    {
+        try{
+            List<CourseCategory> allCategories = this.courseService.findAllCategories();
+
+            return ResponseEntity.ok(allCategories);
+
+        }catch(Exception e)
+        {
+            Map<String,String> response = new HashMap<>();
+            response.put("message", "Internal server error , please try again later");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+    }
 
 
     @PostMapping("/")

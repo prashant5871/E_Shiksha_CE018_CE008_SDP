@@ -17,4 +17,6 @@ public interface TeacherRepository extends JpaRepositoryImplementation<Teacher, 
     Optional<Teacher> findByUser(ApplicationUser user);
 
 
+
+
 }

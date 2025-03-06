@@ -1,6 +1,8 @@
-import React from 'react'
+import React, { useContext } from 'react'
+import { AuthContext } from '../context/auth-context';
 
-const Card = ({ course,bookmarked }) => {
+const Card = ({ course, bookmarked, setSelectedCourse }) => {
+    const { isStudent } = useContext(AuthContext);
     return (
         <div>
             <div
@@ -9,14 +11,29 @@ const Card = ({ course,bookmarked }) => {
                 className="relative bg-white rounded-xl overflow-hidden shadow-lg transition-transform duration-300 transform hover:scale-105 cursor-pointer hover:shadow-2xl"
             >
                 <div
-                    className="absolute top-3 right-3 cursor-pointer text-gray-400 text-4xl"
+                    className="absolute top-3 right-3 cursor-pointer text-2xl bg-amber-50"
                     title={bookmarked[course.courseId] ? "remove from bookmark" : "bookmark"}
                     onClick={(e) => {
                         e.stopPropagation();
                         handleBookmarkToggle(course.courseId);
                     }}
                 >
-                    {bookmarked[course.courseId] ? "❤️" : "🤍"}
+                    {!isStudent && (
+                        <span
+                            className={
+                                course.status === "APPROVED"
+                                    ? "text-green-600"
+                                    : course.status === "BLOCKED"
+                                        ? "text-red-600"
+                                        : course.status === "PENDING"
+                                            ? "text-yellow-600"
+                                            : "text-gray-600" // Default color if status is something else
+                            }
+                        >
+                            {course.status}
+                        </span>
+                    )}
+                    {isStudent && (bookmarked[course.courseId] ? "❤️" : "🤍")}
                 </div>
 
                 <img

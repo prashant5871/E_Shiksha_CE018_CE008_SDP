@@ -145,4 +145,11 @@ public void changeStatus(int id, String status) {
 
         return true;
     }
+
+    @Override
+    public List<CourseCategory> findAllCategories() {
+        List<CourseCategory> categories = courseCategoryRepository.findAll();
+
+        return categories;
+    }
 }

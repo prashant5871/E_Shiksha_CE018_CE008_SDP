@@ -1,6 +1,7 @@
 package com.Eshiksha.services;
 
 import com.Eshiksha.Entities.Course;
+import com.Eshiksha.Entities.CourseCategory;
 
 import java.util.List;
 
@@ -19,4 +20,6 @@ public interface CourseService {
     void saveCourse(Course course);
 
     boolean removeFromBookMark(int courseId, int userId);
+
+    List<CourseCategory> findAllCategories();
 }

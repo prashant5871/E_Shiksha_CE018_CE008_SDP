@@ -5,12 +5,6 @@ import { AuthContext } from '../context/auth-context';
 import { NavLink } from 'react-router-dom';
 import Auth from '../../user/Auth';
 
-const navigation = [
-  { name: 'Home', href: '/' },
-  { name: 'Saved', href: '/saved' },
-  { name: 'My Courses', href: '/enrolled-courses' },
-];
-
 function classNames(...classes) {
   return classes.filter(Boolean).join(' ');
 }
@@ -19,12 +13,27 @@ export default function Navbar({ toggleModal, isModalOpen }) {
   const auth = useContext(AuthContext);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const searchInputRef = useRef(null);
+  const [navigation, setNavigation] = useState(null);
 
   useEffect(() => {
+    if(auth?.isStudent)
+    {
+      setNavigation([
+        { name: 'Home', href: '/' },
+        { name: 'Saved', href: '/saved' },
+        { name: 'My Courses', href: '/enrolled-courses' },
+      ]);
+    }else{
+      setNavigation([
+        { name: 'Home', href: '/' },
+        { name: 'My Courses', href: '/enrolled-courses' },
+        {name : 'Create' , href: '/create'}
+      ]);
+    }
     if (isSearchOpen && searchInputRef.current) {
       searchInputRef.current.focus();
     }
-  }, [isSearchOpen]);
+  }, [isSearchOpen,auth]);
 
   return (
     <nav className="bg-gray-900 shadow-lg h-14">
@@ -60,7 +69,8 @@ export default function Navbar({ toggleModal, isModalOpen }) {
         {/* Navigation Links & Auth */}
         <div className="flex items-center space-x-5">
           <div className="hidden sm:flex space-x-5">
-            {navigation.map((item) => (
+            {navigation?.map((item) => (
+              
               <NavLink
                 key={item.name}
                 to={item.href}

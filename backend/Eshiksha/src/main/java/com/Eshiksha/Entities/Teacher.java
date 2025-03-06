@@ -2,6 +2,7 @@ package com.Eshiksha.Entities;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 @Entity
@@ -14,6 +15,7 @@ public class Teacher {
 
 
 	@OneToMany(cascade = CascadeType.ALL)
+	@JsonIgnore
 	private List<Course> courses;
 
 	public ApplicationUser getUser() {

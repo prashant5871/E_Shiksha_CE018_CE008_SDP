@@ -14,7 +14,7 @@ export default function CourseList({ toggleModal }) {
   const [error, setError] = useState(null);
   const [selectedCourse, setSelectedCourse] = useState(null);
   const [bookmarked, setBookmarked] = useState({});
-  const { isLoggedIn, isStudent, user,setUser } = useContext(AuthContext);
+  const { isLoggedIn, isStudent, user, setUser } = useContext(AuthContext);
   const { isLoading, sendRequest, clearError } = useHttpClient();
 
   const navigate = useNavigate();
@@ -35,7 +35,13 @@ export default function CourseList({ toggleModal }) {
     })
     console.log("prev after setting true : ", bookmarked);
 
-    fetch("http://localhost:8000/courses/")
+    const url = isStudent ? "http://localhost:8000/courses/" : "http://localhost:8000/teacher/courses";
+
+    fetch(url, {
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('authToken')}` // Add JWT token
+      }
+    })
       .then((response) => {
         if (!response.ok) {
           throw new Error("Failed to fetch courses");
@@ -44,7 +50,13 @@ export default function CourseList({ toggleModal }) {
         return response.json();
       })
       .then((data) => {
-        setCourses(data.filter(d => d.status === "APPROVED"));
+        if(isStudent){
+          console.log("loged in user is the student");
+          setCourses(data.filter(d => d.status === "APPROVED"))
+        }else{
+          console.log("loged in user is the teacher");
+          setCourses(data);
+        }
         setLoading(false);
       })
       .catch((error) => {
@@ -70,10 +82,10 @@ export default function CourseList({ toggleModal }) {
 
         const method = isBookmarked ? "DELETE" : "POST";
 
-        sendRequest(url,method);
+        sendRequest(url, method);
 
-        
-        if(user && user.bookMarkedCourses){
+
+        if (user && user.bookMarkedCourses) {
           user.bookMarkedCourses = user.bookMarkedCourses.filter(c => c?.courseId != courseId);
           setUser(user);
         }
@@ -90,7 +102,7 @@ export default function CourseList({ toggleModal }) {
 
 
 
-  
+
 
   if (loading)
     return <div className="text-center text-xl font-bold p-6">Loading courses...</div>;
@@ -123,12 +135,12 @@ export default function CourseList({ toggleModal }) {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
           {courses.map((course) => (
-            <Card course={course} bookmarked={bookmarked} />
+            <Card course={course} bookmarked={bookmarked} setSelectedCourse={setSelectedCourse} />
           ))}
         </div>
 
         {selectedCourse && (
-          <CourseDetail selectedCourse={selectedCourse} setSelectedCourse={ setSelectedCourse} toggleModal={toggleModal} />
+          <CourseDetail selectedCourse={selectedCourse} setSelectedCourse={setSelectedCourse} toggleModal={toggleModal} />
         )}
       </div>
     </>
