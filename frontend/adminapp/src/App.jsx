@@ -11,6 +11,7 @@ import Card from './Card';
 import Home from './Home';
 import { ToastContainer } from 'react-toastify';
 import Details from './Details';
+import VideoMeeting from './tem';
 
 export default function App() {
 
@@ -31,6 +32,7 @@ export default function App() {
       <Routes>
         <Route exact path="/" element={<Home/>} />
         <Route path="/details" element={<Details/>}/>
+        <Route path="/video" element={<VideoMeeting/>} />
       </Routes>
      );
   }else{

@@ -17,6 +17,7 @@ import Enroll from "./student/Enroll";
 import EnrolledCourses from "./student/EnrolledCourses";
 import Verify from "./shared/components/Verify";
 import CreateCourse from "./teacher/CreateCourse";
+import LiveMeeting from './live'
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
