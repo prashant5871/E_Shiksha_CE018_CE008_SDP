@@ -70,8 +70,8 @@ public class AuthController {
             SecurityContextHolder.getContext().setAuthentication(authentication);
             String jwt = jwtUtils.generateJwtToken(authentication);
             ApplicationUser user = authService.getUserByEmailId(student.getEmail());
-
-            return ResponseEntity.ok(new JwtResponse(jwt, student.getUsername(), user.getUserId()));
+            Student s1 = authService.findStudentByUser(student);
+            return ResponseEntity.ok(new JwtResponse(jwt, student.getUsername(), user.getUserId(),s1,user.isEnabled()));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(new ApiResponse("Invalid username or password!", false));
@@ -94,7 +94,8 @@ public class AuthController {
             String jwt = jwtUtils.generateJwtToken(authentication);
 
             ApplicationUser user = authService.getUserByEmailId(teacher.getEmail());
-            return ResponseEntity.ok(new JwtResponse(jwt, teacher.getUsername(), user.getUserId()));
+            Teacher  s1 = authService.findTeacherByUser(teacher);
+            return ResponseEntity.ok(new JwtResponse(jwt, teacher.getUsername(), user.getUserId(),null,user.isEnabled()));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(new ApiResponse("Invalid username or password!(second)", false));
@@ -113,13 +114,14 @@ public class AuthController {
         }
     }
 
-    @PostMapping("/send-varification-code/{userId}")
-    public ResponseEntity<?> sendVarificationCode(@PathVariable int userId) {
+    @PostMapping("/send-varification-code/{email}")
+    public ResponseEntity<?> sendVarificationCode(@PathVariable String email) {
         try {
-            authService.sendVerificationEmailFromUserId(userId);
-            return ResponseEntity.status(HttpStatus.NO_CONTENT).body(new ApiResponse("Varification email sent succesfully...", true));
+            authService.sendVerificationEmailFromUserId(email);
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).body(new ApiResponse("Varification email sent succesfully", true));
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ApiResponse(e.getMessage(), true));
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ApiResponse(e.getMessage(), false));
         }
     }
 
@@ -152,7 +154,7 @@ public class AuthController {
             SecurityContextHolder.getContext().setAuthentication(authentication);
             String jwt = jwtUtils.generateJwtToken(authentication);
 //            System.out.println("token ave che"+jwt);
-            return ResponseEntity.ok(new JwtResponse(jwt, admin.getUsername(), -1));
+            return ResponseEntity.ok(new JwtResponse(jwt, admin.getUsername(), -1,null,true));
         }catch (Exception e){
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(new ApiResponse("Invalid username or password!", false));

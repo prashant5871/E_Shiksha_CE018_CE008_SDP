@@ -4,25 +4,19 @@ import com.Eshiksha.Entities.ApplicationUser;
 import com.Eshiksha.Entities.Role;
 import com.Eshiksha.Entities.Student;
 import com.Eshiksha.Entities.Teacher;
-import com.Eshiksha.controllers.AuthController;
 import com.Eshiksha.repositories.RoleRepository;
 import com.Eshiksha.repositories.StudentRepository;
 import com.Eshiksha.repositories.TeacherRepository;
 import com.Eshiksha.repositories.UserRepository;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.io.UnsupportedEncodingException;
-import java.util.HashSet;
 import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
 
 @Service
 public class AuthServiceImpl implements AuthService {
@@ -178,11 +172,12 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public void sendVerificationEmailFromUserId(int userId) throws Exception {
+    public void sendVerificationEmailFromUserId(String email) throws Exception {
         try {
-            ApplicationUser user = userRepository.findByUserId(userId).orElseThrow(() -> new Exception("no user found"));
+            ApplicationUser user = userRepository.findByEmail(email).orElseThrow(() -> new Exception("no user found"));
             sendVerificationEmail(user);
         } catch (Exception e) {
+            System.out.println(e.getMessage());
             throw new Exception(e.getMessage());
         }
     }
@@ -200,5 +195,17 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public ApplicationUser getUserByEmailId(String email) throws Exception {
         return userRepository.findByEmail(email).orElseThrow(()-> new Exception("not found user with given email"));
+    }
+
+    @Override
+    public Student findStudentByUser(ApplicationUser student) {
+        ApplicationUser user = userRepository.findByEmail(student.getEmail()).orElseThrow();
+        return studentRepository.findByUser(user).orElseThrow();
+    }
+
+    @Override
+    public Teacher findTeacherByUser(ApplicationUser teacher) {
+        ApplicationUser user = userRepository.findByEmail(teacher.getEmail()).orElseThrow();
+        return teacherRepository.findByUser(user).orElseThrow();
     }
 }

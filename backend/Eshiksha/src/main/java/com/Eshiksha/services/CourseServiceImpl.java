@@ -121,4 +121,28 @@ public void changeStatus(int id, String status) {
 
         courseRepository.save(course);
     }
+
+    @Override
+    public boolean removeFromBookMark(int courseId, int userId) {
+        Optional<ApplicationUser> userOptional = userRepository.findByUserId(userId);
+        if (userOptional.isEmpty()) return false;
+        ApplicationUser user = userOptional.get();
+        Optional<Student> studentOptional = this.studentRepository.findByUser(user);
+
+        if(studentOptional.isEmpty()) return false;
+
+        Optional<Course> courseOptional = courseRepository.findById(courseId);
+
+        if(courseOptional.isEmpty()) return false;
+
+        Course course = courseOptional.get();
+
+        Student student = studentOptional.get();
+
+        student.getBookMarkedCourses().remove(course);
+
+        studentRepository.save(student);
+
+        return true;
+    }
 }

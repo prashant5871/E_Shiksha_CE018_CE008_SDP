@@ -8,5 +8,7 @@ export const AuthContext = createContext({
   logout: () => {},
   isStudent : true,
   setIsStudent : () => {},
-  token: null
+  token: null,
+  user : null,
+  isEnabled : false
 });

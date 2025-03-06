@@ -17,8 +17,8 @@ public class CourseReview {
 	// Many reviews can belong to one user
 	@ManyToOne
 	@JoinColumn(name = "user_id", nullable = false)
-	@JsonIgnore
 	private ApplicationUser user;
+
 
 	// Many reviews can belong to one course
 	@ManyToOne

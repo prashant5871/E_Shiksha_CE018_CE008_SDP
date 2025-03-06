@@ -9,6 +9,7 @@ import Logo from '../shared/components/Logo';
 
 export default function Auth({ isOpen, onClose }) {
     const [isLoggedInPage, setIsLoggedInPage] = useState(true);
+    const [showVerificationModal, setShowVerificationModal] = useState(false);
     const [values, setValues] = useState({
         email: '',
         password: '',
@@ -19,11 +20,15 @@ export default function Auth({ isOpen, onClose }) {
     const [errors, setErrors] = useState({});
     const auth = useContext(AuthContext);
     const { isLoading, error, sendRequest, clearError } = useHttpClient();
+    const [email, setEmail] = useState("");
 
     const handleChange = (e) => {
         const { name, value } = e.target;
         setValues({ ...values, [name]: value });
         validate({ ...values, [name]: value });
+        if (name == "email") {
+            setEmail(value);
+        }
     };
 
     useEffect(() => {
@@ -75,6 +80,31 @@ export default function Auth({ isOpen, onClose }) {
             repeat_password: ''
         });
     }
+
+    const handleResendVerification = async () => {
+        
+        let str = auth.isStudent ? "student" : "teacher";
+        try {
+            
+            
+            // const response = await fetch(`http://localhost:8000/auth/send-varification-code/${email}`, {
+            //     method: 'POST',
+            // });
+             
+            await sendRequest(
+                `http://localhost:8000/auth/send-varification-code/${email}`,
+                "POST",
+                null,
+                {}
+            );
+            setShowVerificationModal(false);
+            toast.success("Verification email resent!", { autoClose: 1500, hideProgressBar: true });
+        } catch (err) {
+            setShowVerificationModal(false);
+            toast.error(err.message);
+        }
+    };
+
 
 
     const handleSignup = async (e) => {
@@ -129,9 +159,16 @@ export default function Auth({ isOpen, onClose }) {
             // let token = localStorage.getItem("authToken");
             // const decoded = jwt.decode(token);
             // console.log(decoded);
-            console.log(responseData)
-            auth.login(responseData.userId, responseData.username, responseData.token);
-            toast.success("Login successfully", { autoClose: 500, hideProgressBar: true });
+            if (responseData?.enabled == false) {
+                console.log("if gets executed of the varification model...");
+                setShowVerificationModal(true);
+            } else {
+                console.log(responseData.enabled);
+                auth.login(responseData.userId, responseData.username, responseData.token, responseData.student, responseData.enabled);
+                toast.success("Login successful", { autoClose: 500, hideProgressBar: true });
+                resetVal();
+                onClose();
+            }
         } catch (err) { toast.error(err.message) }
         resetVal();
         onClose();
@@ -273,6 +310,56 @@ export default function Auth({ isOpen, onClose }) {
                                     </button>
                                 </div>
                             </form>
+                        </DialogPanel>
+                    </div>
+                </div>
+            </Dialog>
+
+            {/* Verification Modal */}
+            <Dialog open={showVerificationModal} onClose={() => setShowVerificationModal(false)} className="relative z-10">
+                <DialogBackdrop
+                    transition
+                    className="fixed inset-0 bg-gray-500/75 transition-opacity"
+                />
+                <div className="fixed inset-0 z-10 w-screen overflow-y-auto">
+                    <div className="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
+                        <DialogPanel
+                            transition
+                            className="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg"
+                        >
+                            <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                                <div className="sm:flex sm:items-start">
+                                    <div className="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-red-100 sm:mx-0 sm:h-10 sm:w-10">
+                                        <ExclamationTriangleIcon className="h-6 w-6 text-red-600" aria-hidden="true" />
+                                    </div>
+                                    <div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
+                                        <DialogTitle as="h3" className="text-lg leading-6 font-medium text-gray-900">
+                                            Verification Required
+                                        </DialogTitle>
+                                        <div className="mt-2">
+                                            <p className="text-sm text-gray-500">
+                                                Your account is not verified. Please verify your email address. We have sent you a verification email.
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="mt-5 sm:mt-4 sm:flex sm:flex-row-reverse">
+                                    <button
+                                        type="button"
+                                        className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:ml-3 sm:w-auto sm:text-sm"
+                                        onClick={handleResendVerification}
+                                    >
+                                        Resend Verification Email
+                                    </button>
+                                    <button
+                                        type="button"
+                                        className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:w-auto sm:text-sm"
+                                        onClick={() => setShowVerificationModal(false)}
+                                    >
+                                        Cancel
+                                    </button>
+                                </div>
+                            </div>
                         </DialogPanel>
                     </div>
                 </div>

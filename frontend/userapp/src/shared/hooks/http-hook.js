@@ -19,8 +19,10 @@ export const useHttpClient = () => {
           headers,
           signal: httpAbortCtrl.signal,
         });
-        const responseData = await response.json();
 
+        console.log("response from our hook" ,response);
+        const responseData = await response.json();
+        console.log("response data from the our hook : " ,responseData);
         activeHttpRequests.current = activeHttpRequests.current.filter(
           (reqCtrl) => reqCtrl !== httpAbortCtrl
         );

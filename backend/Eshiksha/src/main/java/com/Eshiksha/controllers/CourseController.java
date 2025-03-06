@@ -254,6 +254,22 @@ public class CourseController {
         }
     }
 
+    @DeleteMapping("/remove-bookmark/{courseId}/{userId}")
+    public ResponseEntity<Map<String,String>> removeCourseFromBookMark(@PathVariable int courseId,@PathVariable int userId)
+    {
+        Map<String ,String > response = new HashMap<>();
+        boolean flag = courseService.removeFromBookMark(courseId,userId);
+
+        if(flag)
+        {
+            response.put("message","Course removed succesfully");
+
+            return ResponseEntity.status(HttpStatus.OK).body(response);
+        }
+        response.put("message","can not remove right now ! please try again later");
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+    }
+
     @PostMapping("/bookmark/{courseId}/{userId}")
     public ResponseEntity<Map<String,String>> bookMarkCourse(@PathVariable int courseId,@PathVariable int userId)
     {

@@ -17,4 +17,6 @@ public interface CourseService {
     public void changeStatus(int id, String status);
 
     void saveCourse(Course course);
+
+    boolean removeFromBookMark(int courseId, int userId);
 }

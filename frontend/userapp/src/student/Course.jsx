@@ -161,59 +161,86 @@ export default function Course() {
             <h3 className="text-xl font-semibold my-6">Demo Video</h3>
             <VideoPlayer src={`http://localhost:8000/courses/stream/${course.courseId}`} />
 
-            <div className="bg-white p-6 rounded-xl shadow-md mt-6">
-              <h2 className="text-2xl font-semibold text-gray-800">Course Reviews</h2>
+            <div className="bg-white p-8 rounded-2xl shadow-lg mt-8">
+              <h2 className="text-3xl font-semibold text-gray-900 mb-6">Course Reviews</h2>
 
-              <div className="mt-4 space-y-4">
+              <div className="space-y-6">
                 {reviews.length > 0 ? (
                   reviews.map((review, index) => (
-                    <div key={index} className="border-b pb-3 mb-3">
-                      <div className="flex items-center justify-between">
-                        <span className="text-gray-700 font-medium">{review.name}</span>
-                        <div className="text-yellow-500 text-lg">
-                          {"⭐".repeat(review.star)}
+                    <div key={index} className="border-b pb-4 last:border-b-0">
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <div className="flex items-center mb-2">
+                            <span className="font-semibold text-lg text-gray-800 mr-3">{review.name}</span>
+                            <div className="flex items-center">
+                              {[...Array(review.star)].map((_, i) => (
+                                <svg key={i} className="w-5 h-5 text-yellow-500 fill-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                                  <path d="M10 15l-5.878 3.09 1.123-6.545L.103 8.63 6.594 3.95 10 0l3.406 3.95 5.49 4.68L14.755 11.54 15.878 18z" />
+                                </svg>
+                              ))}
+                              {[...Array(5 - review.star)].map((_, i) => (
+                                <svg key={i} className="w-5 h-5 text-gray-300 fill-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                                  <path d="M10 15l-5.878 3.09 1.123-6.545L.103 8.63 6.594 3.95 10 0l3.406 3.95 5.49 4.68L14.755 11.54 15.878 18z" />
+                                </svg>
+                              ))}
+                            </div>
+                          </div>
+                          <p className="text-gray-700 leading-relaxed">{review.comment}</p>
                         </div>
                         {isLoggedIn && (
-                          <button onClick={() => handleUpdateReview(review)}>Update</button>
+                          <button
+                            onClick={() => handleUpdateReview(review)}
+                            className="ml-4 px-4 py-2 text-sm text-blue-600 border border-blue-600 rounded-lg hover:bg-blue-50 transition-colors"
+                          >
+                            Update
+                          </button>
                         )}
                       </div>
-                      <p className="text-gray-600">{review.comment}</p>
                     </div>
                   ))
                 ) : (
-                  <p className="text-gray-500">No reviews yet. Be the first to review!</p>
+                  <p className="text-gray-600 italic">No reviews yet. Be the first to review!</p>
                 )}
               </div>
 
-              <div className="mt-6">
-                <h3 className="text-lg font-semibold text-gray-800">{isUpdating ? 'Update Review' : 'Leave a Review'}</h3>
-                <form onSubmit={handleReviewSubmit} className="mt-3 space-y-3">
-
-                  <select
-                    value={newReview.star}
-                    onChange={(e) => setNewReview({ ...newReview, star: parseInt(e.target.value) })}
-                    className="w-full p-2 border rounded-lg"
-                  >
-                    {[5, 4, 3, 2, 1].map((num) => (
-                      <option key={num} value={num}>
-                        {num} Stars
-                      </option>
-                    ))}
-                  </select>
-                  <textarea
-                    placeholder="Write your review..."
-                    value={newReview.comment}
-                    onChange={(e) => setNewReview({ ...newReview, comment: e.target.value })}
-                    className="w-full p-2 border rounded-lg"
-                    rows="3"
-                    required
-                  ></textarea>
-                  <button
-                    type="submit"
-                    className="px-6 py-2 text-white bg-blue-600 hover:bg-blue-700 font-font-medium rounded-lg shadow-md transition-all"
-                  >
-                    {isUpdating ? 'Update Review' : 'Submit Review'}
-                  </button>
+              <div className="mt-8">
+                <h3 className="text-xl font-semibold text-gray-900 mb-4">{isUpdating ? 'Update Review' : 'Leave a Review'}</h3>
+                <form onSubmit={handleReviewSubmit} className="space-y-4">
+                  <div>
+                    <label htmlFor="star" className="block text-sm font-medium text-gray-700">Rating</label>
+                    <select
+                      id="star"
+                      value={newReview.star}
+                      onChange={(e) => setNewReview({ ...newReview, star: parseInt(e.target.value) })}
+                      className="mt-1 block w-full p-3 border rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                    >
+                      {[5, 4, 3, 2, 1].map((num) => (
+                        <option key={num} value={num}>
+                          {num} Stars
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label htmlFor="comment" className="block text-sm font-medium text-gray-700">Your Review</label>
+                    <textarea
+                      id="comment"
+                      placeholder="Write your review..."
+                      value={newReview.comment}
+                      onChange={(e) => setNewReview({ ...newReview, comment: e.target.value })}
+                      className="mt-1 block w-full p-3 border rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                      rows="4"
+                      required
+                    ></textarea>
+                  </div>
+                  <div>
+                    <button
+                      type="submit"
+                      className="w-full px-6 py-3 text-white bg-blue-600 hover:bg-blue-700 rounded-md shadow-md transition-colors font-semibold"
+                    >
+                      {isUpdating ? 'Update Review' : 'Submit Review'}
+                    </button>
+                  </div>
                 </form>
               </div>
             </div>

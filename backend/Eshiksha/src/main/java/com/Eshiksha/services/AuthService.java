@@ -1,6 +1,7 @@
 package com.Eshiksha.services;
 
 import com.Eshiksha.Entities.ApplicationUser;
+import com.Eshiksha.Entities.Student;
 import com.Eshiksha.Entities.Teacher;
 import jakarta.mail.MessagingException;
 
@@ -20,11 +21,15 @@ public interface AuthService {
 
     ApplicationUser varifyUser(String varificationCode);
 
-    void sendVerificationEmailFromUserId(int userId) throws Exception;
+    void sendVerificationEmailFromUserId(String email) throws Exception;
 
     boolean isTeacher(ApplicationUser teacher);
 
     boolean isStudent(ApplicationUser student);
 
     ApplicationUser getUserByEmailId(String email) throws Exception;
+
+    Student findStudentByUser(ApplicationUser student);
+
+    Teacher findTeacherByUser(ApplicationUser teacher);
 }

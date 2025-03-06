@@ -3,6 +3,7 @@ package com.Eshiksha.Entities;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -26,6 +27,7 @@ public class ApplicationUser implements UserDetails {
 
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
     private List<CourseReview> reviews = new ArrayList<>();
 
     public ApplicationUser(int userId, String email, String password, String firstName, String lastName, boolean enabled, String varificationCode, Set<Role> roles) {

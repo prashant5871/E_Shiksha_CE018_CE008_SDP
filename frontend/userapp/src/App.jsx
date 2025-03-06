@@ -15,6 +15,7 @@ import Saved from "./student/Saved";
 import Course from "./student/Course";
 import Enroll from "./student/Enroll";
 import EnrolledCourses from "./student/EnrolledCourses";
+import Verify from "./shared/components/Verify";
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -22,6 +23,9 @@ function App() {
   const [userMail, setUserMail] = useState(null);
   const [isStudent, setIsStudent] = useState(true);
   const { isLoading, error, sendRequest, clearError } = useHttpClient();
+  const [user,setUser] = useState(null);
+
+  const [isEnabled, setIsEnabled] = useState(false)
 
   const [isModalOpen, setIsModalOpen] = useState(false)
   const toggleModal = () => setIsModalOpen(!isModalOpen)
@@ -62,11 +66,19 @@ function App() {
     verifyToken();
   }, [verifyToken]);
 
-  const login = useCallback((uid, umail, authToken) => {
+  const login = useCallback((uid, umail, authToken,user,isEnabled) => {
     localStorage.setItem("authToken", authToken);
     setIsLoggedIn(true);
     setUserId(uid);
     setUserMail(umail);
+    setUser(user);
+    setIsEnabled(isEnabled);
+    console.log("user from the login method , ",user);
+
+    if(user && !user.enrolledCourses)
+    {
+      setIsStudent(false);
+    }
   }, []);
 
   const logout = useCallback(() => {
@@ -88,6 +100,7 @@ function App() {
         <Route path="/saved" element={<Saved />} />
         <Route path="/enroll/:courseId" element={<Enroll />} />
         <Route path="/enrolled-courses" element={<EnrolledCourses />} />
+        <Route path="/verify" element={<Verify />} />
       </Routes>
     );
   } else {
@@ -98,6 +111,7 @@ function App() {
         <Route path="/saved" element={<Saved />} />
         <Route path="/enroll/:courseId" element={<Enroll />} />
         <Route path="/enrolled-courses" element={<EnrolledCourses />} />
+        <Route path="/verify" element={<Verify />} />
       </Routes>
     );
   }
@@ -112,6 +126,9 @@ function App() {
         logout,
         isStudent,
         setIsStudent,
+        user,
+        setUser,
+        isEnabled
       }}
     >
       <Router>
