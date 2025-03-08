@@ -48,6 +48,9 @@ public class Course {
 
     private int duration; //in days
 
+    @OneToMany(cascade = CascadeType.ALL,mappedBy = "course")
+    private List<LiveClass> liveClasses;
+
     public String getDemoVideo() {
         return demoVideo;
     }
@@ -205,5 +208,13 @@ public class Course {
 
     public void setDuration(int duration) {
         this.duration = duration;
+    }
+
+    public List<LiveClass> getLiveClasses() {
+        return liveClasses;
+    }
+
+    public void setLiveClasses(List<LiveClass> liveClasses) {
+        this.liveClasses = liveClasses;
     }
 }

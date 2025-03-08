@@ -49,6 +49,7 @@ public class SecurityConfig implements WebMvcConfigurer {
                             .requestMatchers("/doubts/**").hasRole("STUDENT")
                             .requestMatchers("/student/**").permitAll()
                             .requestMatchers("/teacher/**").hasRole("TEACHER")
+                            .requestMatchers("/live/**").permitAll()
                             .anyRequest().permitAll();
                 })
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);

@@ -48,7 +48,6 @@ public class CourseController {
     private CourseService courseService;
 
     private VideoService videoService;
-
     public CourseController(CourseService courseService,VideoService videoService) {
         this.videoService = videoService;
         this.courseService = courseService;
