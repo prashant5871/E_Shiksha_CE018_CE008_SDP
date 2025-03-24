@@ -1,6 +1,7 @@
 import React, { useContext } from 'react'
 import { AuthContext } from '../context/auth-context';
 import VideoPlayer from '../../student/VideoPlayer';
+import { Link, NavLink } from 'react-router-dom';
 
 export default function CourseDetail({selectedCourse,setSelectedCourse,toggleModal}) {
   const { isLoggedIn, isStudent, user,setUser } = useContext(AuthContext);
@@ -18,14 +19,14 @@ export default function CourseDetail({selectedCourse,setSelectedCourse,toggleMod
             onClick={handleOutsideClick}
           >
             <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-2xl max-h-[80vh] overflow-y-auto custom-scrollbar">
-              <h2 className="text-2xl font-bold text-gray-800">{selectedCourse.courseName}</h2>
-              <p className="text-gray-600 mt-2">{selectedCourse.description}</p>
-              <p className="text-gray-800 font-semibold mt-2">Instructor: {selectedCourse.teacher.user.firstName}</p>
-              <p className="text-gray-800 font-semibold mt-2">Duration: {selectedCourse.duration}</p>
+              <h2 className="text-2xl font-bold text-gray-800">{selectedCourse?.courseName}</h2>
+              <p className="text-gray-600 mt-2">{selectedCourse?.description}</p>
+              <p className="text-gray-800 font-semibold mt-2">Instructor: {selectedCourse?.teacher.user.firstName}</p>
+              <p className="text-gray-800 font-semibold mt-2">Duration: {selectedCourse?.duration}</p>
 
               <h3 className="text-lg font-bold mt-4 text-gray-700">What You Will Learn:</h3>
               <ul className="list-disc list-inside text-gray-600 mt-2">
-                {selectedCourse.lessions.map((lession, index) => (
+                {selectedCourse?.lessions.map((lession, index) => (
                   <li key={index}>{lession.title}</li>
                 ))}
               </ul>
@@ -33,13 +34,13 @@ export default function CourseDetail({selectedCourse,setSelectedCourse,toggleMod
               <>
                 <h3 className="text-lg font-bold mt-4 text-gray-700">Demo Video:</h3>
                 <div className="mt-2">
-                  <VideoPlayer src={`http://localhost:8000/courses/stream/${selectedCourse.courseId}`} />
+                  <VideoPlayer src={`http://localhost:8000/courses/stream/${selectedCourse?.courseId}`} />
                 </div>
               </>
 
               <h3 className="text-lg font-bold mt-6 mb-4 text-gray-800">Student Reviews:</h3>
               <div className="space-y-4">
-                {selectedCourse.reviews.map((review, index) => (
+                {selectedCourse?.reviews.map((review, index) => (
                   <div key={index} className="bg-white rounded-lg shadow-md p-5 flex space-x-4">
                     <div className="flex-shrink-0">
                       <div className="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center">
@@ -75,19 +76,20 @@ export default function CourseDetail({selectedCourse,setSelectedCourse,toggleMod
 
               <div className="flex justify-between items-center mt-6">
                 <button
-                  onClick={() => setSelectedCourse(null)}
+                  onClick={() => {setSelectedCourse(null)
+                  }}
                   className="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600"
                 >
                   Close
                 </button>
 
-                {isLoggedIn && isStudent && ((user.enrolledCourses[0]?.courseId != selectedCourse.courseId || !user.enrolledCourses) ? (<Link to={`/enroll/${selectedCourse.courseId}`}>
+                {isLoggedIn && isStudent && ((user.enrolledCourses[0]?.courseId != selectedCourse?.courseId || !user.enrolledCourses) ? (<Link to={`/enroll/${selectedCourse?.courseId}`}>
                   <button className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
                     Enroll Now
                   </button>
                 </Link>
                 ) : (
-                  <Link to={`/course/${selectedCourse.courseId}`}>
+                  <Link to={`/course/${selectedCourse?.courseId}`}>
                     <button className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
                       Go to Course
                     </button>
@@ -95,9 +97,12 @@ export default function CourseDetail({selectedCourse,setSelectedCourse,toggleMod
                 ))
                 }
 
-                {!isStudent && isLoggedIn && <button className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
-                  Update Now
-                </button>}
+                {!isStudent && isLoggedIn && 
+                <Link to={`/upload-lession/${selectedCourse?.courseId}`}>
+                <button className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
+                  Add Lession
+                </button>
+                </Link>}
 
                 {!isLoggedIn && <button
                   onClick={toggleModal}

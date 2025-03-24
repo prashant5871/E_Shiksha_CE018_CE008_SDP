@@ -82,15 +82,15 @@ export default function Auth({ isOpen, onClose }) {
     }
 
     const handleResendVerification = async () => {
-        
+
         let str = auth.isStudent ? "student" : "teacher";
         try {
-            
-            
+
+
             // const response = await fetch(`http://localhost:8000/auth/send-varification-code/${email}`, {
             //     method: 'POST',
             // });
-             
+
             await sendRequest(
                 `http://localhost:8000/auth/send-varification-code/${email}`,
                 "POST",
@@ -169,9 +169,12 @@ export default function Auth({ isOpen, onClose }) {
                 resetVal();
                 onClose();
             }
-        } catch (err) { toast.error(err.message) }
+        } catch (err) {
+            toast.error(err.message)
+            onClose();
+        }
         resetVal();
-        onClose();
+        // onClose();
     }
 
 
@@ -211,7 +214,16 @@ export default function Auth({ isOpen, onClose }) {
                                             <input
                                                 type="checkbox"
                                                 checked={auth.isStudent}
-                                                onChange={() => auth.setIsStudent(!auth.isStudent)}
+                                                onChange={() =>{
+                                                     auth.setIsStudent(!auth.isStudent)
+                                                     if(localStorage.getItem("isStudent"))
+                                                     {
+                                                        localStorage.removeItem("isStudent");
+                                                     }else{
+                                                        localStorage.setItem("isStudent",true);
+                                                     }
+                                                
+                                                }}
                                                 className="sr-only"
                                             />
                                             <div className="w-16 h-8 bg-gray-300 rounded-full">

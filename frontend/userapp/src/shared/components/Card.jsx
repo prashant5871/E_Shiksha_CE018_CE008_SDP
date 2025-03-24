@@ -1,8 +1,69 @@
-import React, { useContext } from 'react'
+import React, { useContext, useEffect } from 'react'
 import { AuthContext } from '../context/auth-context';
+import { useHttpClient } from '../hooks/http-hook';
 
-const Card = ({ course, bookmarked, setSelectedCourse }) => {
-    const { isStudent } = useContext(AuthContext);
+const Card = ({ course, bookmarked, setSelectedCourse,setBookmarked,setUser,courses }) => {
+    const { isStudent,isLoggedIn,user } = useContext(AuthContext);
+  const { isLoading, sendRequest, clearError } = useHttpClient();
+
+  useEffect(() => {
+    console.log("isStudent = ",isStudent);
+    console.log("isLoggedIn = ",isLoggedIn);
+  }, [])
+  
+
+
+    const truncateDescription = (description, wordLimit) => {
+        const words = description.split(' ');
+        if (words.length > wordLimit) {
+            return words.slice(0, wordLimit).join(' ') + '...';
+        }
+        return description;
+    };
+
+    const handleBookmarkToggle = async (courseId) => {
+        try {
+          console.log("user in toggle : ", user);
+          let userId = user?.user.userId;
+          if (!isLoggedIn) {
+            window.alert("Please login first...");
+            return;
+          }
+          setBookmarked((prev) => {
+            let isBookmarked = false;
+            if(prev && prev[courseId])
+            {
+                isBookmarked = true;
+            }
+            const url = isBookmarked
+              ? `http://localhost:8000/courses/remove-bookmark/${courseId}/${userId}`
+              : `http://localhost:8000/courses/bookmark/${courseId}/${userId}`;
+    
+            const method = isBookmarked ? "DELETE" : "POST";
+    
+            sendRequest(url, method);
+    
+    
+            if (user && user.bookMarkedCourses && isBookmarked) {
+              user.bookMarkedCourses = user.bookMarkedCourses.filter(c => c?.courseId != courseId);
+              setUser(user);
+            }else if(user && user.bookMarkedCourses){
+                user?.bookMarkedCourses?.push(courses.find(course => course.courseId == courseId));
+                setUser(user);
+            }
+    
+            return {
+              ...prev,
+              [courseId]: !isBookmarked,
+            };
+          });
+        } catch (error) {
+          console.log(error);
+        }
+      };
+
+    const truncatedDescription = truncateDescription(course.description, 15);
+
     return (
         <div>
             <div
@@ -12,13 +73,13 @@ const Card = ({ course, bookmarked, setSelectedCourse }) => {
             >
                 <div
                     className="absolute top-3 right-3 cursor-pointer text-2xl bg-amber-50"
-                    title={bookmarked[course.courseId] ? "remove from bookmark" : "bookmark"}
+                    title={(bookmarked && bookmarked[course.courseId] )? "remove from bookmark" : "bookmark"}
                     onClick={(e) => {
                         e.stopPropagation();
                         handleBookmarkToggle(course.courseId);
                     }}
                 >
-                    {!isStudent && (
+                    {!isStudent && isLoggedIn && (
                         <span
                             className={
                                 course.status === "APPROVED"
@@ -33,7 +94,7 @@ const Card = ({ course, bookmarked, setSelectedCourse }) => {
                             {course.status}
                         </span>
                     )}
-                    {isStudent && (bookmarked[course.courseId] ? "❤️" : "🤍")}
+                    {(isStudent || !isLoggedIn) && (bookmarked && bookmarked[course.courseId] ? "❤️" : "🤍")}
                 </div>
 
                 <img
@@ -43,8 +104,13 @@ const Card = ({ course, bookmarked, setSelectedCourse }) => {
                 />
                 <div className="p-6">
                     <div className="font-bold text-xl text-gray-800">{course.courseName}</div>
-                    <p className="text-gray-600 text-sm mt-2">{course.description}</p>
-                    <p className="text-lg font-semibold text-blue-600 mt-2">{course.duration}</p>
+                    <p className="text-gray-600 text-sm mt-2">
+                        {truncatedDescription}
+                        {course.description.split(' ').length > 15 && (
+                            <span className="text-blue-500 cursor-pointer" onClick={(e) => {e.stopPropagation();setSelectedCourse(course)}}> Read More</span>
+                        )}
+                    </p>
+                    <p className="text-lg font-semibold text-blue-600 mt-2">{course.duration} hours</p>
                     <p className="text-lg font-semibold text-green-800 mt-2">{course.price} rupees</p>
                 </div>
                 <div className="px-6 pb-4 flex flex-wrap gap-2">
@@ -54,7 +120,7 @@ const Card = ({ course, bookmarked, setSelectedCourse }) => {
                 </div>
             </div>
         </div>
-    )
-}
+    );
+};
 
-export default Card
+export default Card;

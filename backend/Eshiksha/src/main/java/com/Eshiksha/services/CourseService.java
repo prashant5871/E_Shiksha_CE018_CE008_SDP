@@ -22,4 +22,6 @@ public interface CourseService {
     boolean removeFromBookMark(int courseId, int userId);
 
     List<CourseCategory> findAllCategories();
+
+    void updateCourseById(Course course, int courseId);
 }

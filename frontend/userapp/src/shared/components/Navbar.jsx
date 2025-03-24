@@ -26,8 +26,9 @@ export default function Navbar({ toggleModal, isModalOpen }) {
     }else{
       setNavigation([
         { name: 'Home', href: '/' },
-        { name: 'My Courses', href: '/enrolled-courses' },
-        {name : 'Create' , href: '/create'}
+        { name: 'Manage Courses', href: '/manage-courses' },
+        {name : 'Create' , href: '/create'},
+      
       ]);
     }
     if (isSearchOpen && searchInputRef.current) {

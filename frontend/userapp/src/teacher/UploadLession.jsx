@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useParams } from 'react-router-dom';
 
 const UploadLession = () => {
     const [lessionFile, setLessionFile] = useState(null);
@@ -11,8 +12,8 @@ const UploadLession = () => {
     const [uploading, setUploading] = useState(false);
     const [uploadSuccess, setUploadSuccess] = useState(false);
     const [uploadError, setUploadError] = useState(null);
+    const { courseId } = useParams();
 
-    const courseId = window.location.pathname.split('/').pop(); 
     const handleFileChange = (e) => {
         setLessionFile(e.target.files[0]);
     };

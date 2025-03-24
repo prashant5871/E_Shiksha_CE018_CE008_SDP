@@ -18,6 +18,9 @@ import EnrolledCourses from "./student/EnrolledCourses";
 import Verify from "./shared/components/Verify";
 import CreateCourse from "./teacher/CreateCourse";
 import LiveMeeting from './live'
+import UploadLession from "./teacher/UploadLession";
+import ManageCourses from "./teacher/ManageCourses";
+import UpdateCourse from "./teacher/UpdateCourse";
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -43,20 +46,24 @@ function App() {
       const response = await fetch("http://localhost:8000/auth/jwt-varify", {
         method: "GET",
         headers: {
-          "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
       });
       const data = await response.json();
-      if (response.ok) {
-        console.log("If gets executed..");
+      if (response.ok && data?.isValid) {
+        console.log("If gets executed..",data);
         setIsLoggedIn(true);
-        setUserId(data.userId);
-        setUserMail(data.email);
+        setUserId(data.user.user.userId);
+        setUserMail(data.user.user.email);
         setIsStudent(data.isStudent);
+        setUser(data.user)
       } else {
-        console.log("token is not valid , it is expires please try again later...");
+        console.log("token is not valid , it is expires please try again later...",data);
         localStorage.removeItem("authToken");
+        setIsLoggedIn(false);
+        setUserId(null);
+        setUserMail(null);
+        setIsStudent(false);
       }
     } catch (err) {
       console.error("Token verification failed:", err);
@@ -100,11 +107,15 @@ function App() {
       <Routes>
         <Route exact path="/" element={<Home toggleModal={toggleModal} />} />
         <Route path="/course/:courseId" element={<Course />} />
-        <Route path="/saved" element={<Saved />} />
+        <Route path="/saved" element={<Saved toggleModal={toggleModal} />} />
         <Route path="/enroll/:courseId" element={<Enroll />} />
         <Route path="/enrolled-courses" element={<EnrolledCourses />} />
         <Route path="/verify" element={<Verify />} />
         <Route path="/create" element={<CreateCourse/>} />
+        <Route path="/upload-lession/:courseId" element={<UploadLession />}/>
+        <Route path="/manage-courses" element={<ManageCourses />}/>
+        <Route path="/update-course/:courseId" element={<UpdateCourse />}/>
+        
       
       </Routes>
     );

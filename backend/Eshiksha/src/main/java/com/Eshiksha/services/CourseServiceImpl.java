@@ -82,11 +82,11 @@ public class CourseServiceImpl implements CourseService {
         ApplicationUser user = userOptional.get();
         Optional<Student> studentOptional = this.studentRepository.findByUser(user);
 
-        if(studentOptional.isEmpty()) return false;
+        if (studentOptional.isEmpty()) return false;
 
         Optional<Course> courseOptional = courseRepository.findById(courseId);
 
-        if(courseOptional.isEmpty()) return false;
+        if (courseOptional.isEmpty()) return false;
 
         Course course = courseOptional.get();
 
@@ -105,14 +105,14 @@ public class CourseServiceImpl implements CourseService {
 
     }
 
-//    ...............sali karelo area
+    //    ...............sali karelo area
     @Override
-public void changeStatus(int id, String status) {
-    Course course = courseRepository.findById(id)
-            .orElseThrow(() -> new RuntimeException("Course not found"));
-    course.setStatus(status);
-    courseRepository.save(course); // Save the updated course status
-}
+    public void changeStatus(int id, String status) {
+        Course course = courseRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Course not found"));
+        course.setStatus(status);
+        courseRepository.save(course); // Save the updated course status
+    }
 
 //    .....................
 
@@ -129,11 +129,11 @@ public void changeStatus(int id, String status) {
         ApplicationUser user = userOptional.get();
         Optional<Student> studentOptional = this.studentRepository.findByUser(user);
 
-        if(studentOptional.isEmpty()) return false;
+        if (studentOptional.isEmpty()) return false;
 
         Optional<Course> courseOptional = courseRepository.findById(courseId);
 
-        if(courseOptional.isEmpty()) return false;
+        if (courseOptional.isEmpty()) return false;
 
         Course course = courseOptional.get();
 
@@ -151,5 +151,15 @@ public void changeStatus(int id, String status) {
         List<CourseCategory> categories = courseCategoryRepository.findAll();
 
         return categories;
+    }
+
+    @Override
+    public void updateCourseById(Course course, int courseId) {
+        try {
+
+
+        } catch (Exception e) {
+
+        }
     }
 }

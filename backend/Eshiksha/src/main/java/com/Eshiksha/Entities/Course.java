@@ -14,6 +14,7 @@ public class Course {
 
     private String courseName;
 
+    @Column(length = 5000)
     private String description;
 
     private float price;
