@@ -4,6 +4,7 @@ import com.Eshiksha.Entities.ApplicationUser;
 import com.Eshiksha.Entities.Role;
 import com.Eshiksha.Entities.Student;
 import com.Eshiksha.Entities.Teacher;
+import com.Eshiksha.Utils.JwtUtils;
 import com.Eshiksha.repositories.RoleRepository;
 import com.Eshiksha.repositories.StudentRepository;
 import com.Eshiksha.repositories.TeacherRepository;
@@ -32,8 +33,9 @@ public class AuthServiceImpl implements AuthService {
     private PasswordEncoder passwordEncoder;
 
     private TeacherService teacherService;
+    private JwtUtils jwtUtils;
 
-    public AuthServiceImpl(TeacherRepository teacherRepository, JavaMailSender mailSender, RoleRepository roleRepository, UserRepository userRepository, StudentRepository studentRepository, StudentService studentService, PasswordEncoder passwordEncoder, TeacherService teacherService) {
+    public AuthServiceImpl(TeacherRepository teacherRepository, JavaMailSender mailSender, RoleRepository roleRepository, UserRepository userRepository, StudentRepository studentRepository, StudentService studentService, PasswordEncoder passwordEncoder, TeacherService teacherService, JwtUtils jwtUtils) {
         this.passwordEncoder = passwordEncoder;
         this.studentService = studentService;
         this.studentRepository = studentRepository;
@@ -43,6 +45,7 @@ public class AuthServiceImpl implements AuthService {
         this.userRepository = userRepository;
         this.teacherService = teacherService;
 
+        this.jwtUtils = jwtUtils;
     }
 
     @Override
@@ -149,7 +152,7 @@ public class AuthServiceImpl implements AuthService {
         helper.setSubject(subject);
 
         content = content.replace("[[name]]", appUser.getFirstName());
-        String verifyURL = "http://localhost:3000/verify?code=" + appUser.getVerificationCode();
+        String verifyURL = "http://localhost:5173/verify?code=" + appUser.getVerificationCode();
         content = content.replace("[[URL]]", verifyURL);
 
         helper.setText(content, true);
@@ -207,5 +210,25 @@ public class AuthServiceImpl implements AuthService {
     public Teacher findTeacherByUser(ApplicationUser teacher) {
         ApplicationUser user = userRepository.findByEmail(teacher.getEmail()).orElseThrow();
         return teacherRepository.findByUser(user).orElseThrow();
+    }
+
+    @Override
+    public boolean varifyToken(String token) {
+        return !this.jwtUtils.isTokenExpired(token);
+    }
+
+    @Override
+    public ApplicationUser findUserByToken(String token) {
+        String usernameFromToken = jwtUtils.getUsernameFromToken(token);
+
+        return userRepository.findByEmail(usernameFromToken).orElseThrow();
+    }
+
+    public JwtUtils getJwtUtils() {
+        return jwtUtils;
+    }
+
+    public void setJwtUtils(JwtUtils jwtUtils) {
+        this.jwtUtils = jwtUtils;
     }
 }

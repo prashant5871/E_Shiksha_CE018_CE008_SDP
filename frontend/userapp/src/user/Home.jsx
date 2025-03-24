@@ -20,10 +20,13 @@ export default function CourseList({ toggleModal }) {
   const navigate = useNavigate();
 
   useEffect(() => {
+    setBookmarked(null);
 
     console.log("user from home : ", user);
 
     let courseIds = user?.bookMarkedCourses?.map(course => course.courseId);
+
+    courseIds = [...new Set(courseIds)];
     console.log("courseIds : ", courseIds);
 
     courseIds?.forEach(cId => {
@@ -33,15 +36,28 @@ export default function CourseList({ toggleModal }) {
         [cId]: true,
       }));
     })
-    console.log("prev after setting true : ", bookmarked);
+    console.log("bookmarked after setting true : ", bookmarked);
 
-    const url = isStudent ? "http://localhost:8000/courses/" : "http://localhost:8000/teacher/courses";
+    let url = isStudent ? "http://localhost:8000/courses/" : "http://localhost:8000/teacher/courses";
+    if (!isLoggedIn) {
+      url = "http://localhost:8000/courses/";
+    }
+    let headers = {};
+    if (isLoggedIn) {
+      console.log("user is loged in and now I am setting up header");
+      headers =
+      {
 
-    fetch(url, {
-      headers: {
-        'Authorization': `Bearer ${localStorage.getItem('authToken')}` // Add JWT token
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('authToken')}`
+        }
       }
-    })
+
+      console.log("headers : ", headers);
+
+    }
+
+    fetch(url, headers)
       .then((response) => {
         if (!response.ok) {
           throw new Error("Failed to fetch courses");
@@ -50,10 +66,10 @@ export default function CourseList({ toggleModal }) {
         return response.json();
       })
       .then((data) => {
-        if(isStudent){
+        if (isStudent) {
           console.log("loged in user is the student");
           setCourses(data.filter(d => d.status === "APPROVED"))
-        }else{
+        } else {
           console.log("loged in user is the teacher");
           setCourses(data);
         }
@@ -64,41 +80,8 @@ export default function CourseList({ toggleModal }) {
         setError(error.message);
         setLoading(false);
       });
-  }, []);
+  }, [isLoggedIn]);
 
-  const handleBookmarkToggle = async (courseId) => {
-    try {
-      console.log("user in toggle : ", user);
-      let userId = user?.user.userId;
-      if (!(!!user)) {
-        window.alert("Please login first...");
-        return;
-      }
-      setBookmarked((prev) => {
-        const isBookmarked = !!prev[courseId];
-        const url = isBookmarked
-          ? `http://localhost:8000/courses/remove-bookmark/${courseId}/${userId}`
-          : `http://localhost:8000/courses/bookmark/${courseId}/${userId}`;
-
-        const method = isBookmarked ? "DELETE" : "POST";
-
-        sendRequest(url, method);
-
-
-        if (user && user.bookMarkedCourses) {
-          user.bookMarkedCourses = user.bookMarkedCourses.filter(c => c?.courseId != courseId);
-          setUser(user);
-        }
-
-        return {
-          ...prev,
-          [courseId]: !isBookmarked,
-        };
-      });
-    } catch (error) {
-      console.log(error);
-    }
-  };
 
 
 
@@ -135,7 +118,14 @@ export default function CourseList({ toggleModal }) {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
           {courses.map((course) => (
-            <Card course={course} bookmarked={bookmarked} setSelectedCourse={setSelectedCourse} />
+            <Card
+              course={course}
+              bookmarked={bookmarked}
+              setSelectedCourse={setSelectedCourse}
+              setBookmarked={setBookmarked}
+              setUser={setUser}
+              courses={courses}
+            />
           ))}
         </div>
 

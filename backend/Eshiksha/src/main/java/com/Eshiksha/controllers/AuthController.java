@@ -71,7 +71,7 @@ public class AuthController {
             String jwt = jwtUtils.generateJwtToken(authentication);
             ApplicationUser user = authService.getUserByEmailId(student.getEmail());
             Student s1 = authService.findStudentByUser(student);
-            return ResponseEntity.ok(new JwtResponse(jwt, student.getUsername(), user.getUserId(),s1,user.isEnabled()));
+            return ResponseEntity.ok(new JwtResponse(jwt, student.getUsername(), user.getUserId(), s1, user.isEnabled()));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(new ApiResponse("Invalid username or password!", false));
@@ -94,8 +94,8 @@ public class AuthController {
             String jwt = jwtUtils.generateJwtToken(authentication);
 
             ApplicationUser user = authService.getUserByEmailId(teacher.getEmail());
-            Teacher  s1 = authService.findTeacherByUser(teacher);
-            return ResponseEntity.ok(new JwtResponse(jwt, teacher.getUsername(), user.getUserId(),null,user.isEnabled()));
+            Teacher s1 = authService.findTeacherByUser(teacher);
+            return ResponseEntity.ok(new JwtResponse(jwt, teacher.getUsername(), user.getUserId(), null, user.isEnabled()));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(new ApiResponse("Invalid username or password!(second)", false));
@@ -140,8 +140,8 @@ public class AuthController {
 
     //............sali karelo area............
     @PostMapping("/admin")
-    public ResponseEntity<?> adminLogin(@RequestBody ApplicationUser admin){
-        try{
+    public ResponseEntity<?> adminLogin(@RequestBody ApplicationUser admin) {
+        try {
             if (!("k_dev".equals(admin.getUsername()) && "123456".equals(admin.getPassword())) &&
                     !("p_dev".equals(admin.getUsername()) && "123456".equals(admin.getPassword()))) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
@@ -154,8 +154,8 @@ public class AuthController {
             SecurityContextHolder.getContext().setAuthentication(authentication);
             String jwt = jwtUtils.generateJwtToken(authentication);
 //            System.out.println("token ave che"+jwt);
-            return ResponseEntity.ok(new JwtResponse(jwt, admin.getUsername(), -1,null,true));
-        }catch (Exception e){
+            return ResponseEntity.ok(new JwtResponse(jwt, admin.getUsername(), -1, null, true));
+        } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(new ApiResponse("Invalid username or password!", false));
         }
@@ -163,19 +163,32 @@ public class AuthController {
     //.......................................end
 
     @GetMapping("/jwt-varify")
-    public ResponseEntity<Map<String,Boolean>> varifyToken(@RequestHeader("Authorization") String authHeader )
-    {
-        
-        Map<String,Boolean> response = new HashMap<>();
+    public ResponseEntity<Map<String, Object>> varifyToken(@RequestHeader("Authorization") String authHeader) {
+        System.out.println("varifying jwt token");
+        Map<String, Object> response = new HashMap<>();
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            response.put("isValid",false);
+            System.out.println("authHead is either null or not starts with Bearer : " + authHeader);
+            response.put("isValid", false);
 
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
         }
 
+        System.out.println("authheader is of required type");
         String token = authHeader.substring(7);
+        System.out.println("this is the token : " + token);
+        boolean valid = authService.varifyToken(token);
+        System.out.println("After varify token gets executes");
+        response.put("isValid", valid);
 
-        response.put("isValid",true);
+        ApplicationUser userByToken = authService.findUserByToken(token);
+
+        boolean isStudent = authService.isStudent(userByToken);
+        response.put("isStudent", isStudent);
+        if (isStudent)
+            response.put("user", authService.findStudentByUser(userByToken));
+        else {
+            response.put("users", authService.findTeacherByUser(userByToken));
+        }
         return ResponseEntity.status(HttpStatus.OK).body(response);
 
 

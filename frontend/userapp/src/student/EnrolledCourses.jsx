@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { Link } from 'react-router-dom';
 import { AuthContext } from '../shared/context/auth-context';
+import Card from '../shared/components/Card';
 
 const EnrolledCourses = () => {
   const [enrolledCourses, setEnrolledCourses] = useState([]);
@@ -23,11 +24,11 @@ const EnrolledCourses = () => {
           throw new Error('Failed to fetch enrolled courses');
         }
         const data = await response.json();
-        console.log("data : ",data);
+        console.log("data : ", data);
         setEnrolledCourses(data || []); // Access enrolledCourses array
         setLoading(false);
       } catch (err) {
-        console.log("Error : ",err);
+        console.log("Error : ", err);
         setError(err.message);
         setLoading(false);
       }
@@ -35,6 +36,14 @@ const EnrolledCourses = () => {
 
     fetchEnrolledCourses();
   }, [userId]);
+
+  const truncateDescription = (description, wordLimit) => {
+    const words = description.split(' ');
+    if (words.length > wordLimit) {
+      return words.slice(0, wordLimit).join(' ') + '...';
+    }
+    return description;
+  };
 
   if (loading) {
     return <div className="text-center text-xl font-bold p-6">Loading enrolled courses...</div>;
@@ -53,7 +62,9 @@ const EnrolledCourses = () => {
             key={course.courseId}
             className="bg-white rounded-xl overflow-hidden shadow-lg transition-transform duration-300 transform hover:scale-105 cursor-pointer hover:shadow-2xl"
           >
+
             <Link to={`/course/${course.courseId}`} className="block h-full">
+
               <img
                 className="w-full h-48 object-cover rounded-t-xl"
                 src={`http://localhost:8000/images/thumbnails/${(course.thumbnail)}`} // Assuming you have a thumbnail URL
@@ -61,7 +72,7 @@ const EnrolledCourses = () => {
               />
               <div className="p-6">
                 <div className="font-bold text-xl text-gray-800">{course.courseName}</div>
-                <p className="text-gray-600 text-sm mt-2">{course.description}</p>
+                <p className="text-gray-600 text-sm mt-2">{truncateDescription(course.description, 15)}</p>
                 <p className="text-lg font-semibold text-blue-600 mt-2">{course.duration}</p>
                 <p className="text-lg font-semibold text-green-800 mt-2">{course.price} rupees</p>
               </div>

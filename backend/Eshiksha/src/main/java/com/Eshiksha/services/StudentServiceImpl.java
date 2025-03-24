@@ -94,11 +94,6 @@ public class StudentServiceImpl implements StudentService {
 
         Course course = courseRepository.findById(courseId)
                 .orElseThrow(() -> new Exception("Course not found"));
-
-        if (course.getPrice() > 0 && paymentDTO.getAmount() != course.getPrice())
-            throw new Exception("Please enter valid amount");
-
-
         if (!student.getEnrolledCourses().contains(course)) {
             if (course.getPrice() > 0)
                 processPayment(student, course);

@@ -82,12 +82,12 @@ const Enroll = () => {
         </div>
 
         <div className="mt-4">
-          <label className="block text-gray-700 font-medium">Amount (₹)</label>
+          <label className="block text-gray-700 font-medium">PIN</label>
           <input
             type="number"
             value={amount}
             onChange={(e) => setAmount(e.target.value)}
-            placeholder="Enter amount"
+            placeholder="Enter PIN"
             className="mt-1 w-full p-2 border rounded-md focus:ring focus:ring-blue-300"
           />
         </div>

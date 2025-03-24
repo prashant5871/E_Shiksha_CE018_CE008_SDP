@@ -64,6 +64,18 @@ public class CourseController {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body("there is not have any course!!");
     }
 
+//    @GetMapping("/{courseId}")
+//    public ResponseEntity<Course> getCourseById(@PathVariable int courseId)
+//    {
+//        try{
+//            Course course = courseService.findById(courseId);
+//
+//            return ResponseEntity.status(HttpStatus.OK).body(course);
+//        }catch (Exception e){
+//            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+//        }
+//    }
+
     @PostMapping("/test")
     public String testing() {
         return "testing succesfully...";
@@ -285,6 +297,22 @@ public class CourseController {
         }
         response.put("message","can not remove right now ! please try again later");
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+    }
+
+    @PutMapping("/{courseId}")
+    public ResponseEntity<Map<String,String>> updateCourse(@RequestBody Course course,@PathVariable int courseId)
+    {
+        Map<String,String> response = new HashMap<>();
+        try{
+
+            courseService.updateCourseById(course,courseId);
+            response.put("message","course updated succesfully");
+            return ResponseEntity.status(HttpStatus.OK).body(response);
+        }catch (Exception e)
+        {
+            response.put("message","course can not be updated");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
     }
 
     @PostMapping("/bookmark/{courseId}/{userId}")
