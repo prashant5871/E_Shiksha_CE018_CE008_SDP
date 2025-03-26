@@ -1,4 +1,5 @@
 package com.Eshiksha.websocket;
+
 import jakarta.websocket.OnClose;
 import jakarta.websocket.OnError;
 import jakarta.websocket.OnOpen;
@@ -6,6 +7,7 @@ import jakarta.websocket.Session;
 import jakarta.websocket.server.PathParam;
 import jakarta.websocket.server.ServerEndpoint;
 import org.springframework.stereotype.Component;
+
 import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -13,6 +15,8 @@ import java.util.concurrent.ConcurrentHashMap;
 @Component
 @ServerEndpoint("/progress/{courseId}")
 public class VideoProgressWebSocket {
+
+    private final Object lock = new Object();
 
     private static Map<String, Session> sessions = new ConcurrentHashMap<>();
 
@@ -39,10 +43,12 @@ public class VideoProgressWebSocket {
         System.out.println("progress is bieng sent...");
         Session session = sessions.get(courseId);
         if (session != null && session.isOpen()) {
-            try {
-                session.getBasicRemote().sendText(message);
-            } catch (IOException e) {
-                e.printStackTrace();
+            synchronized (lock) {
+                try {
+                    session.getBasicRemote().sendText(message);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
         }
     }

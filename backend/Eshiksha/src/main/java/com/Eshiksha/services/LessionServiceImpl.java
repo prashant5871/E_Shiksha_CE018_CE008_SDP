@@ -149,7 +149,7 @@ public class LessionServiceImpl implements LessionService {
             BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
             String line;
             while ((line = reader.readLine()) != null) {
-                System.out.println("FFmpeg Output: " + line);
+                System.out.println("FFmpeg Output for thread " + threadIndex + " : " + line);
                 if (line.contains("time=")) {
                     String timeStr = line.substring(line.indexOf("time=") + 5, line.indexOf("time=") + 13);
                     if (!timeStr.contains("N/A")) {
