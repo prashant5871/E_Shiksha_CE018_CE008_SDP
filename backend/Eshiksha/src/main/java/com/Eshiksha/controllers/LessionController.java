@@ -6,6 +6,7 @@ import com.Eshiksha.Entities.Lession;
 import com.Eshiksha.services.CourseService;
 import com.Eshiksha.services.LessionService;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.FileSystemResource;
@@ -73,21 +74,21 @@ public class LessionController {
     }
 
     @PostMapping("/{courseId}")
-    public ResponseEntity<String> createLesson(@PathVariable int courseId,
-                                               @RequestParam("title") String title,
-                                               @RequestParam("description") String description,
-                                               @RequestParam("duration") long durationInSeconds,
-                                               @RequestParam("sequenceNumber") int sequenceNumber,
-                                               @RequestParam("resources") String resources,
-                                               @RequestParam("status") String status,
-                                               @RequestParam("lession") MultipartFile videoFile) {
+    public void createLesson(@PathVariable int courseId,
+                             @RequestParam("title") String title,
+                             @RequestParam("description") String description,
+                             @RequestParam("duration") long durationInSeconds,
+                             @RequestParam("sequenceNumber") int sequenceNumber,
+                             @RequestParam("resources") String resources,
+                             @RequestParam("status") String status,
+                             @RequestParam("lession") MultipartFile videoFile,
+                             HttpServletResponse response) throws IOException {
         try {
-            Lession lession = lessionService.createLession(courseId, title, description, durationInSeconds, sequenceNumber, resources, status, videoFile);
-
-            return ResponseEntity.ok("Lesson created successfully with ID: " + lession.getLessionId());
-
+            response.setContentType("text/plain");
+            response.setCharacterEncoding("UTF-8");
+            lessionService.createLession(courseId, title, description, durationInSeconds, sequenceNumber, resources, status, videoFile);
         } catch (Exception e) {
-            return ResponseEntity.status(500).body("Error: " + e.getMessage());
+            response.getOutputStream().write(("Error: " + e.getMessage()).getBytes(StandardCharsets.UTF_8));
         }
     }
 

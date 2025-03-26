@@ -13,11 +13,17 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import org.springframework.web.socket.server.standard.ServerEndpointExporter;
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig implements WebMvcConfigurer {
 
+
+    @Bean
+    public ServerEndpointExporter serverEndpointExporter() {
+        return new ServerEndpointExporter();
+    }
     // Password encoder
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -41,17 +47,18 @@ public class SecurityConfig implements WebMvcConfigurer {
 
         // Security configuration
         http.authorizeHttpRequests(auth -> {
-                    auth.requestMatchers("/auth/**").permitAll()
-                            .requestMatchers("/home/admin").hasRole("ADMIN")
-                            .requestMatchers("/courses/**").permitAll()
-                            .requestMatchers("/lessions/**").permitAll()
-                            .requestMatchers("/review/**").permitAll()
-                            .requestMatchers("/doubts/**").hasRole("STUDENT")
-                            .requestMatchers("/student/**").permitAll()
-                            .requestMatchers("/teacher/**").hasRole("TEACHER")
-                            .anyRequest().permitAll();
-                })
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+//                    auth.requestMatchers("/auth/**").permitAll()
+//                            .requestMatchers("/home/admin").hasRole("ADMIN")
+//                            .requestMatchers("/courses/**").permitAll()
+//                            .requestMatchers("/lessions/**").permitAll()
+//                            .requestMatchers("/review/**").permitAll()
+//                            .requestMatchers("/doubts/**").hasRole("STUDENT")
+//                            .requestMatchers("/student/**").permitAll()
+//                            .requestMatchers("/teacher/**").hasRole("TEACHER")
+//                            .anyRequest().permitAll();
+//                })
+            auth.requestMatchers("/progress/**").permitAll()
+                    .anyRequest().permitAll();}).addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }

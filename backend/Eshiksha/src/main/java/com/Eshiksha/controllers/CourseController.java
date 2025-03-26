@@ -1,18 +1,11 @@
 package com.Eshiksha.controllers;
 
 import com.Eshiksha.Entities.Course;
-import com.Eshiksha.Entities.Course;
 import com.Eshiksha.Entities.CourseCategory;
-import com.Eshiksha.dto.CourseDTO;
 import com.Eshiksha.services.CourseService;
 import com.Eshiksha.services.VideoService;
-import com.azure.storage.blob.BlobClient;
-import com.azure.storage.blob.BlobContainerClient;
-import com.azure.storage.blob.BlobServiceClient;
-import com.azure.storage.blob.BlobServiceClientBuilder;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
@@ -23,7 +16,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.nio.file.Files;
@@ -32,7 +24,6 @@ import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/courses")
@@ -62,6 +53,68 @@ public class CourseController {
         }
 
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body("there is not have any course!!");
+    }
+
+    @GetMapping("/get-categories")
+    public ResponseEntity<?> getAllCategories()
+    {
+        try{
+            List<CourseCategory> allCategories = this.courseService.findAllCategories();
+
+            return ResponseEntity.ok(allCategories);
+
+        }catch(Exception e)
+        {
+            Map<String,String> response = new HashMap<>();
+            response.put("message", "Internal server error , please try again later");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+    }
+
+
+    @PostMapping("/")
+    public ResponseEntity<String> createCourse(@RequestParam String courseName,
+                                               @RequestParam String description,
+                                               @RequestParam float price,
+                                               @RequestParam int categoryId,
+                                               @RequestParam MultipartFile document,
+                                               @RequestParam MultipartFile thumbnail,
+                                               @RequestParam MultipartFile demoVideo,
+                                               @RequestParam int duration,
+                                               HttpServletRequest request,
+                                               HttpServletResponse response) {
+        try {
+            System.out.println("inside create course method...\n");
+            String authorizationHeader = request.getHeader("Authorization");
+
+            if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
+                String jwtToken = authorizationHeader.substring(7);
+
+                if (document.isEmpty() || !document.getContentType().equals("application/pdf")) {
+                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid document format. Only PDF files are allowed.");
+                }
+
+                if (thumbnail.isEmpty()) {
+                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("thumbnail is not provided");
+                }
+
+                try {
+
+                    courseService.saveCourseAndFiles(thumbnail,demoVideo,document,courseName,description,price,categoryId,jwtToken,duration,response);
+
+                    return ResponseEntity.status(HttpStatus.CREATED).body("Course created successfully");
+
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error while saving the document.");
+                }
+
+            } else {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Authorization header is missing or invalid.");
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
 //    @GetMapping("/{courseId}")
@@ -181,107 +234,7 @@ public class CourseController {
 
      */
 
-    @GetMapping("/get-categories")
-    public ResponseEntity<?> getAllCategories()
-    {
-        try{
-            List<CourseCategory> allCategories = this.courseService.findAllCategories();
 
-            return ResponseEntity.ok(allCategories);
-
-        }catch(Exception e)
-        {
-            Map<String,String> response = new HashMap<>();
-            response.put("message", "Internal server error , please try again later");
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
-        }
-    }
-
-
-    @PostMapping("/")
-    public ResponseEntity<String> createCourse(@RequestParam String courseName,
-                                               @RequestParam String description,
-                                               @RequestParam float price,
-                                               @RequestParam int categoryId,
-                                               @RequestParam MultipartFile document,
-                                               @RequestParam MultipartFile thumbnail,
-                                               @RequestParam MultipartFile demoVideo,
-                                               @RequestParam int duration,
-                                               HttpServletRequest request) {
-        try {
-            System.out.println("inside create course method...\n");
-            String authorizationHeader = request.getHeader("Authorization");
-
-            if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
-                String jwtToken = authorizationHeader.substring(7);
-
-                if (document.isEmpty() || !document.getContentType().equals("application/pdf")) {
-                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid document format. Only PDF files are allowed.");
-                }
-
-                if (thumbnail.isEmpty()) {
-                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("thumbnail is not provided");
-                }
-
-                try {
-
-
-                    String documentName = System.currentTimeMillis() + "_" + document.getOriginalFilename();
-                    Path documentPath = Paths.get("./documents/" + documentName);
-
-                    String thumbnailName = System.currentTimeMillis() + "_" + thumbnail.getOriginalFilename();
-                    Path thumbnailPath = Paths.get("./thumbnails/" + thumbnailName);
-
-                    String demoVideoName = System.currentTimeMillis() + "_" + demoVideo.getOriginalFilename();
-                    Path demoVideoPath = Paths.get("./video/" + demoVideoName);
-
-
-//                    File vFolder = new File("./video");
-//                    if (!vFolder.exists()) {
-//                        Files.createDirectories(demoVideoPath.getParent());
-//                    }
-                    File folder = new File("./documents");
-
-                    if (!folder.exists()) {
-                        Files.createDirectories(documentPath.getParent());
-                    }
-
-                    File thumbnailFolder = new File("./thumbnails");
-
-                    if (!thumbnailFolder.exists()) {
-                        Files.createDirectories(thumbnailPath.getParent());
-                    }
-
-                    Files.write(documentPath, document.getBytes());
-                    Files.write(thumbnailPath, thumbnail.getBytes());
-//                    Files.write(demoVideoPath, demoVideo.getBytes());
-
-                    String documentUrl = documentPath.toAbsolutePath().toString();
-                    String thumbnailUrl = thumbnailPath.toAbsolutePath().toString();
-//                    String demoVideoUrl = demoVideoPath.toString();
-
-//                    Path videoPath = Paths.get("./video");
-                    String s = this.videoService.processDummyVideo(demoVideo);
-
-                    // Call service method with updated document URL
-                    this.courseService.create(courseName, description, price,
-                            categoryId, jwtToken, documentName, thumbnailName,s,duration);
-
-
-                    return ResponseEntity.status(HttpStatus.CREATED).body("Course created successfully");
-
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error while saving the document.");
-                }
-
-            } else {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Authorization header is missing or invalid.");
-            }
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
 
     @DeleteMapping("/remove-bookmark/{courseId}/{userId}")
     public ResponseEntity<Map<String,String>> removeCourseFromBookMark(@PathVariable int courseId,@PathVariable int userId)

@@ -2,6 +2,7 @@ import { useState, useCallback, useEffect } from "react";
 import Navbar from "./shared/components/Navbar";
 import "./App.css";
 import { AuthContext } from "./shared/context/auth-context";
+import { UploadProvider } from "./shared/context/UploadContext"; // Import UploadProvider
 import { useHttpClient } from "./shared/hooks/http-hook";
 import { ToastContainer } from "react-toastify";
 import {
@@ -17,7 +18,7 @@ import Enroll from "./student/Enroll";
 import EnrolledCourses from "./student/EnrolledCourses";
 import Verify from "./shared/components/Verify";
 import CreateCourse from "./teacher/CreateCourse";
-import LiveMeeting from './live'
+import LiveMeeting from "./live";
 import UploadLession from "./teacher/UploadLession";
 import ManageCourses from "./teacher/ManageCourses";
 import UpdateCourse from "./teacher/UpdateCourse";
@@ -28,18 +29,17 @@ function App() {
   const [userMail, setUserMail] = useState(null);
   const [isStudent, setIsStudent] = useState(true);
   const { isLoading, error, sendRequest, clearError } = useHttpClient();
-  const [user,setUser] = useState(null);
+  const [user, setUser] = useState(null);
+  const [isEnabled, setIsEnabled] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const [isEnabled, setIsEnabled] = useState(false)
-
-  const [isModalOpen, setIsModalOpen] = useState(false)
-  const toggleModal = () => setIsModalOpen(!isModalOpen)
+  const toggleModal = () => setIsModalOpen(!isModalOpen);
 
   // Function to verify JWT token with the backend
   const verifyToken = useCallback(async () => {
     const token = localStorage.getItem("authToken");
     if (!token) {
-      console.log("token is not there in localStorage");
+      console.log("Token is not present in localStorage");
       return;
     }
     try {
@@ -51,14 +51,14 @@ function App() {
       });
       const data = await response.json();
       if (response.ok && data?.isValid) {
-        console.log("If gets executed..",data);
+        console.log("Token is valid:", data);
         setIsLoggedIn(true);
         setUserId(data.user.user.userId);
         setUserMail(data.user.user.email);
         setIsStudent(data.isStudent);
-        setUser(data.user)
+        setUser(data.user);
       } else {
-        console.log("token is not valid , it is expires please try again later...",data);
+        console.log("Token is invalid or expired:", data);
         localStorage.removeItem("authToken");
         setIsLoggedIn(false);
         setUserId(null);
@@ -75,20 +75,14 @@ function App() {
     verifyToken();
   }, [verifyToken]);
 
-  const login = useCallback((uid, umail, authToken,user,isEnabled) => {
+  const login = useCallback((uid, umail, authToken, user, isEnabled) => {
     localStorage.setItem("authToken", authToken);
     setIsLoggedIn(true);
     setUserId(uid);
     setUserMail(umail);
     setUser(user);
     setIsEnabled(isEnabled);
-    console.log("user from the login method , ",user);
-
-    // if(!user || !user.enrolledCourses)
-    // {
-    //   console.log("setting student to be false");
-    //   setIsStudent(false);
-    // }
+    console.log("User logged in:", user);
   }, []);
 
   const logout = useCallback(() => {
@@ -111,12 +105,10 @@ function App() {
         <Route path="/enroll/:courseId" element={<Enroll />} />
         <Route path="/enrolled-courses" element={<EnrolledCourses />} />
         <Route path="/verify" element={<Verify />} />
-        <Route path="/create" element={<CreateCourse/>} />
-        <Route path="/upload-lession/:courseId" element={<UploadLession />}/>
-        <Route path="/manage-courses" element={<ManageCourses />}/>
-        <Route path="/update-course/:courseId" element={<UpdateCourse />}/>
-        
-      
+        <Route path="/create" element={<CreateCourse />} />
+        <Route path="/upload-lession/:courseId" element={<UploadLession />} />
+        <Route path="/manage-courses" element={<ManageCourses />} />
+        <Route path="/update-course/:courseId" element={<UpdateCourse />} />
       </Routes>
     );
   } else {
@@ -128,7 +120,7 @@ function App() {
         <Route path="/enroll/:courseId" element={<Enroll />} />
         <Route path="/enrolled-courses" element={<EnrolledCourses />} />
         <Route path="/verify" element={<Verify />} />
-        <Route path="/create" element={<CreateCourse/>} />
+        <Route path="/create" element={<CreateCourse />} />
       </Routes>
     );
   }
@@ -145,23 +137,25 @@ function App() {
         setIsStudent,
         user,
         setUser,
-        isEnabled
+        isEnabled,
       }}
     >
-      <Router>
-        <Navbar toggleModal={toggleModal} isModalOpen = {isModalOpen}/>
-        <main>{routes}</main>
-        <ToastContainer
-          position="bottom-center"
-          autoClose={3000}
-          hideProgressBar={false}
-          closeOnClick
-          pauseOnHover
-          draggable
-          pauseOnFocusLoss
-        />
-        <Footer />
-      </Router>
+      <UploadProvider> {/* Wrap with UploadProvider */}
+        <Router>
+          <Navbar toggleModal={toggleModal} isModalOpen={isModalOpen} />
+          <main>{routes}</main>
+          <ToastContainer
+            position="bottom-center"
+            autoClose={3000}
+            hideProgressBar={false}
+            closeOnClick
+            pauseOnHover
+            draggable
+            pauseOnFocusLoss
+          />
+          <Footer />
+        </Router>
+      </UploadProvider>
     </AuthContext.Provider>
   );
 }
