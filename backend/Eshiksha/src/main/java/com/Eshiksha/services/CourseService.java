@@ -25,7 +25,7 @@ public interface CourseService {
 
     List<CourseCategory> findAllCategories();
 
-    void updateCourseById(Course course, int courseId);
-
     void saveCourseAndFiles(MultipartFile thumbnail, MultipartFile demoVideo, MultipartFile document, String courseName, String description, float price, int categoryId, String jwtToken, int duration, HttpServletResponse response) throws Exception;
+
+    void updateCourseById(int courseId, String courseName, String description, int duration, float price, int categoryId);
 }

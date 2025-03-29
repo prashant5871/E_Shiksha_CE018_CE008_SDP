@@ -1,5 +1,4 @@
-import React, { useState, useEffect, useContext } from "react";
-import { AuthContext } from "../shared/context/auth-context";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
 const ManageCourses = () => {
@@ -7,6 +6,7 @@ const ManageCourses = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [expanded, setExpanded] = useState({});
 
   useEffect(() => {
     const fetchCourses = async () => {
@@ -34,69 +34,120 @@ const ManageCourses = () => {
     fetchCourses();
   }, []);
 
-  const handleAddCourse = () => {
-    navigate("/create");
+  const handleAddCourse = () => navigate("/create");
+  const handleUpdateCourse = (courseId) => navigate(`/update-course/${courseId}`);
+  const handleAddLesson = (lessonId) => navigate(`/upload-lesson/${lessonId}`);
+  const handleViewLesson = (lessonId) => navigate(`/lesson/${lessonId}`);
+
+  const toggleDescription = (courseId) => {
+    setExpanded((prev) => ({ ...prev, [courseId]: !prev[courseId] }));
   };
 
-  const handleUpdateCourse = (courseId) => {
-    navigate(`/update-course/${courseId}`);
-  };
-
-  if (loading) {
-    return <p>Loading courses...</p>;
-  }
-
-  if (error) {
-    return <p>Error: {error}</p>;
-  }
+  if (loading) return <p>Loading courses...</p>;
+  if (error) return <p>Error: {error}</p>;
 
   return (
     <div className="container mx-auto p-4">
-      <h1 className="text-3xl font-bold mb-4">Manage Courses</h1>
+      <h1 className="text-3xl font-bold mb-4 text-center">Manage Courses</h1>
       <button
         onClick={handleAddCourse}
-        className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mb-4"
+        className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mb-6 block mx-auto"
       >
         Add Course
       </button>
 
       {courses.length === 0 ? (
-        <p>No courses found.</p>
+        <p className="text-center">No courses found.</p>
       ) : (
-        <div className="overflow-x-auto">
-          <table className="min-w-full bg-white border border-gray-300">
-            <thead>
-              <tr>
-                <th className="py-2 px-4 border-b">Course Name</th>
-                <th className="py-2 px-4 border-b">Price</th>
-                <th className="py-2 px-4 border-b">Category</th>
-                <th className="py-2 px-4 border-b">Status</th>
-                <th className="py-2 px-4 border-b">Duration</th>
-                <th className="py-2 px-4 border-b">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {courses.map((course) => (
-                <tr key={course.courseId}>
-                  <td className="py-2 px-4 border-b">{course.courseName}</td>
-                  <td className="py-2 px-4 border-b">{course.price}</td>
-                  <td className="py-2 px-4 border-b">
-                    {course.category ? course.category.categoryName : "N/A"}
-                  </td>
-                  <td className="py-2 px-4 border-b">{course.status}</td>
-                  <td className="py-2 px-4 border-b">{course.duration} days</td>
-                  <td className="py-2 px-4 border-b">
-                    <button
-                      onClick={() => handleUpdateCourse(course.courseId)}
-                      className="bg-green-500 hover:bg-green-700 text-white font-bold py-1 px-2 rounded"
-                    >
-                      Update
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {courses.map((course) => {
+            const words = course.description.split(" ");
+            const isLongDescription = words.length > 20;
+            const shortDescription = words.slice(0, 20).join(" ") + "...";
+
+            return (
+              <div
+  key={course.courseId}
+  className="bg-white shadow-lg rounded-lg p-4 border border-gray-200 transition-transform duration-300 transform hover:scale-105 hover:shadow-2xl flex flex-col"
+>
+  {/* Course Thumbnail */}
+  <img
+    src={`http://localhost:8000/images/thumbnails/${encodeURIComponent(course.thumbnail)}`}
+    alt={course.courseName}
+    className="w-full h-48 object-cover rounded-lg mt-3"
+  />
+
+  {/* Course Name */}
+  <h2 className="text-xl font-semibold mt-3">{course.courseName}</h2>
+
+  {/* Course Description */}
+  <p className="text-gray-700 mt-2">
+    {course.description.split(" ").length > 20 ? (
+      expanded[course.courseId] ? (
+        <>
+          {course.description}{" "}
+          <button
+            onClick={() => toggleDescription(course.courseId)}
+            className="text-red-500 hover:underline ml-1"
+          >
+            Show Less
+          </button>
+        </>
+      ) : (
+        <>
+          {course.description.split(" ").slice(0, 20).join(" ")}...{" "}
+          <button
+            onClick={() => toggleDescription(course.courseId)}
+            className="text-blue-500 hover:underline ml-1"
+          >
+            Read More
+          </button>
+        </>
+      )
+    ) : (
+      course.description
+    )}
+  </p>
+
+  {/* Course Details */}
+  <p className="text-sm text-gray-600 mt-2">
+    <strong>Price:</strong> ₹{course.price}
+  </p>
+  <p className="text-sm text-gray-600">
+    <strong>Category:</strong> {course.category ? course.category.categoryName : "N/A"}
+  </p>
+  <p className="text-sm text-gray-600">
+    <strong>Status:</strong> {course.status}
+  </p>
+  <p className="text-sm text-gray-600">
+    <strong>Duration:</strong> {course.duration} days
+  </p>
+
+  {/* Buttons (Always at the Bottom) */}
+  <div className="mt-auto pt-4 flex flex-wrap gap-2">
+    <button
+      onClick={() => handleUpdateCourse(course.courseId)}
+      className="bg-green-500 hover:bg-green-700 text-white font-bold py-1 px-2 rounded"
+    >
+      Update Course
+    </button>
+    <button
+      onClick={() => handleAddLesson(course.courseId)}
+      className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-1 px-2 rounded"
+    >
+      Add Lesson
+    </button>
+    <button
+      onClick={() => handleViewLesson(course.courseId)}
+      className="bg-purple-500 hover:bg-purple-700 text-white font-bold py-1 px-2 rounded"
+    >
+      View Lesson
+    </button>
+  </div>
+</div>
+
+            );
+          })}
         </div>
       )}
     </div>

@@ -93,11 +93,28 @@ public class CourseServiceImpl implements CourseService {
 //                    String demoVideoUrl = demoVideoPath.toString();
 
 //                    Path videoPath = Paths.get("./video");
-        String demoVideoLocation = this.videoService.processDummyVideo(demoVideo,"");
+        String demoVideoLocation = this.videoService.processDummyVideo(demoVideo);
 
         this.create(courseName, description, price,
                 categoryId, jwtToken, documentName, thumbnailName,demoVideoLocation,duration);
 
+    }
+
+    @Override
+    public void updateCourseById(int courseId, String courseName, String description, int duration, float price, int categoryId) {
+        try{
+            Course course = courseRepository.findById(courseId).orElseThrow();
+
+            course.setCourseName(courseName);
+            course.setDescription(description);
+            course.setDuration(duration);
+            course.setPrice(price);
+            course.setCategory(courseCategoryRepository.findById(categoryId).orElseThrow());
+
+            courseRepository.save(course);
+        }catch(Exception e){
+            e.printStackTrace();
+        }
     }
 
 
@@ -216,15 +233,6 @@ public class CourseServiceImpl implements CourseService {
         return categories;
     }
 
-    @Override
-    public void updateCourseById(Course course, int courseId) {
-        try {
-
-
-        } catch (Exception e) {
-
-        }
-    }
 
 
 }

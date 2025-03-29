@@ -253,20 +253,31 @@ public class CourseController {
     }
 
     @PutMapping("/{courseId}")
-    public ResponseEntity<Map<String,String>> updateCourse(@RequestBody Course course,@PathVariable int courseId)
-    {
-        Map<String,String> response = new HashMap<>();
-        try{
+    public ResponseEntity<Map<String, String>> updateCourse(
+            @PathVariable int courseId,
+            @RequestBody Map<String, Object> requestData) {  // Accept JSON body
 
-            courseService.updateCourseById(course,courseId);
-            response.put("message","course updated succesfully");
+        Map<String, String> response = new HashMap<>();
+
+        try {
+            // Extract values from JSON request
+            String courseName = (String) requestData.get("courseName");
+            String description = (String) requestData.get("description");
+            int duration = (int) requestData.get("duration");
+            float price = Float.parseFloat(requestData.get("price").toString());
+            int category = (int) requestData.get("category");
+
+            // Call service to update course
+            courseService.updateCourseById(courseId, courseName, description, duration, price, category);
+
+            response.put("message", "Course updated successfully");
             return ResponseEntity.status(HttpStatus.OK).body(response);
-        }catch (Exception e)
-        {
-            response.put("message","course can not be updated");
+        } catch (Exception e) {
+            response.put("message", "Course cannot be updated");
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
+
 
     @PostMapping("/bookmark/{courseId}/{userId}")
     public ResponseEntity<Map<String,String>> bookMarkCourse(@PathVariable int courseId,@PathVariable int userId)

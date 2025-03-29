@@ -58,7 +58,7 @@ public class LessionServiceImpl implements LessionService {
     }
 
     @Override
-    public Lession createLession(int courseId, String title, String description, long durationInSeconds,
+    public Lession createLession(int courseId, String title, String description,
                                  int sequenceNumber, String resources, String status, MultipartFile videoFile) throws Exception {
         try {
             Course course = courseService.getCourseById(courseId);

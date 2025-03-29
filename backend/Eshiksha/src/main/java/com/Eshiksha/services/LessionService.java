@@ -11,7 +11,8 @@ public interface LessionService {
 
     public Lession findLessionById(int lessionId);
 
-    Lession createLession(int courseId, String title, String description, long durationInSeconds, int sequenceNumber, String resources, String status, MultipartFile videoFile) throws Exception;
+    Lession createLession(int courseId, String title, String description, int sequenceNumber, String resources, String status, MultipartFile videoFile) throws Exception;
+
 
     List<Lession> getAllLessions();
 }

@@ -77,7 +77,6 @@ public class LessionController {
     public void createLesson(@PathVariable int courseId,
                              @RequestParam("title") String title,
                              @RequestParam("description") String description,
-                             @RequestParam("duration") long durationInSeconds,
                              @RequestParam("sequenceNumber") int sequenceNumber,
                              @RequestParam("resources") String resources,
                              @RequestParam("status") String status,
@@ -86,7 +85,7 @@ public class LessionController {
         try {
             response.setContentType("text/plain");
             response.setCharacterEncoding("UTF-8");
-            lessionService.createLession(courseId, title, description, durationInSeconds, sequenceNumber, resources, status, videoFile);
+            lessionService.createLession(courseId, title, description, sequenceNumber, resources, status, videoFile);
         } catch (Exception e) {
             response.getOutputStream().write(("Error: " + e.getMessage()).getBytes(StandardCharsets.UTF_8));
         }
