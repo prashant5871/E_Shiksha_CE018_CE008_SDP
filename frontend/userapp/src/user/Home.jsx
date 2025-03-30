@@ -125,6 +125,7 @@ export default function CourseList({ toggleModal }) {
               setBookmarked={setBookmarked}
               setUser={setUser}
               courses={courses}
+              toggleModal={toggleModal}
             />
           ))}
         </div>

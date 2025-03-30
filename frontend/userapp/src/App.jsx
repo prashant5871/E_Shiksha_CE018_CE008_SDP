@@ -22,6 +22,7 @@ import LiveMeeting from "./live";
 import UploadLession from "./teacher/UploadLession";
 import ManageCourses from "./teacher/ManageCourses";
 import UpdateCourse from "./teacher/UpdateCourse";
+import MyDoubts from "./student/MyDoubts";
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -109,6 +110,7 @@ function App() {
         <Route path="/upload-lession/:courseId" element={<UploadLession />} />
         <Route path="/manage-courses" element={<ManageCourses />} />
         <Route path="/update-course/:courseId" element={<UpdateCourse />} />
+        <Route path="/doubts" element={<MyDoubts/>} />
       </Routes>
     );
   } else {

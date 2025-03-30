@@ -16,20 +16,26 @@ export default function Navbar({ toggleModal, isModalOpen }) {
   const [navigation, setNavigation] = useState(null);
 
   useEffect(() => {
-    if(auth?.isStudent)
+    if(auth?.isStudent && auth?.isLoggedIn)
     {
       setNavigation([
         { name: 'Home', href: '/' },
         { name: 'Saved', href: '/saved' },
         { name: 'My Courses', href: '/enrolled-courses' },
+        { name : 'My Doubts', href:'/doubts'}
       ]);
-    }else{
+    }else if(auth?.isLoggedIn){
       setNavigation([
         { name: 'Home', href: '/' },
         { name: 'Manage Courses', href: '/manage-courses' },
         {name : 'Create' , href: '/create'},
       
       ]);
+    }else{
+      setNavigation([
+        {name:'Home',href:'/'},
+        {name:'About us',href:'/about'}
+      ])
     }
     if (isSearchOpen && searchInputRef.current) {
       searchInputRef.current.focus();

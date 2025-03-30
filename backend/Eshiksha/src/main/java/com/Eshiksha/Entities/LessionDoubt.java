@@ -1,5 +1,6 @@
 package com.Eshiksha.Entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 @Entity
@@ -14,6 +15,7 @@ public class LessionDoubt {
 	// Many doubts can belong to one student
 	@ManyToOne
 	@JoinColumn(name = "student_id", nullable = false)
+	@JsonIgnore
 	private Student student;
 
 	// Many doubts can belong to one lesson
@@ -21,7 +23,9 @@ public class LessionDoubt {
 	@JoinColumn(name = "lession_id", nullable = false)
 	private Lession lession;
 
-	// Getters and Setters
+	private String solution;
+
+    // Getters and Setters
 	public int getDoubtId() {
 		return doubtId;
 	}
@@ -52,5 +56,13 @@ public class LessionDoubt {
 
 	public void setLession(Lession lession) {
 		this.lession = lession;
+	}
+
+	public String getSolution() {
+		return solution;
+	}
+
+	public void setSolution(String solution) {
+		this.solution = solution;
 	}
 }

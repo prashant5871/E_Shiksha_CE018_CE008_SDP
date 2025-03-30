@@ -8,11 +8,14 @@ import com.Eshiksha.repositories.DoubtRepository;
 import com.Eshiksha.repositories.LessionRepository;
 import com.Eshiksha.repositories.StudentRepository;
 import com.Eshiksha.repositories.UserRepository;
+import com.Eshiksha.services.DoubtService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.w3c.dom.stylesheets.LinkStyle;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -27,11 +30,22 @@ public class DoubtController {
 
     private LessionRepository lessionRepository;
 
-    public DoubtController(DoubtRepository doubtRepository, UserRepository userRepository, StudentRepository studentRepository, LessionRepository lessionRepository) {
+    private DoubtService doubtService;
+
+    public DoubtController(DoubtRepository doubtRepository, UserRepository userRepository, StudentRepository studentRepository, LessionRepository lessionRepository, DoubtService doubtService) {
         this.studentRepository = studentRepository;
         this.userRepository = userRepository;
         this.doubtRepository = doubtRepository;
         this.lessionRepository = lessionRepository;
+        this.doubtService = doubtService;
+    }
+
+    @GetMapping("/{userId}")
+    public ResponseEntity<?> getDoubtByUserId(@PathVariable int userId)
+    {
+        List<LessionDoubt> doubts =  doubtService.getDoubtByUserId(userId);
+
+        return ResponseEntity.ok(doubts);
     }
 
     @PostMapping("/{lessionId}/{userId}")

@@ -3,7 +3,7 @@ import { AuthContext } from "../context/auth-context";
 import { useHttpClient } from "../hooks/http-hook";
 import { FaBookmark, FaRegBookmark } from "react-icons/fa"; // Bookmark icons
 
-const Card = ({ course, bookmarked, setSelectedCourse, setBookmarked, setUser, courses }) => {
+const Card = ({ course, bookmarked, setSelectedCourse, setBookmarked, setUser, courses,toggleModal }) => {
     const { isStudent, isLoggedIn, user } = useContext(AuthContext);
     const { sendRequest } = useHttpClient();
 
@@ -20,7 +20,8 @@ const Card = ({ course, bookmarked, setSelectedCourse, setBookmarked, setUser, c
     const handleBookmarkToggle = async (courseId) => {
         try {
             if (!isLoggedIn) {
-                window.alert("Please login first...");
+                // window.alert("Please login first...");
+                toggleModal();
                 return;
             }
 
