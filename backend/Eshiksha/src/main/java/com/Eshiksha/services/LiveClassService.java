@@ -14,5 +14,5 @@ public interface LiveClassService {
 
     boolean deleteLiveClass(int liveClassId);
 
-    LiveClass updateLiveClass(int liveClassId, LiveClass liveClassDetails);
+    LiveClass updateLiveClass(int liveClassId, LiveClassDTO liveClassDetails);
 }

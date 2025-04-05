@@ -8,6 +8,7 @@ import com.Eshiksha.dto.LiveClassDTO;
 import com.Eshiksha.repositories.*;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -51,8 +52,9 @@ public class LiveClassServiceImpl implements LiveClassService{
     }
 
     @Override
-    public List<LiveClass> getAllLiveClassesByTeacher(int teacherId) {
-        Teacher teacher = teacherRepository.findById(teacherId)
+    public List<LiveClass> getAllLiveClassesByTeacher(int userId) {
+
+        Teacher teacher = teacherRepository.findByUser_UserId(userId)
                 .orElseThrow(()->new RuntimeException("Teacher not Found !"));
         return liveClassRepository.findByCourse_Teacher(teacher);
     }
@@ -70,7 +72,7 @@ public class LiveClassServiceImpl implements LiveClassService{
     }
 
     @Override
-    public LiveClass updateLiveClass(int liveClassId, LiveClass liveClassDetails) {
+    public LiveClass updateLiveClass(int liveClassId, LiveClassDTO  liveClassDetails) {
         LiveClass liveClass = liveClassRepository.findById(liveClassId)
                 .orElseThrow(()->new RuntimeException("Live Class not Found !"));
         liveClass.setTopic(liveClassDetails.getTopic());
@@ -81,13 +83,12 @@ public class LiveClassServiceImpl implements LiveClassService{
     }
 
     @Override
-    public List<LiveClass> getAllLiveClassesByStudent(int studentId) {
-        // Fetch the Student entity
-        Student student = studentRepository.findById(studentId)
-                .orElseThrow(() -> new RuntimeException("Student not found"));
-
-        // Fetch and return live classes related to courses the student is enrolled in
-        return liveClassRepository.findByCourse_EnrolledStudents(student);
+    public List<LiveClass> getAllLiveClassesByStudent(int userId) {
+        Student student = studentRepository.findByUserId(userId)
+                .orElseThrow(()->new RuntimeException("Student now found"));
+        List<LiveClass> liveClasses = liveClassRepository.findLiveClassesByStudent(student);
+        System.out.println(liveClasses.size() + "size of leveclass");
+        return liveClasses;
     }
 
 }

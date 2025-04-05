@@ -56,7 +56,7 @@ public class LiveClassController {
             res.put("data", liveClasses);
             return ResponseEntity.ok(res);
         } catch (Exception e) {
-            res.put("message", "Unable to fetch live classes for this student");
+            res.put("message", "Unable to fetch live classes : "+ e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(res);
         }
     }
@@ -75,10 +75,10 @@ public class LiveClassController {
     }
 
     @PutMapping("/{liveClassId}")
-    public ResponseEntity<Map<String, Object>> updateLiveClass(@PathVariable int liveClassId, @RequestBody LiveClass liveClass ){
+    public ResponseEntity<Map<String, Object>> updateLiveClass(@PathVariable int liveClassId, @RequestBody LiveClassDTO liveClassDTO ){
         Map<String , Object> res = new HashMap<>();
         try{
-            liveClassService.updateLiveClass(liveClassId, liveClass);
+            liveClassService.updateLiveClass(liveClassId, liveClassDTO);
             res.put("message", "Live class updated successfully");
             return ResponseEntity.ok(res);
         } catch (Exception e) {

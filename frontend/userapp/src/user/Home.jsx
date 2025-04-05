@@ -7,6 +7,8 @@ import { useHttpClient } from "../shared/hooks/http-hook";
 import Loading from "../shared/components/Loading";
 import CourseDetail from "../shared/components/CourseDetail";
 import Card from "../shared/components/Card";
+import { authToken, captureHLSThumbnail, createMeeting } from "../API"
+
 
 export default function CourseList({ toggleModal }) {
   const [courses, setCourses] = useState([]);
@@ -16,6 +18,13 @@ export default function CourseList({ toggleModal }) {
   const [bookmarked, setBookmarked] = useState({});
   const { isLoggedIn, isStudent, user, setUser } = useContext(AuthContext);
   const { isLoading, sendRequest, clearError } = useHttpClient();
+  const [showLiveDialog, setShowLiveDialog] = useState(false); // State to control dialog visibility
+  const [courseDetails, setCourseDetails] = useState({
+    topic: "",
+    duration: "",
+    meetingId: "",
+    scheduledTime: "",
+  });
 
   const navigate = useNavigate();
 
@@ -36,7 +45,7 @@ export default function CourseList({ toggleModal }) {
     console.log("prev after setting true : ", bookmarked);
 
     const url = isStudent ? "http://localhost:8000/courses/" : "http://localhost:8000/teacher/courses";
-
+    // console.log('hhh'+localStorage.getItem('authToken'));
     fetch(url, {
       headers: {
         'Authorization': `Bearer ${localStorage.getItem('authToken')}` // Add JWT token
@@ -100,7 +109,16 @@ export default function CourseList({ toggleModal }) {
     }
   };
 
+const handleLive = async(courseId) => {
+  console.log('working');
+  setShowLiveDialog(true);
 
+}
+
+const handleLiveSubmit = async() => {
+  console.log("hale se ho");
+  
+}
 
 
 
@@ -140,9 +158,63 @@ export default function CourseList({ toggleModal }) {
         </div>
 
         {selectedCourse && (
-          <CourseDetail selectedCourse={selectedCourse} setSelectedCourse={setSelectedCourse} toggleModal={toggleModal} />
+          <CourseDetail selectedCourse={selectedCourse} setSelectedCourse={setSelectedCourse} toggleModal={toggleModal} handleLive={handleLive}/>
         )}
       </div>
+
+      {showLiveDialog && (
+        <div className="fixed backdrop-blur-sm inset-0 flex justify-center items-center z-50">
+        <div className="bg-white p-4 rounded-lg shadow-lg max-w-sm w-full">
+          <h2 className="text-2xl font-bold ">Create Live Session</h2>
+          <p className="text-sm mb-4">Introdusing Java Spring</p>
+          <div>
+            <label className="block text-sm font-medium mb-2">Topic</label>
+            <input
+              type="text"
+              className="w-full p-2 border border-gray-300 rounded mb-4"
+              value={courseDetails.topic}
+              onChange={(e) => setCourseDetails({ ...courseDetails, topic: e.target.value })}
+            />
+            <label className="block text-sm font-medium mb-2">Duration (minutes)</label>
+            <input
+              type="number"
+              className="w-full p-2 border border-gray-300 rounded mb-4"
+              value={courseDetails.duration}
+              onChange={(e) => setCourseDetails({ ...courseDetails, duration: e.target.value })}
+            />
+            {/* <label className="block text-sm font-medium mb-2">Meeting ID</label> */}
+            {/* <input
+              type="text"
+              className="w-full p-2 border border-gray-300 rounded mb-4"
+              value={courseDetails.meetingId}
+              onChange={(e) => setCourseDetails({ ...courseDetails, meetingId: e.target.value })}
+            /> */}
+            <label className="block text-sm font-medium mb-2">Scheduled Time</label>
+            <input
+              type="datetime-local"
+              className="w-full p-2 border border-gray-300 rounded mb-4"
+              value={courseDetails.scheduledTime}
+              onChange={(e) => setCourseDetails({ ...courseDetails, scheduledTime: e.target.value })}
+            />
+          </div>
+          <div className="flex justify-end">
+            <button
+              onClick={() => setShowLiveDialog(false)} // Close dialog on cancel
+              className="mr-4 py-2 px-4 bg-gray-300 rounded text-sm"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleLiveSubmit} // Submit live session details
+              className="py-2 px-4 bg-blue-600 text-white rounded text-sm"
+            >
+              Create Live Session
+            </button>
+          </div>
+        </div>
+      </div>
+      
+      )}
     </>
   );
 }

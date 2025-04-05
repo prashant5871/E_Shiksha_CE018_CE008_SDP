@@ -1,4 +1,3 @@
-import { Loader } from "lucide-react";
 import React, { useState, useEffect } from "react";
 import Loading from "../shared/components/Loading";
 

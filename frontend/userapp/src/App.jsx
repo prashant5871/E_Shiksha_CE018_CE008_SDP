@@ -17,7 +17,8 @@ import Enroll from "./student/Enroll";
 import EnrolledCourses from "./student/EnrolledCourses";
 import Verify from "./shared/components/Verify";
 import CreateCourse from "./teacher/CreateCourse";
-import LiveMeeting from './live'
+import LiveSessions from "./LiveSessions";
+import LiveMeeting from './Live'
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -75,7 +76,7 @@ function App() {
     setUserMail(umail);
     setUser(user);
     setIsEnabled(isEnabled);
-    console.log("user from the login method , ",user);
+    console.log("user from the login method , ",localStorage.setItem("authToken", authToken));
 
     // if(!user || !user.enrolledCourses)
     // {
@@ -105,6 +106,9 @@ function App() {
         <Route path="/enrolled-courses" element={<EnrolledCourses />} />
         <Route path="/verify" element={<Verify />} />
         <Route path="/create" element={<CreateCourse/>} />
+        <Route path="/live" element={<LiveMeeting/>} />
+        <Route path="/sessions" element={<LiveSessions/>} />
+
       
       </Routes>
     );
@@ -118,6 +122,8 @@ function App() {
         <Route path="/enrolled-courses" element={<EnrolledCourses />} />
         <Route path="/verify" element={<Verify />} />
         <Route path="/create" element={<CreateCourse/>} />
+        <Route path="/live" element={<LiveMeeting/>} />
+        <Route path="/sessions" element={<LiveSessions/>} />
       </Routes>
     );
   }

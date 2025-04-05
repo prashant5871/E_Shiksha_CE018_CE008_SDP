@@ -2,7 +2,7 @@ import React, { useContext } from 'react'
 import { AuthContext } from '../context/auth-context';
 import VideoPlayer from '../../student/VideoPlayer';
 
-export default function CourseDetail({selectedCourse,setSelectedCourse,toggleModal}) {
+export default function CourseDetail({selectedCourse,setSelectedCourse,toggleModal, handleLive}) {
   const { isLoggedIn, isStudent, user,setUser } = useContext(AuthContext);
 
     const handleOutsideClick = (e) => {
@@ -14,11 +14,11 @@ export default function CourseDetail({selectedCourse,setSelectedCourse,toggleMod
     <div>
       <div
             id="modal-overlay"
-            className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 p-4"
+            className="fixed inset-0 flex items-center justify-center backdrop-blur-sm"
             onClick={handleOutsideClick}
           >
-            <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-2xl max-h-[80vh] overflow-y-auto custom-scrollbar">
-              <h2 className="text-2xl font-bold text-gray-800">{selectedCourse.courseName}</h2>
+<div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-3xl max-h-[90vh] overflow-auto" style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}>              
+  <h2 className="text-2xl font-bold text-gray-800">{selectedCourse.courseName}</h2>
               <p className="text-gray-600 mt-2">{selectedCourse.description}</p>
               <p className="text-gray-800 font-semibold mt-2">Instructor: {selectedCourse.teacher.user.firstName}</p>
               <p className="text-gray-800 font-semibold mt-2">Duration: {selectedCourse.duration}</p>
@@ -98,7 +98,11 @@ export default function CourseDetail({selectedCourse,setSelectedCourse,toggleMod
                 {!isStudent && isLoggedIn && <button className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
                   Update Now
                 </button>}
-
+                {/* ...................k_dev ........... */}
+                {!isStudent && isLoggedIn && <button className="px-4 py-2 bg-yellow-600 text-white rounded-md hover:bg-yellow-700" onClick={() =>handleLive(selectedCourse.courseId)}>
+                  Schedule Live
+                </button>}
+                {/* ........................k_dev....................... */}
                 {!isLoggedIn && <button
                   onClick={toggleModal}
                   className="text-blue-900 hover:bg-gray-700 hover:text-white rounded-md px-3 py-2 text-sm font-medium transition duration-200 hover:cursor-pointer"

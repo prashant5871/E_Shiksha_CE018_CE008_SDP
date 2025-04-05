@@ -22,12 +22,14 @@ export default function Navbar({ toggleModal, isModalOpen }) {
         { name: 'Home', href: '/' },
         { name: 'Saved', href: '/saved' },
         { name: 'My Courses', href: '/enrolled-courses' },
+        {name: 'Live Classes', href: '/sessions'}
       ]);
     }else{
       setNavigation([
         { name: 'Home', href: '/' },
         { name: 'My Courses', href: '/enrolled-courses' },
-        {name : 'Create' , href: '/create'}
+        {name : 'Create' , href: '/create'},
+        {name: 'Sessions', href: '/sessions'}
       ]);
     }
     if (isSearchOpen && searchInputRef.current) {

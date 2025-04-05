@@ -15,7 +15,7 @@ import java.util.Optional;
 public interface TeacherRepository extends JpaRepositoryImplementation<Teacher, Integer> {
 
     Optional<Teacher> findByUser(ApplicationUser user);
-
+    Optional<Teacher> findByUser_UserId(int userId);
 
 
 

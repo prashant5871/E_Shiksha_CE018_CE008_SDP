@@ -48,6 +48,7 @@ public class Course {
 
     private int duration; //in days
 
+    @JsonIgnore
     @OneToMany(cascade = CascadeType.ALL,mappedBy = "course")
     private List<LiveClass> liveClasses;
 
