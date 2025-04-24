@@ -3,8 +3,14 @@ package com.Eshiksha.services;
 import com.Eshiksha.Entities.*;
 import com.Eshiksha.Utils.JwtUtils;
 import com.Eshiksha.repositories.*;
+import com.azure.storage.blob.BlobContainerClient;
+import com.azure.storage.blob.models.BlobItem;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -27,6 +33,10 @@ public class CourseServiceImpl implements CourseService {
 
     @Value("${azure.storage.container.thumbnails}")
     private String thumbnailsContainer;
+
+    private AzureStorageService storageService;
+
+
     private CourseRepository courseRepository;
     private CourseCategoryRepository courseCategoryRepository;
 
@@ -38,7 +48,8 @@ public class CourseServiceImpl implements CourseService {
     private VideoService videoService;
     private File thumbnailFolder;
 
-    public CourseServiceImpl(CourseRepository courseRepository, CourseCategoryRepository courseCategoryRepository, JwtUtils jwtUtils, UserRepository userRepository, TeacherRepository teacherRepository, StudentRepository studentRepository, VideoService videoService) {
+    public CourseServiceImpl(AzureStorageService storageService, CourseRepository courseRepository, CourseCategoryRepository courseCategoryRepository, JwtUtils jwtUtils, UserRepository userRepository, TeacherRepository teacherRepository, StudentRepository studentRepository, VideoService videoService) {
+        this.storageService = storageService;
         this.studentRepository = studentRepository;
         this.teacherRepository = teacherRepository;
         this.courseRepository = courseRepository;
@@ -95,8 +106,7 @@ public class CourseServiceImpl implements CourseService {
 //                    Path videoPath = Paths.get("./video");
         String demoVideoLocation = this.videoService.processDummyVideo(demoVideo);
 
-        this.create(courseName, description, price,
-                categoryId, jwtToken, documentName, thumbnailName,demoVideoLocation,duration);
+        this.create(courseName, description, price, categoryId, jwtToken, documentName, thumbnailName,demoVideoLocation,duration);
 
     }
 
@@ -117,9 +127,63 @@ public class CourseServiceImpl implements CourseService {
         }
     }
 
+    @Override
+    public void saveCourseAndFilesInAzure(MultipartFile thumbnail, MultipartFile demoVideo, MultipartFile document, String courseName, String description, float price, int categoryId, String jwtToken,int duration, HttpServletResponse response) {
+        try {
+            int courseId = this.createCourse(courseName, description, price, categoryId, jwtToken,duration);
+            storageService.processAndUploadVideo(demoVideo,"courses",courseId);
+            storageService.uploadFileToAzure(String.format("thumbnails/course_%d",courseId),thumbnail);
+            storageService.uploadFileToAzure(String.format("documents/course_%d",courseId),document);
+
+            this.updateFilePathInCourse(courseId);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
+
+    }
 
     @Override
-    public void create(String courseName, String description, float price, int categoryId, String jwtToken, String documentUrl, String thumbnailUrl, String demoVideoUrl, int duration) throws Exception {
+    public void updateFilePathInCourse(int courseId) {
+        Course course = courseRepository.findById(courseId).orElseThrow();
+        course.setDocumentUrl(String.format("documents/course_%d",courseId));
+        courseRepository.save(course);
+    }
+
+    @Override
+    public byte[] getThumbnail(int courseId) {
+        return storageService.fetchFileBytesFromAzure(String.format("thumbnails/course_%d",courseId));
+    }
+
+
+    public int createCourse(String courseName,String description,float price,int categoryId,String jwtToken,int duration) throws Exception {
+        Course course = new Course(courseName, description, price);
+
+        CourseCategory category = this.courseCategoryRepository.findById(categoryId).orElseThrow(() -> new RuntimeException("Invalid Course Category"));
+
+        course.setCategory(category);
+
+        course.setStatus("PENDING");
+
+        String usernameFromToken = this.jwtUtils.getUsernameFromToken(jwtToken);
+
+        System.out.println(usernameFromToken);
+
+        ApplicationUser user = this.userRepository.findByEmail(usernameFromToken).orElseThrow(() -> new RuntimeException("user not found!"));
+
+
+        Teacher teacher = teacherRepository.findByUser(user).orElseThrow(() -> new Exception("not found such a user"));
+
+        course.setTeacher(teacher);
+        course.setDuration(duration);
+
+        return this.courseRepository.save(course).getCourseId();
+
+    }
+
+
+    @Override
+    public int create(String courseName, String description, float price, int categoryId, String jwtToken, String documentUrl, String thumbnailUrl, String demoVideoUrl, int duration) throws Exception {
         Course course = new Course(courseName, description, price);
 
         CourseCategory category = this.courseCategoryRepository.findById(categoryId).orElseThrow(() -> new RuntimeException("Invalid Course Category"));
@@ -145,7 +209,9 @@ public class CourseServiceImpl implements CourseService {
 //        System.out.println("Teacher = " + teacher.getUserId());
 
 
-        this.courseRepository.save(course);
+        Course course1 = this.courseRepository.save(course);
+
+        return course1.getCourseId();
 
 
     }

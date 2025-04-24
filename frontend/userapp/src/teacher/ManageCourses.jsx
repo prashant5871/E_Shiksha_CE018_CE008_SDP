@@ -36,8 +36,8 @@ const ManageCourses = () => {
 
   const handleAddCourse = () => navigate("/create");
   const handleUpdateCourse = (courseId) => navigate(`/update-course/${courseId}`);
-  const handleAddLesson = (lessonId) => navigate(`/upload-lesson/${lessonId}`);
-  const handleViewLesson = (lessonId) => navigate(`/lesson/${lessonId}`);
+  const handleAddLesson = (lessonId) => navigate(`/upload-lession/${lessonId}`);
+  const handleViewLesson = (courseId) => navigate(`/lessons/${courseId}`);
 
   const toggleDescription = (courseId) => {
     setExpanded((prev) => ({ ...prev, [courseId]: !prev[courseId] }));
@@ -141,7 +141,7 @@ const ManageCourses = () => {
       onClick={() => handleViewLesson(course.courseId)}
       className="bg-purple-500 hover:bg-purple-700 text-white font-bold py-1 px-2 rounded"
     >
-      View Lesson
+      View Lessons
     </button>
   </div>
 </div>

@@ -116,6 +116,24 @@ public class StudentServiceImpl implements StudentService {
 
     }
 
+    @Override
+    public void enrollStudentForFree(int courseId, int userId) throws Exception {
+        ApplicationUser appUser = userRepository.findById(userId)
+                .orElseThrow(() -> new Exception("User not found"));
+
+        Student student = studentRepository.findByUser(appUser)
+                .orElseThrow(() -> new Exception("Student not found for userId: " + userId));
+
+        Course course = courseRepository.findById(courseId)
+                .orElseThrow(() -> new Exception("Course not found"));
+        if (!student.getEnrolledCourses().contains(course)) {
+            student.getEnrolledCourses().add(course);
+            course.getEnrolledStudents().add(student);
+            studentRepository.save(student);
+            courseRepository.save(course);
+        }
+    }
+
     public void processPayment(Student student, Course course) throws Exception {
 
         // Generate a fake transaction ID

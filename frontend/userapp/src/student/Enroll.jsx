@@ -1,115 +1,80 @@
-import React, { useState, useContext } from "react";
-import { useParams } from "react-router-dom";
+import React, { useState, useEffect, useContext } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 import { AuthContext } from "../shared/context/auth-context";
+import { loadStripe } from "@stripe/stripe-js";
+import { Elements, CardElement, useStripe, useElements } from "@stripe/react-stripe-js";
 
+const stripePromise = loadStripe("pk_test_51R8alAPL07XjEzlquxZHK1vfmMD03dZw4Kty94EKDxTJSOAYWCpMiTuDOlxQC1A7mf31XZylp9WFPkdhu0Y6ZLbe00EclylOmj");
 
 const Enroll = () => {
-  const { courseId } = useParams();
-  const [cardNumber, setCardNumber] = useState("");
-  const [amount, setAmount] = useState("");
-  const [isProcessing, setIsProcessing] = useState(false);
-  const [message, setMessage] = useState("");
-  const { userId } = useContext(AuthContext); // Get userId from AuthContext
-  // const {token} = useContext(AuthContext);
-  
+    const { courseId } = useParams();
+    const { userId } = useContext(AuthContext);
+    const navigate = useNavigate();
+    const [course, setCourse] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [message, setMessage] = useState("");
 
-  console.log("user id : ",userId);
+    useEffect(() => {
+        const fetchCourse = async () => {
+            try {
+                const response = await fetch(`http://localhost:8000/courses/${courseId}`);
+                const data = await response.json();
+                setCourse(data);
+            } catch (error) {
+                setMessage("Failed to fetch course details.");
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchCourse();
+    }, [courseId]);
 
-  const handlePayment = async () => {
-    if (cardNumber.length !== 16) {
-      setMessage("Invalid card number. Must be 16 digits.");
-      return;
-    }
+    const handleEnrollment = async () => {
+        if (!course) return;
 
-    if (!amount || amount <= 0) {
-      setMessage("Invalid amount.");
-      return;
-    }
+        if (course.price === 0) {
+            // Direct enrollment
+            try {
+                const response = await fetch(`http://localhost:8000/student/enroll-free/${courseId}/${userId}`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${localStorage.getItem("authToken")}`,
+                    },
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    setMessage("✅ Successfully Enrolled!");
+                    setTimeout(() => navigate("/dashboard"), 2000);
+                } else {
+                    setMessage(`❌ Enrollment failed: ${data.message}`);
+                }
+            } catch (error) {
+                setMessage("❌ Enrollment failed. Try again later.");
+            }
+        } else {
+            navigate(`/payment/${courseId}`);
+        }
+    };
 
-    if (!userId) {
-      setMessage("User not logged in.");
-      return;
-    }
+    if (loading) return <p className="text-center">Loading...</p>;
 
-    setIsProcessing(true);
-    setMessage("");
-
-    try {
-      console.log("USer id : " , userId);
-      console.log("token is : ",localStorage.getItem("authToken"));
-      const response = await fetch(`http://localhost:8000/student/enroll/${courseId}/${userId}`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Berear ${localStorage.getItem("authToken")}`
-        },
-        body: JSON.stringify({
-          debitCardNumber: cardNumber,
-          amount: amount,
-        }),
-      });
-
-      if (response.ok) {
-        setMessage("Payment Successful! 🎉 You are enrolled.");
-      } else {
-        const errorData = await response.json();
-        setMessage(`Payment failed: ${errorData.message || "Unknown error"}`);
-        console.log(errorData);
-      }
-    } catch (error) {
-      console.error("Payment error:", error);
-      setMessage("Payment failed: An unexpected error occurred.");
-    } finally {
-      setIsProcessing(false);
-    }
-  };
-
-  return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-6">
-      <div className="bg-white shadow-lg rounded-lg p-6 w-full max-w-md">
-        <h2 className="text-2xl font-bold text-gray-800 mb-4">Enroll in Course</h2>
-
-        <div className="mt-4">
-          <label className="block text-gray-700 font-medium">Debit Card Number</label>
-          <input
-            type="text"
-            value={cardNumber}
-            onChange={(e) => setCardNumber(e.target.value.replace(/\D/g, ""))}
-            maxLength="16"
-            placeholder="1234 5678 9012 3456"
-            className="mt-1 w-full p-2 border rounded-md focus:ring focus:ring-blue-300"
-          />
+    return (
+        <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-6">
+            <div className="bg-white shadow-lg rounded-lg p-6 w-full max-w-md">
+                <h2 className="text-2xl font-bold text-gray-800 mb-2">{course.courseName}</h2>
+                <p className="text-gray-600">{course.description}</p>
+                <p className="mt-4 font-semibold">Price: {course.price === 0 ? "Free" : `₹${course.price}`}</p>
+                <button
+                    onClick={handleEnrollment}
+                    className="mt-6 w-full py-2 rounded-md text-white font-semibold bg-blue-600 hover:bg-blue-700 transition duration-300"
+                >
+                    {course.price === 0 ? "Enroll for Free" : "Proceed to Payment"}
+                </button>
+                {message && <p className="mt-4 text-center text-sm text-red-600">{message}</p>}
+            </div>
         </div>
-
-        <div className="mt-4">
-          <label className="block text-gray-700 font-medium">PIN</label>
-          <input
-            type="number"
-            value={amount}
-            onChange={(e) => setAmount(e.target.value)}
-            placeholder="Enter PIN"
-            className="mt-1 w-full p-2 border rounded-md focus:ring focus:ring-blue-300"
-          />
-        </div>
-
-        <button
-          onClick={handlePayment}
-          disabled={isProcessing}
-          className={`mt-6 w-full py-2 rounded-md text-white font-semibold ${
-            isProcessing ? "bg-gray-400 cursor-not-allowed" : "bg-blue-600 hover:bg-blue-700"
-          }`}
-        >
-          {isProcessing ? "Processing..." : "Pay Now"}
-        </button>
-
-        {message && (
-          <p className={`mt-4 text-sm font-medium ${message.includes("Successful") ? "text-green-600" : "text-red-600"}`}>
-            {message}
-          </p>
-        )}
-      </div>
-    </div>
-  );
+    );
 };
 
 export default Enroll;

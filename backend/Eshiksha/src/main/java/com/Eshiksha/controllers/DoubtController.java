@@ -4,6 +4,7 @@ import com.Eshiksha.Entities.ApplicationUser;
 import com.Eshiksha.Entities.Lession;
 import com.Eshiksha.Entities.LessionDoubt;
 import com.Eshiksha.Entities.Student;
+import com.Eshiksha.dto.SolutionDTO;
 import com.Eshiksha.repositories.DoubtRepository;
 import com.Eshiksha.repositories.LessionRepository;
 import com.Eshiksha.repositories.StudentRepository;
@@ -40,12 +41,21 @@ public class DoubtController {
         this.doubtService = doubtService;
     }
 
-    @GetMapping("/{userId}")
-    public ResponseEntity<?> getDoubtByUserId(@PathVariable int userId)
+    @GetMapping("/{courseId}/{userId}")
+    public ResponseEntity<?> getDoubtByUserId(@PathVariable int userId,@PathVariable int courseId)
     {
-        List<LessionDoubt> doubts =  doubtService.getDoubtByUserId(userId);
-
+        List<LessionDoubt> doubts =  doubtService.getDoubtsByUserIdAndCourseId(userId,courseId);
         return ResponseEntity.ok(doubts);
+    }
+
+    @PutMapping("/solution/{doubtId}")
+    public ResponseEntity<?> addSolution(@PathVariable int doubtId,@RequestBody SolutionDTO solutionDTO)
+    {
+        doubtService.addSolution(doubtId,solutionDTO);
+        Map<String,String> response = new HashMap<>();
+
+        response.put("message","doubt updated sucesfully");
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping("/{lessionId}/{userId}")

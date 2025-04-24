@@ -2,6 +2,8 @@ package com.Eshiksha.services;
 
 import com.Eshiksha.Entities.Course;
 import com.Eshiksha.Entities.Lession;
+import com.Eshiksha.Entities.LessionDoubt;
+import com.Eshiksha.repositories.DoubtRepository;
 import com.Eshiksha.repositories.LessionRepository;
 import com.Eshiksha.websocket.VideoProgressWebSocket;
 import org.springframework.stereotype.Service;
@@ -33,6 +35,8 @@ public class LessionServiceImpl implements LessionService {
 
     private VideoService videoService;
 
+    private DoubtRepository doubtRepository;
+
     private static final String VIDEO_DIRECTORY = "./lession";
     private final Map<String, int[]> threadProgressMap = new ConcurrentHashMap<>(); // [thread1, thread2, thread3, thread4]
     private final Map<String, AtomicInteger> cumulativeProgressMap = new ConcurrentHashMap<>();
@@ -40,10 +44,11 @@ public class LessionServiceImpl implements LessionService {
     private VideoProgressWebSocket progressWebSocket;
 
 
-    public LessionServiceImpl(LessionRepository lessionRepository, CourseService courseService, VideoService videoService, VideoProgressWebSocket progressWebSocket) {
+    public LessionServiceImpl(LessionRepository lessionRepository, CourseService courseService, VideoService videoService, DoubtRepository doubtRepository, VideoProgressWebSocket progressWebSocket) {
         this.courseService = courseService;
         this.lessionRepository = lessionRepository;
         this.videoService = videoService;
+        this.doubtRepository = doubtRepository;
         this.progressWebSocket = progressWebSocket;
     }
 
@@ -280,6 +285,10 @@ public class LessionServiceImpl implements LessionService {
         return lessionRepository.findAll();
     }
 
+    @Override
+    public List<LessionDoubt> findDoubtsByLessonId(int lessonId) {
+        return doubtRepository.findByLession_LessionId(lessonId);
+    }
 
 
 }

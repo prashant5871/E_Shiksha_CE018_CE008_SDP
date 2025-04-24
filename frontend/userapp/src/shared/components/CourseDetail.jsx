@@ -1,7 +1,8 @@
 import React, { useContext } from 'react'
 import { AuthContext } from '../context/auth-context';
-import VideoPlayer from '../../student/VideoPlayer';
 import { Link, NavLink } from 'react-router-dom';
+// import VideoPlayer from './VideoPlayer';
+import VideoPlayer from '../../student/VideoPlayer';
 
 export default function CourseDetail({ selectedCourse, setSelectedCourse, toggleModal }) {
   const { isLoggedIn, isStudent, user, setUser } = useContext(AuthContext);
@@ -44,7 +45,8 @@ export default function CourseDetail({ selectedCourse, setSelectedCourse, toggle
           <>
             <h3 className="text-lg font-bold mt-4 text-gray-700">Demo Video:</h3>
             <div className="mt-2">
-              <VideoPlayer src={`http://localhost:8000/courses/stream/${selectedCourse?.courseId}`} />
+              <VideoPlayer src={`http://localhost:8000/stream/course/${selectedCourse?.courseId}`} />
+              {/* <VideoPlayer courseId={selectedCourse?.courseId} /> */}
             </div>
           </>
 

@@ -12,7 +12,7 @@ public interface CourseService {
 
     public Course findById(int id);
 
-    public void create(String courseName, String description, float price, int categoryId, String jwtToken, String documentUrl, String thumbnailUrl, String demoVideoUrl, int duration) throws Exception;
+    public int create(String courseName, String description, float price, int categoryId, String jwtToken, String documentUrl, String thumbnailUrl, String demoVideoUrl, int duration) throws Exception;
 
     public Course getCourseById(int courseId);
 
@@ -28,4 +28,10 @@ public interface CourseService {
     void saveCourseAndFiles(MultipartFile thumbnail, MultipartFile demoVideo, MultipartFile document, String courseName, String description, float price, int categoryId, String jwtToken, int duration, HttpServletResponse response) throws Exception;
 
     void updateCourseById(int courseId, String courseName, String description, int duration, float price, int categoryId);
+
+    void saveCourseAndFilesInAzure(MultipartFile thumbnail, MultipartFile demoVideo, MultipartFile document, String courseName, String description, float price, int categoryId, String jwtToken,int duration, HttpServletResponse response);
+
+    void updateFilePathInCourse(int courseId);
+
+    byte[] getThumbnail(int courseId);
 }

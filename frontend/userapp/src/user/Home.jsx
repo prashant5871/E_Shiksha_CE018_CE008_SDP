@@ -1,6 +1,6 @@
-// Home.jsx
 import { useState, useEffect, useContext } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { FaSpinner } from "react-icons/fa"; // Import Font Awesome Spinner
 import VideoPlayer from "../student/VideoPlayer";
 import { AuthContext } from "../shared/context/auth-context";
 import { useHttpClient } from "../shared/hooks/http-hook";
@@ -10,86 +10,85 @@ import Card from "../shared/components/Card";
 
 export default function CourseList({ toggleModal }) {
   const [courses, setCourses] = useState([]);
+  const [filteredCourses, setFilteredCourses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedCourse, setSelectedCourse] = useState(null);
   const [bookmarked, setBookmarked] = useState({});
-  const { isLoggedIn, isStudent, user, setUser } = useContext(AuthContext);
+  const { isLoggedIn, isStudent, user, setUser, query, setQuery } = useContext(AuthContext);
   const { isLoading, sendRequest, clearError } = useHttpClient();
 
   const navigate = useNavigate();
 
   useEffect(() => {
     setBookmarked(null);
-
-    console.log("user from home : ", user);
-
-    let courseIds = user?.bookMarkedCourses?.map(course => course.courseId);
-
+    let courseIds = user?.bookMarkedCourses?.map((course) => course.courseId);
     courseIds = [...new Set(courseIds)];
-    console.log("courseIds : ", courseIds);
 
-    courseIds?.forEach(cId => {
-      console.log("cId : ", cId);
+    courseIds?.forEach((cId) => {
       setBookmarked((prev) => ({
         ...prev,
         [cId]: true,
       }));
-    })
-    console.log("bookmarked after setting true : ", bookmarked);
+    });
 
     let url = isStudent ? "http://localhost:8000/courses/" : "http://localhost:8000/teacher/courses";
     if (!isLoggedIn) {
       url = "http://localhost:8000/courses/";
     }
+
     let headers = {};
     if (isLoggedIn) {
-      console.log("user is loged in and now I am setting up header");
-      headers =
-      {
-
+      headers = {
         headers: {
-          Authorization: `Bearer ${localStorage.getItem('authToken')}`
-        }
-      }
-
-      console.log("headers : ", headers);
-
+          Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+        },
+      };
     }
 
     fetch(url, headers)
       .then((response) => {
         if (!response.ok) {
-          throw new Error("Failed to fetch courses");
+          throw new Error("Failed to fetch courses. Please try again later.");
         }
-        console.log(response);
         return response.json();
       })
       .then((data) => {
-        if (isStudent) {
-          console.log("loged in user is the student");
-          setCourses(data.filter(d => d.status === "APPROVED"))
-        } else {
-          console.log("loged in user is the teacher");
-          setCourses(data);
-        }
+        const approvedCourses = isStudent ? data.filter((d) => d.status === "APPROVED") : data;
+        setCourses(approvedCourses);
+        setFilteredCourses(approvedCourses);
         setLoading(false);
       })
       .catch((error) => {
-        console.error("Error fetching courses:", error);
         setError(error.message);
         setLoading(false);
       });
   }, [isLoggedIn]);
 
+  // Effect to filter courses based on query
+  useEffect(() => {
+    console.log("query gets changed...");
+    if (query.trim() === "") {
+      setFilteredCourses(courses);
+      return;
+    }
 
+    const lowerCaseQuery = query.toLowerCase();
+    const filtered = courses.filter(
+      (course) =>
+        course.courseName.toLowerCase().includes(lowerCaseQuery) ||
+        course.description.toLowerCase().includes(lowerCaseQuery)
+    );
 
-
-
+    setFilteredCourses(filtered);
+  }, [query, courses]);
 
   if (loading)
-    return <div className="text-center text-xl font-bold p-6">Loading courses...</div>;
-  if (error) return <div className="text-center text-red-600 p-6">Error: {error}</div>;
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <FaSpinner className="text-blue-500 text-5xl animate-spin" />
+      </div>
+    );
 
   return (
     <>
@@ -116,19 +115,33 @@ export default function CourseList({ toggleModal }) {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
-          {courses.map((course) => (
-            <Card
-              course={course}
-              bookmarked={bookmarked}
-              setSelectedCourse={setSelectedCourse}
-              setBookmarked={setBookmarked}
-              setUser={setUser}
-              courses={courses}
-              toggleModal={toggleModal}
-            />
-          ))}
-        </div>
+        {/* Error Message */}
+        {error ? (
+          <div className="flex flex-col items-center justify-center bg-red-100 border border-red-400 text-red-700 p-6 rounded-lg shadow-md max-w-lg mx-auto">
+            <h2 className="text-xl font-semibold">Oops! Something went wrong. 😞</h2>
+            <p className="mt-2 text-center">{error}</p>
+            <button
+              className="mt-4 bg-red-600 text-white px-5 py-2 rounded-md hover:bg-red-700 transition"
+              onClick={() => window.location.reload()}
+            >
+              Retry
+            </button>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+            {filteredCourses.map((course) => (
+              <Card
+                course={course}
+                bookmarked={bookmarked}
+                setSelectedCourse={setSelectedCourse}
+                setBookmarked={setBookmarked}
+                setUser={setUser}
+                courses={courses}
+                toggleModal={toggleModal}
+              />
+            ))}
+          </div>
+        )}
 
         {selectedCourse && (
           <CourseDetail selectedCourse={selectedCourse} setSelectedCourse={setSelectedCourse} toggleModal={toggleModal} />

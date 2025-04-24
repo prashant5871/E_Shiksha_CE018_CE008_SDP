@@ -3,6 +3,7 @@ package com.Eshiksha.controllers;
 import com.Eshiksha.AppConstants;
 import com.Eshiksha.Entities.Course;
 import com.Eshiksha.Entities.Lession;
+import com.Eshiksha.Entities.LessionDoubt;
 import com.Eshiksha.services.CourseService;
 import com.Eshiksha.services.LessionService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -30,6 +31,7 @@ import java.nio.file.Paths;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -72,6 +74,23 @@ public class LessionController {
 
         return ResponseEntity.ok().body(lessions);
     }
+
+    @GetMapping("/{lessonId}")
+    public ResponseEntity<?> getLessonById(@PathVariable int lessonId) {
+        Lession lessionById = lessionService.findLessionById(lessonId);
+        return ResponseEntity.ok(lessionById);
+    }
+
+    @GetMapping("/doubts/{lessonId}")
+    public ResponseEntity<?> getDoubtsByLessonId(
+            @PathVariable int lessonId
+    ){
+        List<LessionDoubt> doubts = lessionService.findDoubtsByLessonId(lessonId);
+
+        return ResponseEntity.ok(doubts);
+    }
+
+
 
     @PostMapping("/{courseId}")
     public void createLesson(@PathVariable int courseId,

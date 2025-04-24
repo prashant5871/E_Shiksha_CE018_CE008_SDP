@@ -1,6 +1,7 @@
 package com.Eshiksha.services;
 
 import com.Eshiksha.Entities.Lession;
+import com.Eshiksha.Entities.LessionDoubt;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.OutputStream;
@@ -15,4 +16,6 @@ public interface LessionService {
 
 
     List<Lession> getAllLessions();
+
+    List<LessionDoubt> findDoubtsByLessonId(int lessonId);
 }

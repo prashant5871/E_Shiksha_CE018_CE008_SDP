@@ -18,4 +18,6 @@ public interface StudentService {
     void enrollStudent(int courseId, int userId, PaymentDTO paymentDTO) throws Exception;
 
     List<Course> getMyCourses(int userId) throws Exception;
+
+    void enrollStudentForFree(int courseId, int userId) throws Exception;
 }

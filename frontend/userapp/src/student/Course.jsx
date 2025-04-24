@@ -4,6 +4,8 @@ import { useParams } from "react-router-dom";
 import VideoPlayer from "./VideoPlayer";
 import { parse } from 'iso8601-duration';
 import { AuthContext } from "../shared/context/auth-context";
+import { VideoPreview } from "../shared/components/VideoPreview";
+
 
 export default function Course() {
   const { courseId } = useParams();
@@ -64,7 +66,7 @@ export default function Course() {
     };
 
     fetchCourse();
-}, [courseId, userId]); // Added `userId` as a dependency
+  }, [courseId, userId]); // Added `userId` as a dependency
 
 
   const handleDoubtSubmit = async () => {
@@ -114,7 +116,7 @@ export default function Course() {
       }
 
       const updatedReview = await response.json();
-      console.log("updated review : ",updatedReview);
+      console.log("updated review : ", updatedReview);
 
       if (isUpdating) {
         setReviews(reviews.map(review => review.reviewId === updatedReview.reviewId ? updatedReview : review));
@@ -151,15 +153,15 @@ export default function Course() {
   };
 
   if (loading) {
-    return <div className="text-center text-2xl font-semibold mt-10">Loading course...</div>;
+    return <div className="text-center text-2xl font-semibold mt-10">Loading course...</div>
   }
 
   if (error) {
-    return <div className="text-center text-2xl font-semibold mt-10 text-red-500">Error: {error}</div>;
+    return <div className="text-center text-2xl font-semibold mt-10 text-red-500">Error: {error}</div>
   }
 
   if (!course) {
-    return <div className="text-center text-2xl font-semibold mt-10 text-red-500">Course Not Found! 😢</div>;
+    return <div className="text-center text-2xl font-semibold mt-10 text-red-500">Course Not Found! 😢</div>
   }
 
   return (
@@ -224,7 +226,7 @@ export default function Course() {
                             onClick={() => handleUpdateReview(review)}
                             className="ml-4 px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-blue-600 rounded-lg shadow-md hover:bg-blue-700 transition-all duration-200 ease-in-out"
                           >
-                            
+
                             Update
                           </button>
                         )}
@@ -329,12 +331,23 @@ export default function Course() {
           <div
             key={index}
             onClick={() => setSelectedLesson(lesson)}
-            className="cursor-pointer bg-gray-100 p-3 rounded-lg hover:bg-gray-200 mb-2"
+            className="flex items-center gap-4 cursor-pointer bg-gray-100 p-3 rounded-lg hover:bg-gray-200 mb-2 transition-shadow shadow-sm hover:shadow-md"
           >
-            {lesson.title} <span className="text-gray-500">({formatIsoDuration(lesson.duration)})</span>
+            {/* Video Preview (Left Side) */}
+            <div className="w-24 h-16 overflow-hidden rounded-md">
+              <VideoPreview src={`http://localhost:8000/lessions/stream/${courseId}/${lesson.lessionId}/master.m3u8`} />
+              {/* hi */}
+            </div>
+
+            {/* Lesson Details (Right Side) */}
+            <div className="flex-1">
+              <p className="text-lg font-semibold text-gray-800">{lesson.title}</p>
+              <span className="text-gray-500 text-sm">⏳ {formatIsoDuration(lesson.duration)}</span>
+            </div>
           </div>
         ))}
       </div>
+
     </div>
   );
 }

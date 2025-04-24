@@ -1,9 +1,11 @@
 import React, { useEffect, useState, useContext } from "react";
 import { FaSpinner } from "react-icons/fa"; // Loading spinner icon
+import { useParams } from "react-router-dom"; // Get courseId from URL
 import { AuthContext } from "../shared/context/auth-context";
 
 const MyDoubts = () => {
   const { userId } = useContext(AuthContext); // Get logged-in userId
+  const { courseId } = useParams(); // Get courseId from URL
   const [doubts, setDoubts] = useState([]);
   const [filteredDoubts, setFilteredDoubts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -17,7 +19,7 @@ const MyDoubts = () => {
   useEffect(() => {
     const fetchDoubts = async () => {
       try {
-        const response = await fetch(`http://localhost:8000/doubts/${userId}`);
+        const response = await fetch(`http://localhost:8000/doubts/${courseId}/${userId}`);
         if (!response.ok) {
           throw new Error("Failed to fetch doubts");
         }
@@ -31,10 +33,10 @@ const MyDoubts = () => {
       }
     };
 
-    if (userId) {
+    if (userId && courseId) {
       fetchDoubts();
     }
-  }, [userId]);
+  }, [userId, courseId]);
 
   // Filter doubts based on selected filter
   useEffect(() => {

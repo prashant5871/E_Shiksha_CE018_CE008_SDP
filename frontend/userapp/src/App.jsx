@@ -23,6 +23,10 @@ import UploadLession from "./teacher/UploadLession";
 import ManageCourses from "./teacher/ManageCourses";
 import UpdateCourse from "./teacher/UpdateCourse";
 import MyDoubts from "./student/MyDoubts";
+import Payment from "./shared/components/Payment";
+import Lessons from "./teacher/Lessons";
+import Doubts from "./teacher/Doubts";
+import TeacherLesson from "./teacher/TeacherLesson";
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -33,6 +37,7 @@ function App() {
   const [user, setUser] = useState(null);
   const [isEnabled, setIsEnabled] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [query, setQuery] = useState("");
 
   const toggleModal = () => setIsModalOpen(!isModalOpen);
 
@@ -110,7 +115,15 @@ function App() {
         <Route path="/upload-lession/:courseId" element={<UploadLession />} />
         <Route path="/manage-courses" element={<ManageCourses />} />
         <Route path="/update-course/:courseId" element={<UpdateCourse />} />
-        <Route path="/doubts" element={<MyDoubts/>} />
+        <Route path="/doubts/:courseId" element={<MyDoubts/>} />
+        <Route path="/payment/:courseId" element={<Payment/>} />
+        <Route path="/lessons/:courseId" element={<Lessons/>} />
+        <Route path="lesson/doubts/:lessonId" element={<Doubts/>} />
+        <Route path="teacher/lesson/:courseId/:lessonId" element={<TeacherLesson/>} />
+
+
+
+
       </Routes>
     );
   } else {
@@ -140,6 +153,8 @@ function App() {
         user,
         setUser,
         isEnabled,
+        query,
+        setQuery
       }}
     >
       <UploadProvider> {/* Wrap with UploadProvider */}

@@ -101,6 +101,7 @@ const Card = ({ course, bookmarked, setSelectedCourse, setBookmarked, setUser, c
             <img
                 className="w-full h-48 object-cover rounded-t-xl"
                 src={`http://localhost:8000/images/thumbnails/${encodeURIComponent(course.thumbnail)}`}
+                // src = {`http://localhost:8000/courses/thumbnail/${course.courseId}`}
                 alt={course.courseName}
             />
 

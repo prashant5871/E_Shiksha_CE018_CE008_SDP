@@ -2,6 +2,7 @@ package com.Eshiksha.controllers;
 
 import com.Eshiksha.Entities.Course;
 import com.Eshiksha.Entities.CourseCategory;
+import com.Eshiksha.dto.CourseUpdateDTO;
 import com.Eshiksha.services.CourseService;
 import com.Eshiksha.services.VideoService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -98,16 +99,11 @@ public class CourseController {
                     return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("thumbnail is not provided");
                 }
 
-                try {
+                //                    courseService.saveCourseAndFiles(thumbnail,demoVideo,document,courseName,description,price,categoryId,jwtToken,duration,response);
 
-                    courseService.saveCourseAndFiles(thumbnail,demoVideo,document,courseName,description,price,categoryId,jwtToken,duration,response);
+                courseService.saveCourseAndFilesInAzure(thumbnail,demoVideo,document,courseName,description,price,categoryId,jwtToken,duration,response);
 
-                    return ResponseEntity.status(HttpStatus.CREATED).body("Course created successfully");
-
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error while saving the document.");
-                }
+                return ResponseEntity.status(HttpStatus.CREATED).body("Course created successfully");
 
             } else {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Authorization header is missing or invalid.");
@@ -116,6 +112,27 @@ public class CourseController {
             throw new RuntimeException(e);
         }
     }
+
+    @GetMapping("/thumbnail/{courseId}")
+    public ResponseEntity<byte[]> getCourseThumbnail(@PathVariable int courseId) {
+        try {
+            byte[] imageBytes = courseService.getThumbnail(courseId);
+
+            if (imageBytes != null) {
+                HttpHeaders headers = new HttpHeaders();
+                headers.setContentType(MediaType.IMAGE_JPEG); // Replace if PNG/WEBP
+                return new ResponseEntity<>(imageBytes, headers, HttpStatus.OK);
+            }
+
+            return ResponseEntity.notFound().build();
+
+        } catch (Exception e) {
+            e.printStackTrace(); // 🔥 Add this to log the real issue!
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+
 
 //    @GetMapping("/{courseId}")
 //    public ResponseEntity<Course> getCourseById(@PathVariable int courseId)
@@ -145,8 +162,8 @@ public class CourseController {
     public ResponseEntity<Resource> getMasterPlaylist(@PathVariable int courseId) {
         try {
             System.out.println("Come for master.m3u8 file...");
-            Course lession = courseService.findById(courseId);
-            String basePath = lession.getDemoVideo();
+            Course course = courseService.findById(courseId);
+            String basePath = course.getDemoVideo();
             Path path = Paths.get(basePath, "master.m3u8");
             Resource resource = new UrlResource(path.toUri());
 
@@ -255,17 +272,17 @@ public class CourseController {
     @PutMapping("/{courseId}")
     public ResponseEntity<Map<String, String>> updateCourse(
             @PathVariable int courseId,
-            @RequestBody Map<String, Object> requestData) {  // Accept JSON body
+            @RequestBody CourseUpdateDTO courseUpdateDTO) {  // Accept JSON body
 
         Map<String, String> response = new HashMap<>();
 
         try {
             // Extract values from JSON request
-            String courseName = (String) requestData.get("courseName");
-            String description = (String) requestData.get("description");
-            int duration = (int) requestData.get("duration");
-            float price = Float.parseFloat(requestData.get("price").toString());
-            int category = (int) requestData.get("category");
+            String courseName = courseUpdateDTO.getCourseName();
+            String description = courseUpdateDTO.getDescription();
+            int duration = courseUpdateDTO.getDuration();
+            float price = courseUpdateDTO.getPrice();
+            int category = courseUpdateDTO.getCategory();
 
             // Call service to update course
             courseService.updateCourseById(courseId, courseName, description, duration, price, category);

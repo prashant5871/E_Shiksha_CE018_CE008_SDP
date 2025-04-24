@@ -10,5 +10,6 @@ import java.util.List;
 @Repository
 public interface DoubtRepository extends JpaRepository<LessionDoubt,Integer> {
     List<LessionDoubt> findByStudent(Student student);
+    List<LessionDoubt> findByLession_LessionId(int lessonId);
 
 }
