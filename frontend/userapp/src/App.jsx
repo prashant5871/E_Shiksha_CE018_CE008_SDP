@@ -2,6 +2,7 @@ import { useState, useCallback, useEffect } from "react";
 import Navbar from "./shared/components/Navbar";
 import "./App.css";
 import { AuthContext } from "./shared/context/auth-context";
+import { UploadProvider } from "./shared/context/UploadContext"; // Import UploadProvider
 import { useHttpClient } from "./shared/hooks/http-hook";
 import { ToastContainer } from "react-toastify";
 import {
@@ -18,7 +19,15 @@ import EnrolledCourses from "./student/EnrolledCourses";
 import Verify from "./shared/components/Verify";
 import CreateCourse from "./teacher/CreateCourse";
 import LiveSessions from "./LiveSessions";
-import LiveMeeting from './live'
+import LiveMeeting from "./live";
+import UploadLession from "./teacher/UploadLession";
+import ManageCourses from "./teacher/ManageCourses";
+import UpdateCourse from "./teacher/UpdateCourse";
+import MyDoubts from "./student/MyDoubts";
+import Payment from "./shared/components/Payment";
+import Lessons from "./teacher/Lessons";
+import Doubts from "./teacher/Doubts";
+import TeacherLesson from "./teacher/TeacherLesson";
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -26,39 +35,43 @@ function App() {
   const [userMail, setUserMail] = useState(null);
   const [isStudent, setIsStudent] = useState(true);
   const { isLoading, error, sendRequest, clearError } = useHttpClient();
-  const [user,setUser] = useState(null);
+  const [user, setUser] = useState(null);
+  const [isEnabled, setIsEnabled] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [query, setQuery] = useState("");
   const [token, setToken] = useState(null);
 
-  const [isEnabled, setIsEnabled] = useState(false)
-
-  const [isModalOpen, setIsModalOpen] = useState(false)
-  const toggleModal = () => setIsModalOpen(!isModalOpen)
+  const toggleModal = () => setIsModalOpen(!isModalOpen);
 
   // Function to verify JWT token with the backend
   const verifyToken = useCallback(async () => {
     const token = localStorage.getItem("authToken");
     if (!token) {
-      console.log("token is not there in localStorage");
+      console.log("Token is not present in localStorage");
       return;
     }
     try {
       const response = await fetch("http://localhost:8000/auth/jwt-varify", {
         method: "GET",
         headers: {
-          "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
       });
       const data = await response.json();
-      if (response.ok) {
-        console.log("If gets executed..");
+      if (response.ok && data?.isValid) {
+        console.log("Token is valid:", data);
         setIsLoggedIn(true);
-        setUserId(data.userId);
-        setUserMail(data.email);
+        setUserId(data.user.user.userId);
+        setUserMail(data.user.user.email);
         setIsStudent(data.isStudent);
+        setUser(data.user);
       } else {
-        console.log("token is not valid , it is expires please try again later...");
+        console.log("Token is invalid or expired:", data);
         localStorage.removeItem("authToken");
+        setIsLoggedIn(false);
+        setUserId(null);
+        setUserMail(null);
+        setIsStudent(false);
       }
     } catch (err) {
       console.error("Token verification failed:", err);
@@ -70,7 +83,7 @@ function App() {
     verifyToken();
   }, [verifyToken]);
 
-  const login = useCallback((uid, umail, authToken,user,isEnabled) => {
+  const login = useCallback((uid, umail, authToken, user, isEnabled) => {
     localStorage.setItem("authToken", authToken);
     setIsLoggedIn(true);
     setUserId(uid);
@@ -78,13 +91,7 @@ function App() {
     setUser(user);
     setIsEnabled(isEnabled);
     setToken(authToken);
-    console.log("user from the login method , ",localStorage.setItem("authToken", authToken));
-
-    // if(!user || !user.enrolledCourses)
-    // {
-    //   console.log("setting student to be false");
-    //   setIsStudent(false);
-    // }
+    console.log("User logged in:", localStorage.setItem("authToken", authToken));
   }, []);
 
   const logout = useCallback(() => {
@@ -103,15 +110,26 @@ function App() {
       <Routes>
         <Route exact path="/" element={<Home toggleModal={toggleModal} />} />
         <Route path="/course/:courseId" element={<Course />} />
-        <Route path="/saved" element={<Saved />} />
+        <Route path="/saved" element={<Saved toggleModal={toggleModal} />} />
         <Route path="/enroll/:courseId" element={<Enroll />} />
         <Route path="/enrolled-courses" element={<EnrolledCourses />} />
         <Route path="/verify" element={<Verify />} />
-        <Route path="/create" element={<CreateCourse/>} />
+        <Route path="/create" element={<CreateCourse />} />
+        <Route path="/upload-lession/:courseId" element={<UploadLession />} />
+        <Route path="/manage-courses" element={<ManageCourses />} />
+        <Route path="/update-course/:courseId" element={<UpdateCourse />} />
+        <Route path="/doubts/:courseId" element={<MyDoubts/>} />
+        <Route path="/payment/:courseId" element={<Payment/>} />
+        <Route path="/lessons/:courseId" element={<Lessons/>} />
+        <Route path="lesson/doubts/:lessonId" element={<Doubts/>} />
+        <Route path="teacher/lesson/:courseId/:lessonId" element={<TeacherLesson/>} />
+
+
+
         <Route path="/live" element={<LiveMeeting/>} />
         <Route path="/sessions" element={<LiveSessions/>} />
 
-      
+
       </Routes>
     );
   } else {
@@ -123,7 +141,7 @@ function App() {
         <Route path="/enroll/:courseId" element={<Enroll />} />
         <Route path="/enrolled-courses" element={<EnrolledCourses />} />
         <Route path="/verify" element={<Verify />} />
-        <Route path="/create" element={<CreateCourse/>} />
+        <Route path="/create" element={<CreateCourse />} />
         <Route path="/live" element={<LiveMeeting/>} />
         <Route path="/sessions" element={<LiveSessions/>} />
       </Routes>
@@ -143,23 +161,27 @@ function App() {
         user,
         setUser,
         isEnabled,
+        query,
+        setQuery,
         token
       }}
     >
-      <Router>
-        <Navbar toggleModal={toggleModal} isModalOpen = {isModalOpen}/>
-        <main>{routes}</main>
-        <ToastContainer
-          position="bottom-center"
-          autoClose={3000}
-          hideProgressBar={false}
-          closeOnClick
-          pauseOnHover
-          draggable
-          pauseOnFocusLoss
-        />
-        <Footer />
-      </Router>
+      <UploadProvider> {/* Wrap with UploadProvider */}
+        <Router>
+          <Navbar toggleModal={toggleModal} isModalOpen={isModalOpen} />
+          <main>{routes}</main>
+          <ToastContainer
+            position="bottom-center"
+            autoClose={3000}
+            hideProgressBar={false}
+            closeOnClick
+            pauseOnHover
+            draggable
+            pauseOnFocusLoss
+          />
+          <Footer />
+        </Router>
+      </UploadProvider>
     </AuthContext.Provider>
   );
 }

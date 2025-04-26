@@ -34,4 +34,8 @@ public interface AuthService {
     Student findStudentByUser(ApplicationUser student);
 
     Teacher findTeacherByUser(ApplicationUser teacher);
+
+    boolean varifyToken(String token);
+
+    ApplicationUser findUserByToken(String token);
 }

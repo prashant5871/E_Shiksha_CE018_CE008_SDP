@@ -4,9 +4,11 @@ import com.Eshiksha.Entities.ApplicationUser;
 import com.Eshiksha.Entities.Course;
 import com.Eshiksha.Entities.CourseCategory;
 import com.Eshiksha.Entities.CourseReview;
+import com.Eshiksha.dto.CourseReviewDTO;
 import com.Eshiksha.repositories.CourseRepository;
 import com.Eshiksha.repositories.ReviewRepository;
 import com.Eshiksha.repositories.UserRepository;
+import com.Eshiksha.services.ReviewService;
 import com.azure.core.annotation.Get;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,14 +27,17 @@ public class ReviewController {
     private UserRepository userRepository;
     private ReviewRepository reviewRepository;
 
-    public ReviewController(CourseRepository courseRepository, UserRepository userRepository, ReviewRepository reviewRepository) {
+    private ReviewService reviewService;
+
+    public ReviewController(CourseRepository courseRepository, UserRepository userRepository, ReviewRepository reviewRepository, ReviewService reviewService) {
         this.reviewRepository = reviewRepository;
         this.courseRepository = courseRepository;
         this.userRepository = userRepository;
+        this.reviewService = reviewService;
     }
 
     @PostMapping("/{courseId}/{userId}")
-    public ResponseEntity<Map<String, String>> reviewCourse(@PathVariable int courseId, @PathVariable int userId, @RequestBody CourseReview courseReview) {
+    public ResponseEntity<?> reviewCourse(@PathVariable int courseId, @PathVariable int userId, @RequestBody CourseReview courseReview) {
         Map<String, String> response = new HashMap<>();
 
         Optional<Course> courseOptional = courseRepository.findById(courseId);
@@ -53,7 +58,7 @@ public class ReviewController {
         courseReview.setCourse(courseOptional.get());
         courseReview.setUser(userOptional.get());
 
-        reviewRepository.save(courseReview);
+        CourseReview courseReview1 = reviewRepository.save(courseReview);
 
         ApplicationUser user = userOptional.get();
 
@@ -66,7 +71,7 @@ public class ReviewController {
 
         courseRepository.save(course);
         response.put("message", "Review submitted succesfully !");
-        return ResponseEntity.status(HttpStatus.OK).body(response);
+        return ResponseEntity.status(HttpStatus.OK).body(courseReview1);
 
     }
 
@@ -86,5 +91,13 @@ public class ReviewController {
     public ResponseEntity<List<CourseReview>> getAllReviews()
     {
         return ResponseEntity.status(HttpStatus.OK).body(reviewRepository.findAll());
+    }
+
+    @PutMapping("/{reviewId}")
+    public ResponseEntity<?> updateReview(@PathVariable int reviewId,@RequestBody CourseReviewDTO courseReview)
+    {
+        CourseReview courseReview1 = reviewService.updateReview(reviewId,courseReview);
+
+        return ResponseEntity.status(HttpStatus.OK).body(courseReview1);
     }
 }

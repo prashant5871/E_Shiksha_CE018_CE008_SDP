@@ -39,6 +39,7 @@ public class Lession {
 	private LocalDateTime updatedAt;
 
 	@OneToMany(mappedBy = "lession", cascade = CascadeType.ALL, orphanRemoval = true)
+	@JsonIgnore
 	private List<LessionDoubt> doubts = new ArrayList<>();
 
 

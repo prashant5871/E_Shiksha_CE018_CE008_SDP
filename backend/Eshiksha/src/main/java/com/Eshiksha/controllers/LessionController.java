@@ -3,9 +3,11 @@ package com.Eshiksha.controllers;
 import com.Eshiksha.AppConstants;
 import com.Eshiksha.Entities.Course;
 import com.Eshiksha.Entities.Lession;
+import com.Eshiksha.Entities.LessionDoubt;
 import com.Eshiksha.services.CourseService;
 import com.Eshiksha.services.LessionService;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.FileSystemResource;
@@ -29,6 +31,7 @@ import java.nio.file.Paths;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -72,22 +75,38 @@ public class LessionController {
         return ResponseEntity.ok().body(lessions);
     }
 
+    @GetMapping("/{lessonId}")
+    public ResponseEntity<?> getLessonById(@PathVariable int lessonId) {
+        Lession lessionById = lessionService.findLessionById(lessonId);
+        return ResponseEntity.ok(lessionById);
+    }
+
+    @GetMapping("/doubts/{lessonId}")
+    public ResponseEntity<?> getDoubtsByLessonId(
+            @PathVariable int lessonId
+    ){
+        List<LessionDoubt> doubts = lessionService.findDoubtsByLessonId(lessonId);
+
+        return ResponseEntity.ok(doubts);
+    }
+
+
+
     @PostMapping("/{courseId}")
-    public ResponseEntity<String> createLesson(@PathVariable int courseId,
-                                               @RequestParam("title") String title,
-                                               @RequestParam("description") String description,
-                                               @RequestParam("duration") long durationInSeconds,
-                                               @RequestParam("sequenceNumber") int sequenceNumber,
-                                               @RequestParam("resources") String resources,
-                                               @RequestParam("status") String status,
-                                               @RequestParam("lession") MultipartFile videoFile) {
+    public void createLesson(@PathVariable int courseId,
+                             @RequestParam("title") String title,
+                             @RequestParam("description") String description,
+                             @RequestParam("sequenceNumber") int sequenceNumber,
+                             @RequestParam("resources") String resources,
+                             @RequestParam("status") String status,
+                             @RequestParam("lession") MultipartFile videoFile,
+                             HttpServletResponse response) throws IOException {
         try {
-            Lession lession = lessionService.createLession(courseId, title, description, durationInSeconds, sequenceNumber, resources, status, videoFile);
-
-            return ResponseEntity.ok("Lesson created successfully with ID: " + lession.getLessionId());
-
+            response.setContentType("text/plain");
+            response.setCharacterEncoding("UTF-8");
+            lessionService.createLession(courseId, title, description, sequenceNumber, resources, status, videoFile);
         } catch (Exception e) {
-            return ResponseEntity.status(500).body("Error: " + e.getMessage());
+            response.getOutputStream().write(("Error: " + e.getMessage()).getBytes(StandardCharsets.UTF_8));
         }
     }
 

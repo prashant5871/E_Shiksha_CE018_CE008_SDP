@@ -94,11 +94,6 @@ public class StudentServiceImpl implements StudentService {
 
         Course course = courseRepository.findById(courseId)
                 .orElseThrow(() -> new Exception("Course not found"));
-
-        if (course.getPrice() > 0 && paymentDTO.getAmount() != course.getPrice())
-            throw new Exception("Please enter valid amount");
-
-
         if (!student.getEnrolledCourses().contains(course)) {
             if (course.getPrice() > 0)
                 processPayment(student, course);
@@ -119,6 +114,24 @@ public class StudentServiceImpl implements StudentService {
 
         return student.getEnrolledCourses();
 
+    }
+
+    @Override
+    public void enrollStudentForFree(int courseId, int userId) throws Exception {
+        ApplicationUser appUser = userRepository.findById(userId)
+                .orElseThrow(() -> new Exception("User not found"));
+
+        Student student = studentRepository.findByUser(appUser)
+                .orElseThrow(() -> new Exception("Student not found for userId: " + userId));
+
+        Course course = courseRepository.findById(courseId)
+                .orElseThrow(() -> new Exception("Course not found"));
+        if (!student.getEnrolledCourses().contains(course)) {
+            student.getEnrolledCourses().add(course);
+            course.getEnrolledStudents().add(student);
+            studentRepository.save(student);
+            courseRepository.save(course);
+        }
     }
 
     public void processPayment(Student student, Course course) throws Exception {

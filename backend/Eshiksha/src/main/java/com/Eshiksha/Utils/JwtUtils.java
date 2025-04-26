@@ -50,7 +50,9 @@ public class JwtUtils {
 
     // Parse the token to extract claims
     private Claims extractAllClaims(String token) {
-        return Jwts.parserBuilder().setSigningKey(getSigningKey()).build().parseClaimsJws(token).getBody();
+        Claims body = Jwts.parserBuilder().setSigningKey(getSigningKey()).build().parseClaimsJws(token).getBody();
+        System.out.println("body : " + body);
+        return body;
     }
 
     // Validate the token and verify user details
@@ -72,12 +74,18 @@ public class JwtUtils {
     // Check if the token has expired
     public boolean isTokenExpired(String token) {
         Date expiration = extractExpiration(token);
+        System.out.println("Current time: " + new Date());
+        System.out.println("expiration time: " + expiration);
+        System.out.println("expiration before: " + expiration.before(new Date()));
         return expiration.before(new Date());
     }
 
     // Extract expiration date from token
     public Date extractExpiration(String token) {
-        return extractAllClaims(token).getExpiration();
+        Date expiration = extractAllClaims(token).getExpiration();
+        System.out.println("expiration is : " + expiration);
+        System.out.println("expiration from the method is : " + extractAllClaims(token).getExpiration());
+        return expiration;
     }
 
 }

@@ -3,7 +3,9 @@ package com.Eshiksha.services;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -94,7 +96,7 @@ public class VideoService {
     /**
      * 🛠️ Create Master Playlist (`master.m3u8`) referencing all available resolutions
      */
-    private String createMasterPlaylist(Path basePath, String[] resolutions) {
+    public String createMasterPlaylist(Path basePath, String[] resolutions) {
         try {
             Path masterPlaylistPath = basePath.resolve("master.m3u8");
 
@@ -129,6 +131,40 @@ public class VideoService {
             return basePath.toAbsolutePath().toString();
         } catch (IOException e) {
             throw new RuntimeException("Error creating master playlist: " + e.getMessage());
+        }
+    }
+
+    public int getVideoDuration(MultipartFile file) throws IOException, InterruptedException {
+        // 1️⃣ Define the uploads directory and ensure it exists
+        Path uploadDir = Paths.get("uploads");
+        if(!uploadDir.toFile().exists())
+            Files.createDirectories(uploadDir); // Creates directory if not exists
+
+        // 2️⃣ Define the file path
+        Path filePath = uploadDir.resolve(file.getOriginalFilename());
+
+        // 3️⃣ Save the uploaded file properly
+        Files.write(filePath, file.getBytes());
+
+        // 4️⃣ Run FFmpeg command to get video duration
+        ProcessBuilder processBuilder = new ProcessBuilder(
+                "cmd.exe", "/c", "ffprobe -i \"" + filePath.toString() + "\" -show_entries format=duration -v quiet -of csv=\"p=0\""
+        );
+
+        Process process = processBuilder.start();
+        BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+
+        String durationStr = reader.readLine();
+        process.waitFor(); // Wait for process to finish
+
+        // 5️⃣ Delete the file after processing
+        Files.deleteIfExists(filePath);
+
+        // 6️⃣ Convert duration to integer seconds
+        if (durationStr != null && !durationStr.isEmpty()) {
+            return (int) Math.round(Double.parseDouble(durationStr.trim()));
+        } else {
+            throw new RuntimeException("Failed to retrieve video duration");
         }
     }
 }

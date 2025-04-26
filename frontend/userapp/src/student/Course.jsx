@@ -4,6 +4,8 @@ import { useParams } from "react-router-dom";
 import VideoPlayer from "./VideoPlayer";
 import { parse } from 'iso8601-duration';
 import { AuthContext } from "../shared/context/auth-context";
+import { VideoPreview } from "../shared/components/VideoPreview";
+
 
 export default function Course() {
   const { courseId } = useParams();
@@ -18,7 +20,8 @@ export default function Course() {
   const [doubtInput, setDoubtInput] = useState(""); // State for doubt input
 
 
-  const { isLoggedIn, userId } = useContext(AuthContext);
+  const { isLoggedIn, userId, user } = useContext(AuthContext);
+
 
 
   function formatIsoDuration(isoDuration) {
@@ -48,7 +51,13 @@ export default function Course() {
         }
         const data = await response.json();
         setCourse(data);
-        setReviews(data.reviews || []);
+
+        let sortedReviews = data.reviews || [];
+
+        // Move the logged-in user's review to the front
+        sortedReviews = sortedReviews.sort((a, b) => (a.user.userId === userId ? -1 : b.user.userId === userId ? 1 : 0));
+
+        setReviews(sortedReviews);
         setLoading(false);
       } catch (err) {
         setError(err.message);
@@ -57,13 +66,14 @@ export default function Course() {
     };
 
     fetchCourse();
-  }, [courseId]);
+  }, [courseId, userId]); // Added `userId` as a dependency
+
 
   const handleDoubtSubmit = async () => {
     if (!selectedLesson) return;
 
     try {
-      const response = await fetch(`http://localhost:8000/doubts/${selectedLesson.lessionId}/${loggedInUserId}`, {
+      const response = await fetch(`http://localhost:8000/doubts/${selectedLesson.lessionId}/${userId}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json', // Send JSON
@@ -89,13 +99,14 @@ export default function Course() {
     try {
       const reviewData = isUpdating ? { ...reviewToUpdate, ...newReview } : newReview;
       const method = isUpdating ? 'PUT' : 'POST';
-      const url = isUpdating ? `http://localhost:8000/review/${reviewToUpdate.id}` : `http://localhost:8000/review/${courseId}/${userId}`;
+      console.log(reviewToUpdate);
+      const url = isUpdating ? `http://localhost:8000/review/${reviewToUpdate.reviewId}` : `http://localhost:8000/review/${courseId}/${userId}`;
 
       console.log("review data : ", reviewData);
       const response = await fetch(url, {
         method,
         headers: {
-          'Content-Type': 'application/json',
+          'Content-Type': 'application/json'
         },
         body: JSON.stringify(reviewData),
       });
@@ -105,9 +116,10 @@ export default function Course() {
       }
 
       const updatedReview = await response.json();
+      console.log("updated review : ", updatedReview);
 
       if (isUpdating) {
-        setReviews(reviews.map(review => review.id === updatedReview.id ? updatedReview : review));
+        setReviews(reviews.map(review => review.reviewId === updatedReview.reviewId ? updatedReview : review));
         setIsUpdating(false);
         setReviewToUpdate(null);
       } else {
@@ -119,22 +131,37 @@ export default function Course() {
     }
   };
 
+  const isReviewdByUser = () => {
+    if (isUpdating) return false;
+    const reviewdByCurrUser = course.reviews.find(review => review.user.userId == userId);
+
+    // console.log("reviews are : ",reviews);
+
+    // console.log("recu : ",reviewdByCurrUser);
+
+    if (reviewdByCurrUser != null) {
+      return true;
+    }
+
+    return false;
+  }
+
   const handleUpdateReview = (review) => {
-    setIsUpdating(true);
+    setIsUpdating(prev => !prev);
     setReviewToUpdate(review);
-    setNewReview({ name: review.name, star: review.star, comment: review.comment });
+    setNewReview({ star: review.star, comment: review.comment });
   };
 
   if (loading) {
-    return <div className="text-center text-2xl font-semibold mt-10">Loading course...</div>;
+    return <div className="text-center text-2xl font-semibold mt-10">Loading course...</div>
   }
 
   if (error) {
-    return <div className="text-center text-2xl font-semibold mt-10 text-red-500">Error: {error}</div>;
+    return <div className="text-center text-2xl font-semibold mt-10 text-red-500">Error: {error}</div>
   }
 
   if (!course) {
-    return <div className="text-center text-2xl font-semibold mt-10 text-red-500">Course Not Found! 😢</div>;
+    return <div className="text-center text-2xl font-semibold mt-10 text-red-500">Course Not Found! 😢</div>
   }
 
   return (
@@ -167,14 +194,18 @@ export default function Course() {
               <div className="space-y-6">
                 {reviews.length > 0 ? (
                   reviews.map((review, index) => (
-                    <div key={index} className="border-b pb-4 last:border-b-0">
+                    <div key={index} className="border-b pb-4 last:border-b-0 px-4 py-3 bg-white shadow-sm rounded-lg">
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
+                          {/* User Info */}
                           <div className="flex items-center mb-2">
-                            <span className="font-semibold text-lg text-gray-800 mr-3">{review.name}</span>
-                            <div className="flex items-center">
+                            <span className="font-semibold text-lg text-gray-900 mr-3 bg-gradient-to-r from-blue-500 to-purple-500 text-transparent bg-clip-text">
+                              {review.user.firstName} {review.user.lastName}
+                            </span>
+                            {/* Star Ratings */}
+                            <div className="flex items-center space-x-1">
                               {[...Array(review.star)].map((_, i) => (
-                                <svg key={i} className="w-5 h-5 text-yellow-500 fill-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                                <svg key={i} className="w-5 h-5 text-yellow-500 fill-current drop-shadow-md" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
                                   <path d="M10 15l-5.878 3.09 1.123-6.545L.103 8.63 6.594 3.95 10 0l3.406 3.95 5.49 4.68L14.755 11.54 15.878 18z" />
                                 </svg>
                               ))}
@@ -185,18 +216,23 @@ export default function Course() {
                               ))}
                             </div>
                           </div>
-                          <p className="text-gray-700 leading-relaxed">{review.comment}</p>
+                          {/* Review Comment */}
+                          <p className="text-gray-700 leading-relaxed text-base border-l-4 border-blue-500 pl-3">{review.comment}</p>
                         </div>
-                        {isLoggedIn && (
+
+                        {/* Update Button */}
+                        {isLoggedIn && review.user.userId == userId && (
                           <button
                             onClick={() => handleUpdateReview(review)}
-                            className="ml-4 px-4 py-2 text-sm text-blue-600 border border-blue-600 rounded-lg hover:bg-blue-50 transition-colors"
+                            className="ml-4 px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-blue-600 rounded-lg shadow-md hover:bg-blue-700 transition-all duration-200 ease-in-out"
                           >
+
                             Update
                           </button>
                         )}
                       </div>
                     </div>
+
                   ))
                 ) : (
                   <p className="text-gray-600 italic">No reviews yet. Be the first to review!</p>
@@ -204,44 +240,47 @@ export default function Course() {
               </div>
 
               <div className="mt-8">
-                <h3 className="text-xl font-semibold text-gray-900 mb-4">{isUpdating ? 'Update Review' : 'Leave a Review'}</h3>
-                <form onSubmit={handleReviewSubmit} className="space-y-4">
-                  <div>
-                    <label htmlFor="star" className="block text-sm font-medium text-gray-700">Rating</label>
-                    <select
-                      id="star"
-                      value={newReview.star}
-                      onChange={(e) => setNewReview({ ...newReview, star: parseInt(e.target.value) })}
-                      className="mt-1 block w-full p-3 border rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                    >
-                      {[5, 4, 3, 2, 1].map((num) => (
-                        <option key={num} value={num}>
-                          {num} Stars
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                  <div>
-                    <label htmlFor="comment" className="block text-sm font-medium text-gray-700">Your Review</label>
-                    <textarea
-                      id="comment"
-                      placeholder="Write your review..."
-                      value={newReview.comment}
-                      onChange={(e) => setNewReview({ ...newReview, comment: e.target.value })}
-                      className="mt-1 block w-full p-3 border rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                      rows="4"
-                      required
-                    ></textarea>
-                  </div>
-                  <div>
-                    <button
-                      type="submit"
-                      className="w-full px-6 py-3 text-white bg-blue-600 hover:bg-blue-700 rounded-md shadow-md transition-colors font-semibold"
-                    >
-                      {isUpdating ? 'Update Review' : 'Submit Review'}
-                    </button>
-                  </div>
-                </form>
+                {!isReviewdByUser() && <div>
+                  <h3 className="text-xl font-semibold text-gray-900 mb-4">{isUpdating ? 'Update Review' : 'Leave a Review'}</h3>
+                  <form onSubmit={handleReviewSubmit} className="space-y-4">
+                    <div>
+                      <label htmlFor="star" className="block text-sm font-medium text-gray-700">Rating</label>
+                      <select
+                        id="star"
+                        value={newReview.star}
+                        onChange={(e) => setNewReview({ ...newReview, star: parseInt(e.target.value) })}
+                        className="mt-1 block w-full p-3 border rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                      >
+                        {[5, 4, 3, 2, 1].map((num) => (
+                          <option key={num} value={num}>
+                            {num} Stars
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    <div>
+                      <label htmlFor="comment" className="block text-sm font-medium text-gray-700">Your Review</label>
+                      <textarea
+                        id="comment"
+                        placeholder="Write your review..."
+                        value={newReview.comment}
+                        onChange={(e) => setNewReview({ ...newReview, comment: e.target.value })}
+                        className="mt-1 block w-full p-3 border rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                        rows="4"
+                        required
+                      ></textarea>
+                    </div>
+                    <div>
+                      <button
+                        type="submit"
+                        className="w-full px-6 py-3 text-white bg-blue-600 hover:bg-blue-700 rounded-md shadow-md transition-colors font-semibold"
+                      >
+                        {isUpdating ? 'Update Review' : 'Submit Review'}
+                      </button>
+                    </div>
+                  </form>
+                </div>
+                }
               </div>
             </div>
           </div>
@@ -292,12 +331,23 @@ export default function Course() {
           <div
             key={index}
             onClick={() => setSelectedLesson(lesson)}
-            className="cursor-pointer bg-gray-100 p-3 rounded-lg hover:bg-gray-200 mb-2"
+            className="flex items-center gap-4 cursor-pointer bg-gray-100 p-3 rounded-lg hover:bg-gray-200 mb-2 transition-shadow shadow-sm hover:shadow-md"
           >
-            {lesson.title} <span className="text-gray-500">({formatIsoDuration(lesson.duration)})</span>
+            {/* Video Preview (Left Side) */}
+            <div className="w-24 h-16 overflow-hidden rounded-md">
+              <VideoPreview src={`http://localhost:8000/lessions/stream/${courseId}/${lesson.lessionId}/master.m3u8`} />
+              {/* hi */}
+            </div>
+
+            {/* Lesson Details (Right Side) */}
+            <div className="flex-1">
+              <p className="text-lg font-semibold text-gray-800">{lesson.title}</p>
+              <span className="text-gray-500 text-sm">⏳ {formatIsoDuration(lesson.duration)}</span>
+            </div>
           </div>
         ))}
       </div>
+
     </div>
   );
 }

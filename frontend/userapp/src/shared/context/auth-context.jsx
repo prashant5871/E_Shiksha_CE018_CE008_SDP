@@ -10,5 +10,7 @@ export const AuthContext = createContext({
   setIsStudent : () => {},
   token: null,
   user : null,
-  isEnabled : false
+  isEnabled : false,
+  query:null,
+  setQuery:null
 });

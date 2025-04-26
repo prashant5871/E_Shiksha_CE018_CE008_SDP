@@ -4,6 +4,7 @@ public class PaymentDTO {
     private String debitCardNumber;
 
     private float amount;
+    private String paymentMethodId;
 
     public PaymentDTO(float amount) {
         this.amount = amount;
@@ -23,5 +24,13 @@ public class PaymentDTO {
 
     public void setAmount(float amount) {
         this.amount = amount;
+    }
+
+    public String getPaymentMethodId() {
+        return paymentMethodId;
+    }
+
+    public void setPaymentMethodId(String paymentMethodId) {
+        this.paymentMethodId = paymentMethodId;
     }
 }
