@@ -18,7 +18,7 @@ import EnrolledCourses from "./student/EnrolledCourses";
 import Verify from "./shared/components/Verify";
 import CreateCourse from "./teacher/CreateCourse";
 import LiveSessions from "./LiveSessions";
-import LiveMeeting from './Live'
+import LiveMeeting from './live'
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -27,6 +27,7 @@ function App() {
   const [isStudent, setIsStudent] = useState(true);
   const { isLoading, error, sendRequest, clearError } = useHttpClient();
   const [user,setUser] = useState(null);
+  const [token, setToken] = useState(null);
 
   const [isEnabled, setIsEnabled] = useState(false)
 
@@ -76,6 +77,7 @@ function App() {
     setUserMail(umail);
     setUser(user);
     setIsEnabled(isEnabled);
+    setToken(authToken);
     console.log("user from the login method , ",localStorage.setItem("authToken", authToken));
 
     // if(!user || !user.enrolledCourses)
@@ -140,7 +142,8 @@ function App() {
         setIsStudent,
         user,
         setUser,
-        isEnabled
+        isEnabled,
+        token
       }}
     >
       <Router>

@@ -23,6 +23,8 @@ public interface AuthService {
 
     void sendVerificationEmailFromUserId(String email) throws Exception;
 
+    void sendCourseStatusEmail(ApplicationUser appUser, String courseName, String status, String reason) throws Exception;
+
     boolean isTeacher(ApplicationUser teacher);
 
     boolean isStudent(ApplicationUser student);

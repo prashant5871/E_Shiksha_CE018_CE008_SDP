@@ -43,7 +43,7 @@ export default function Card(props) {
                   </p>
                 </div>
                 <div className='col-md-3 fw-lighter text-center'>
-                  {props.data.teacher.user.reviews.length} Reviews
+                  {props.data.teacher.user.reviews} Reviews
                 </div>
               </div>
 
@@ -52,16 +52,43 @@ export default function Card(props) {
 
           {/* Right Column - Buttons */}
           <div className="border-start col-md-2 d-flex flex-column justify-content-center align-items-center">
-            <strong className='text-warning mb-4'>{props.data.status}</strong>
-            <button className='btn btn-outline-success mb-2'>
-              Accept
-            </button>
-            <button className='btn btn-outline-danger mb-2' onClick={() => props.onActionClick(props.data, 'Block')} data-bs-toggle="modal" data-bs-target="#blockModal" >
-              Block
-            </button>
-            <button className='btn btn-outline-primary mb-2' onClick={() => props.onActionClick(props.data, 'Cancel')} data-bs-toggle="modal" data-bs-target="#blockModal">
-              Cancel
-            </button>
+            <strong className="text-warning mb-4">{props.data.status}</strong>
+            {props.data.status === 'PENDING' && (
+              <>
+                <button
+                  className="btn btn-outline-success mb-2"
+                  onClick={() => props.onActionClick(props.data, 'Accept')}
+                >
+                  Accept
+                </button>
+                <button
+                  className="btn btn-outline-primary mb-2"
+                  onClick={() => props.onActionClick(props.data, 'Cancel')}
+                  data-bs-toggle="modal"
+                  data-bs-target="#blockModal"
+                >
+                  Cancel
+                </button>
+              </>
+            )}
+            {props.data.status === 'BLOCK' && (
+              <button
+                className="btn btn-outline-success mb-2"
+                onClick={() => props.onActionClick(props.data, 'Accept')}
+              >
+                Accept
+              </button>
+            )}
+            {props.data.status === 'ACTIVE' && (
+              <button
+                className="btn btn-outline-danger mb-2"
+                onClick={() => props.onActionClick(props.data, 'Block')}
+                data-bs-toggle="modal"
+                data-bs-target="#blockModal"
+              >
+                Block
+              </button>
+            )}
           </div>
         </div>
       </div>

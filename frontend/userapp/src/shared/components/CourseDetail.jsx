@@ -99,7 +99,7 @@ export default function CourseDetail({selectedCourse,setSelectedCourse,toggleMod
                   Update Now
                 </button>}
                 {/* ...................k_dev ........... */}
-                {!isStudent && isLoggedIn && <button className="px-4 py-2 bg-yellow-600 text-white rounded-md hover:bg-yellow-700" onClick={() =>handleLive(selectedCourse.courseId)}>
+                {!isStudent && isLoggedIn && <button className="px-4 py-2 bg-yellow-600 text-white rounded-md hover:bg-yellow-700" onClick={() =>handleLive(true)}>
                   Schedule Live
                 </button>}
                 {/* ........................k_dev....................... */}

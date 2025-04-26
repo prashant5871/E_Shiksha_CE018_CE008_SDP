@@ -14,33 +14,35 @@ export default function Home() {
   const [description, setDescription] = useState('');
   const { isLoading, error, sendRequest, clearError } = useHttpClient();
 
-  // Method to fetch courses after status change
+  // Fetch courses on component mount
+  useEffect(() => {
+    fetchCourses();
+  }, []);  // Empty dependency array means it runs once when the component mounts
+
   const fetchCourses = async () => {
     try {
       const responseData = await sendRequest('http://localhost:8000/courses/', 'GET', null, {
         'Authorization': auth.authToken,
       });
       setCourses(responseData);
-    } catch (err) {
-      toast.error('Failed to fetch courses. Please try again later.');
-    }
+    } catch (err) {}
   };
-  useEffect(()=>{fetchCourses()},[])
+
   const changeStatus = async (id, status) => {
     try {
       // Change the status of the course
       const responseData = await sendRequest(
         `http://localhost:8000/admin/${id}/${status}`,
-        'GET',
-        null,
+        'POST',
+        JSON.stringify({
+          description : status == 'ACTIVE' ? '' : description,
+        }),
         {
           'Authorization': `Bearer ${auth.authToken}`,
         }
       );
-      toast.success(responseData.message, { autoClose: 500, hideProgressBar: true });
-
-      // Fetch the updated list of courses after changing the status
-      fetchCourses();
+      toast.success(responseData.message, { autoClose: 1000, hideProgressBar: true });
+      fetchCourses();  // Fetch the updated list of courses after changing the status
     } catch (err) {
       toast.error('Failed to change course status. Please try again.');
     }
@@ -114,6 +116,8 @@ export default function Home() {
                 <button
                   type="button"
                   className="btn btn-primary"
+                  data-bs-dismiss="modal"
+                  aria-label="Close"
                   onClick={() =>
                     changeStatus(
                       selectedCourse.courseId,

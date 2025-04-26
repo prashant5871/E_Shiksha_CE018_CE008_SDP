@@ -1,9 +1,6 @@
 package com.Eshiksha.services;
 
-import com.Eshiksha.Entities.ApplicationUser;
-import com.Eshiksha.Entities.Role;
-import com.Eshiksha.Entities.Student;
-import com.Eshiksha.Entities.Teacher;
+import com.Eshiksha.Entities.*;
 import com.Eshiksha.repositories.RoleRepository;
 import com.Eshiksha.repositories.StudentRepository;
 import com.Eshiksha.repositories.TeacherRepository;
@@ -151,6 +148,45 @@ public class AuthServiceImpl implements AuthService {
         content = content.replace("[[name]]", appUser.getFirstName());
         String verifyURL = "http://localhost:3000/verify?code=" + appUser.getVerificationCode();
         content = content.replace("[[URL]]", verifyURL);
+
+        helper.setText(content, true);
+
+        mailSender.send(message);
+    }
+
+    @Override
+    public void sendCourseStatusEmail(ApplicationUser appUser, String courseName, String status, String reason)
+            throws MessagingException, UnsupportedEncodingException {
+        String toAddress = appUser.getEmail();
+        String fromAddress = "prashantkalsariya001@gmail.com";
+        String senderName = "EShiksha";
+        String subject = "Course Notification: " + courseName;
+
+        String content = "Dear [[name]],<br>";
+
+        if ("ACTIVE".equalsIgnoreCase(status)) {
+            content += "We are pleased to inform you that your course '<strong>[[courseName]]</strong>' has been successfully <strong>activated</strong>!<br>"
+                    + "You may now access and manage your course as usual.<br>";
+        } else {
+            content += "We regret to inform you that your course '<strong>[[courseName]]</strong>' has been <strong>[[action]]</strong> by the administrator for the following reason:<br>"
+                    + "<blockquote>[[reason]]</blockquote><br>"
+                    + "If you have any concerns or questions, feel free to contact us.<br>";
+        }
+
+        content += "<br><br>Thank you,<br>EShiksha.";
+
+        MimeMessage message = mailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(message);
+
+        helper.setFrom(fromAddress, senderName);
+        helper.setTo(toAddress);
+        helper.setSubject(subject);
+
+        // Replace placeholders with actual values
+        content = content.replace("[[action]]", status);
+        content = content.replace("[[name]]", appUser.getFirstName());
+        content = content.replace("[[courseName]]", courseName);
+        content = content.replace("[[reason]]", reason != null ? reason : "No specific reason provided.");
 
         helper.setText(content, true);
 

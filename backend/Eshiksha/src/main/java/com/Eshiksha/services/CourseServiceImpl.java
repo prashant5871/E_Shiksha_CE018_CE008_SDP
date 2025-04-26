@@ -112,6 +112,7 @@ public void changeStatus(int id, String status) {
             .orElseThrow(() -> new RuntimeException("Course not found"));
     course.setStatus(status);
     courseRepository.save(course); // Save the updated course status
+
 }
 
 //    .....................

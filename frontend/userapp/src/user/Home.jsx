@@ -109,15 +109,28 @@ export default function CourseList({ toggleModal }) {
     }
   };
 
-const handleLive = async(courseId) => {
-  console.log('working');
-  setShowLiveDialog(true);
-
-}
-
 const handleLiveSubmit = async() => {
-  console.log("hale se ho");
-  
+  const mid = await createMeeting();
+  try {
+    const response = await sendRequest(
+      `http://localhost:8000/live/`, // Use the correct API endpoint for update
+      'POST',
+      JSON.stringify({
+        courseId: selectedCourse.courseId,
+        scheduledTime: courseDetails.scheduledTime,
+        meetingId: mid,
+        topic: courseDetails.topic,
+        duration: courseDetails.duration,
+      }),
+      {
+        'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
+        'Content-Type': 'application/json',
+      }
+    );
+    setShowLiveDialog(false); // Close dialog after successful submission
+  } catch (error) {
+    console.error("Failed to create live session:", error);
+  }
 }
 
 
@@ -158,7 +171,7 @@ const handleLiveSubmit = async() => {
         </div>
 
         {selectedCourse && (
-          <CourseDetail selectedCourse={selectedCourse} setSelectedCourse={setSelectedCourse} toggleModal={toggleModal} handleLive={handleLive}/>
+          <CourseDetail selectedCourse={selectedCourse} setSelectedCourse={setSelectedCourse} toggleModal={toggleModal} handleLive={setShowLiveDialog}/>
         )}
       </div>
 
@@ -166,7 +179,7 @@ const handleLiveSubmit = async() => {
         <div className="fixed backdrop-blur-sm inset-0 flex justify-center items-center z-50">
         <div className="bg-white p-4 rounded-lg shadow-lg max-w-sm w-full">
           <h2 className="text-2xl font-bold ">Create Live Session</h2>
-          <p className="text-sm mb-4">Introdusing Java Spring</p>
+          <p className="text-sm mb-4">{selectedCourse.courseName}</p>
           <div>
             <label className="block text-sm font-medium mb-2">Topic</label>
             <input
