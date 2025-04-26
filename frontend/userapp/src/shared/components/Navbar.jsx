@@ -39,11 +39,10 @@ export default function Navbar({ toggleModal, isModalOpen }) {
       ]);
     } else {
       setNavigation([
-        { name: 'Home', href: '/' },
+        { name: 'Home', href: '/', icon: <HomeIcon className="w-5 h-5" /> },
         { name: 'My Courses', href: '/enrolled-courses' },
         {name : 'Create' , href: '/create'},
-        {name: 'Sessions', href: '/sessions'}
-        { name: 'Home', href: '/', icon: <HomeIcon className="w-5 h-5" /> },
+        {name: 'Sessions', href: '/sessions'},
         { name: 'About us', href: '/about', icon: <UserIcon className="w-5 h-5" /> },
       ]);
     }
