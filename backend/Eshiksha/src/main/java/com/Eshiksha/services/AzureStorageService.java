@@ -70,6 +70,34 @@ public class AzureStorageService {
         }
     }
 
+    public byte[] fetchCoursePdf(int courseId, String containerName) {
+        try {
+            String folderPath = "course_" + courseId;
+
+            BlobContainerClient containerClient = blobServiceClient.getBlobContainerClient(containerName);
+            if (!containerClient.exists()) {
+                throw new RuntimeException("Container does not exist: " + containerName);
+            }
+
+            PagedIterable<BlobItem> blobItems = containerClient.listBlobsByHierarchy(folderPath + "/");
+            for (BlobItem blobItem : blobItems) {
+                if (blobItem.isPrefix() == null || !blobItem.isPrefix()) {
+                    BlobClient blobClient = containerClient.getBlobClient(blobItem.getName());
+
+                    try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+                        blobClient.downloadStream(outputStream);
+                        return outputStream.toByteArray();
+                    }
+                }
+            }
+
+            throw new RuntimeException("No file found inside course_" + courseId + " folder.");
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to fetch course PDF", e);
+        }
+    }
+
+
     public byte[] fetchFileBytesFromAzure(String fullPath) {
         try {
             // Debug: Log full path

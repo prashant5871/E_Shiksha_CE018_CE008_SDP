@@ -67,84 +67,85 @@ const ManageCourses = () => {
 
             return (
               <div
-  key={course.courseId}
-  className="bg-white shadow-lg rounded-lg p-4 border border-gray-200 transition-transform duration-300 transform hover:scale-105 hover:shadow-2xl flex flex-col"
->
-  {/* Course Thumbnail */}
-  <img
-    src={`http://localhost:8000/images/thumbnails/${encodeURIComponent(course.thumbnail)}`}
-    alt={course.courseName}
-    className="w-full h-48 object-cover rounded-lg mt-3"
-  />
+                key={course.courseId}
+                className="bg-white shadow-lg rounded-lg p-4 border border-gray-200 transition-transform duration-300 transform hover:scale-105 hover:shadow-2xl flex flex-col"
+              >
+                {/* Course Thumbnail */}
+                <img
+                  className="w-full h-48 object-cover rounded-t-xl"
+                  // src={`http://localhost:8000/images/thumbnails/${encodeURIComponent(course.thumbnail)}`}
+                  src={`http://localhost:8000/courses/thumbnail/${course.courseId}`}
+                  alt={course.courseName}
+                />
 
-  {/* Course Name */}
-  <h2 className="text-xl font-semibold mt-3">{course.courseName}</h2>
+                {/* Course Name */}
+                <h2 className="text-xl font-semibold mt-3">{course.courseName}</h2>
 
-  {/* Course Description */}
-  <p className="text-gray-700 mt-2">
-    {course.description.split(" ").length > 20 ? (
-      expanded[course.courseId] ? (
-        <>
-          {course.description}{" "}
-          <button
-            onClick={() => toggleDescription(course.courseId)}
-            className="text-red-500 hover:underline ml-1"
-          >
-            Show Less
-          </button>
-        </>
-      ) : (
-        <>
-          {course.description.split(" ").slice(0, 20).join(" ")}...{" "}
-          <button
-            onClick={() => toggleDescription(course.courseId)}
-            className="text-blue-500 hover:underline ml-1"
-          >
-            Read More
-          </button>
-        </>
-      )
-    ) : (
-      course.description
-    )}
-  </p>
+                {/* Course Description */}
+                <p className="text-gray-700 mt-2">
+                  {course.description.split(" ").length > 20 ? (
+                    expanded[course.courseId] ? (
+                      <>
+                        {course.description}{" "}
+                        <button
+                          onClick={() => toggleDescription(course.courseId)}
+                          className="text-red-500 hover:underline ml-1"
+                        >
+                          Show Less
+                        </button>
+                      </>
+                    ) : (
+                      <>
+                        {course.description.split(" ").slice(0, 20).join(" ")}...{" "}
+                        <button
+                          onClick={() => toggleDescription(course.courseId)}
+                          className="text-blue-500 hover:underline ml-1"
+                        >
+                          Read More
+                        </button>
+                      </>
+                    )
+                  ) : (
+                    course.description
+                  )}
+                </p>
 
-  {/* Course Details */}
-  <p className="text-sm text-gray-600 mt-2">
-    <strong>Price:</strong> ₹{course.price}
-  </p>
-  <p className="text-sm text-gray-600">
-    <strong>Category:</strong> {course.category ? course.category.categoryName : "N/A"}
-  </p>
-  <p className="text-sm text-gray-600">
-    <strong>Status:</strong> {course.status}
-  </p>
-  <p className="text-sm text-gray-600">
-    <strong>Duration:</strong> {course.duration} days
-  </p>
+                {/* Course Details */}
+                <p className="text-sm text-gray-600 mt-2">
+                  <strong>Price:</strong> ₹{course.price}
+                </p>
+                <p className="text-sm text-gray-600">
+                  <strong>Category:</strong> {course.category ? course.category.categoryName : "N/A"}
+                </p>
+                <p className="text-sm text-gray-600">
+                  <strong>Status:</strong> {course.status}
+                </p>
+                <p className="text-sm text-gray-600">
+                  <strong>Duration:</strong> {course.duration} days
+                </p>
 
-  {/* Buttons (Always at the Bottom) */}
-  <div className="mt-auto pt-4 flex flex-wrap gap-2">
-    <button
-      onClick={() => handleUpdateCourse(course.courseId)}
-      className="bg-green-500 hover:bg-green-700 text-white font-bold py-1 px-2 rounded"
-    >
-      Update Course
-    </button>
-    <button
-      onClick={() => handleAddLesson(course.courseId)}
-      className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-1 px-2 rounded"
-    >
-      Add Lesson
-    </button>
-    <button
-      onClick={() => handleViewLesson(course.courseId)}
-      className="bg-purple-500 hover:bg-purple-700 text-white font-bold py-1 px-2 rounded"
-    >
-      View Lessons
-    </button>
-  </div>
-</div>
+                {/* Buttons (Always at the Bottom) */}
+                <div className="mt-auto pt-4 flex flex-wrap gap-2">
+                  <button
+                    onClick={() => handleUpdateCourse(course.courseId)}
+                    className="bg-green-500 hover:bg-green-700 text-white font-bold py-1 px-2 rounded"
+                  >
+                    Update Course
+                  </button>
+                  <button
+                    onClick={() => handleAddLesson(course.courseId)}
+                    className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-1 px-2 rounded"
+                  >
+                    Add Lesson
+                  </button>
+                  <button
+                    onClick={() => handleViewLesson(course.courseId)}
+                    className="bg-purple-500 hover:bg-purple-700 text-white font-bold py-1 px-2 rounded"
+                  >
+                    View Lessons
+                  </button>
+                </div>
+              </div>
 
             );
           })}
