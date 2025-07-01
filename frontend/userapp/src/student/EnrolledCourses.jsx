@@ -64,7 +64,8 @@ const EnrolledCourses = () => {
             {/* Course Image */}
             <img
               className="w-full h-48 object-cover rounded-t-xl"
-              src={`http://localhost:8000/images/thumbnails/${course.thumbnail}`} 
+              // src={`http://localhost:8000/images/thumbnails/${encodeURIComponent(course.thumbnail)}`}
+              src={`http://localhost:8000/courses/thumbnail/${course.courseId}`}
               alt={course.courseName}
             />
 
@@ -81,8 +82,8 @@ const EnrolledCourses = () => {
 
               {/* "My Doubts" Button - Always at the Bottom */}
               <div className="mt-4">
-                <Link 
-                  to={`/doubts/${course.courseId}`} 
+                <Link
+                  to={`/doubts/${course.courseId}`}
                   className="block text-center bg-blue-600 text-white py-2 rounded-md font-semibold transition duration-300 hover:bg-blue-700"
                   onClick={(e) => e.stopPropagation()} // Prevents parent <Link> navigation
                 >

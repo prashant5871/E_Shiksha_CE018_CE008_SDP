@@ -127,6 +127,8 @@ public class CourseServiceImpl implements CourseService {
         }
     }
 
+
+
     @Override
     public void saveCourseAndFilesInAzure(MultipartFile thumbnail, MultipartFile demoVideo, MultipartFile document, String courseName, String description, float price, int categoryId, String jwtToken,int duration, HttpServletResponse response) {
         try {
