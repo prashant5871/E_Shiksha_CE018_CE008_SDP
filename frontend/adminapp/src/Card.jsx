@@ -11,10 +11,14 @@ export default function Card(props) {
           {/* Left Column - Image and Text */}
           <div className="col-md-5" onClick={() => props.onCardClick(props.data)}>
             <img
-              // src={props.data.thumbnail ? `${props.data.thumbnail}` : "image.png"}
-              src="image.png"
-              className="img-fluid rounded-start w-100 h-100"
+              src={`http://localhost:8000/courses/thumbnail/${props.data.courseId}`}
+              className="img-fluid rounded-start"
               alt={props.data.courseName}
+              style={{
+                objectFit: "cover", // Ensures the image covers the entire container without distortion
+                width: "100%", // Makes sure the image takes full width of its container
+                height: "250px" // Fixed height, adjust as needed
+              }}
             />
           </div>
 
@@ -23,21 +27,17 @@ export default function Card(props) {
             <div className="card-body" onClick={() => props.onCardClick(props.data)}>
               <h5 className="card-title">{props.data.courseName}</h5>
               <h5 className="fw-lighter small">by {props.data.teacher.user.firstName} {props.data.teacher.user.lastName}</h5>
-              <p className="card-text">{props.data.description}</p>
+
+              <p className="card-text description-line-clamp">{props.data.description}</p>
 
               <div className='row g-0'>
                 <div className='col-md-8'>
                   <h6> Duration : 18<small className='fw-light text-lowercase'> hour</small></h6>
                   <span className='bg-warning p-1'>
                     Price: ₹{props.data.price}
-                    {/* <small className='fw-light text-lowercase'>/course</small> */}
                   </span>
-                  {/* <span className="small m-2">
-                Teacher: {props.data.teacher.name}
-              </span> */}
                   <p className="card-text">
                     <small className="text-warning p-1 rounded-5 bg-secondary">
-                      {/* {props.data.reviews.length > 0 ? props.data.reviews.join(', ') : "No reviews yet"} */}
                       #{props.data.category.categoryName}
                     </small>
                   </p>
@@ -46,9 +46,9 @@ export default function Card(props) {
                   {props.data.teacher.user.reviews} Reviews
                 </div>
               </div>
-
             </div>
           </div>
+
 
           {/* Right Column - Buttons */}
           <div className="border-start col-md-2 d-flex flex-column justify-content-center align-items-center">

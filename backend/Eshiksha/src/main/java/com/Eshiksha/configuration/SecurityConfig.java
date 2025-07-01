@@ -69,7 +69,7 @@ public class SecurityConfig implements WebMvcConfigurer {
 //                            .requestMatchers("/student/**").permitAll()
 //                            .requestMatchers("/teacher/**").hasRole("TEACHER")
 //                            .requestMatchers("/live/**").permitAll()
-                            .anyRequest().permitAll();
+//                            .anyRequest().permitAll();
 //                })
             auth.requestMatchers("/progress/**").permitAll()
                     .anyRequest().permitAll();}).addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
@@ -81,7 +81,7 @@ public class SecurityConfig implements WebMvcConfigurer {
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
-                .allowedOrigins("http://localhost:5173") // Allow requests from this origin
+                .allowedOrigins("http://localhost:5173", "http://localhost:5174") // Allow requests from this origin
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                 .allowedHeaders("*")
                 .allowCredentials(true);

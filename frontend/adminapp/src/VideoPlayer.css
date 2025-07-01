@@ -1,0 +1,46 @@
+/* Video Container */
+.video-container {
+  position: relative;
+  width: 100%;
+  max-width: 800px;
+}
+
+/* Settings Menu (Light Theme) */
+.plyr__menu__container {
+  background: white;
+  border-radius: 8px;
+  color: black;
+  padding: 10px;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Settings Options */
+.plyr__menu__container .plyr__control {
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  font-size: 16px;
+  border-radius: 6px;
+  transition: background 0.2s ease-in-out;
+}
+
+.plyr__menu__container .plyr__control:hover {
+  background: rgba(0, 0, 0, 0.1);
+}
+
+/* Icons */
+.plyr__menu__container .plyr__control::before {
+  font-size: 20px;
+  margin-right: 10px;
+}
+
+/* Settings Button */
+.plyr__control--settings {
+  background: #f0f0f0;
+  border-radius: 50%;
+  padding: 8px;
+}
+
+.plyr__control--settings:hover {
+  background: #ddd;
+}

@@ -42,9 +42,7 @@ export default function CourseList({ toggleModal }) {
     });
 
     let url = isStudent ? "http://localhost:8000/courses/" : "http://localhost:8000/teacher/courses";
-    if (!isLoggedIn) {
-      url = "http://localhost:8000/courses/";
-    }
+
 
     let headers = {};
     if (isLoggedIn) {
@@ -63,9 +61,12 @@ export default function CourseList({ toggleModal }) {
         return response.json();
       })
       .then((data) => {
-        const approvedCourses = isStudent ? data.filter((d) => d.status === "APPROVED") : data;
+        console.log(data);
+        const approvedCourses = isStudent ? data.filter((d) => d.status === "ACTIVE") : data;
         setCourses(approvedCourses);
         setFilteredCourses(approvedCourses);
+        console.log(filteredCourses);
+        
         setLoading(false);
       })
       .catch((error) => {
@@ -135,9 +136,9 @@ const handleLiveSubmit = async() => {
 
   // Effect to filter courses based on query
   useEffect(() => {
-    console.log("query gets changed...");
+    console.log("query gets changed...", query);
     if (query.trim() === "") {
-      setFilteredCourses(courses);
+      // setFilteredCourses(courses);
       return;
     }
 
@@ -149,6 +150,7 @@ const handleLiveSubmit = async() => {
     );
 
     setFilteredCourses(filtered);
+    console.log('filter=',filtered)
   }, [query, courses]);
 
   if (loading)

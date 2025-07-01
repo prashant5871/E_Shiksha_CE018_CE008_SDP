@@ -123,9 +123,6 @@ function App() {
         <Route path="/lessons/:courseId" element={<Lessons/>} />
         <Route path="lesson/doubts/:lessonId" element={<Doubts/>} />
         <Route path="teacher/lesson/:courseId/:lessonId" element={<TeacherLesson/>} />
-
-
-
         <Route path="/live" element={<LiveMeeting/>} />
         <Route path="/sessions" element={<LiveSessions/>} />
 

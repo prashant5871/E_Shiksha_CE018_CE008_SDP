@@ -28,6 +28,7 @@ export default function Navbar({ toggleModal, isModalOpen }) {
         { name: 'Home', href: '/', icon: <HomeIcon className="w-5 h-5" /> },
         { name: 'Saved', href: '/saved', icon: <BookmarkIcon className="w-5 h-5" /> },
         { name: 'My Courses', href: '/enrolled-courses', icon: <UserIcon className="w-5 h-5" /> },
+        {name: 'Live Classes', href: '/sessions'}
         // { name: 'Profile', href: '/profile', icon: <Cog6ToothIcon className="w-5 h-5" /> },
       ]);
     } else if (auth?.isLoggedIn) {
@@ -35,14 +36,13 @@ export default function Navbar({ toggleModal, isModalOpen }) {
         { name: 'Home', href: '/', icon: <HomeIcon className="w-5 h-5" /> },
         { name: 'Manage Courses', href: '/manage-courses', icon: <Cog6ToothIcon className="w-5 h-5" /> },
         { name: 'Create', href: '/create', icon: <UserIcon className="w-5 h-5" /> },
-        {name: 'Live Classes', href: '/sessions'}
+        {name: 'Sessions', href: '/sessions'},
       ]);
     } else {
       setNavigation([
         { name: 'Home', href: '/', icon: <HomeIcon className="w-5 h-5" /> },
         { name: 'My Courses', href: '/enrolled-courses' },
         {name : 'Create' , href: '/create'},
-        {name: 'Sessions', href: '/sessions'},
         { name: 'About us', href: '/about', icon: <UserIcon className="w-5 h-5" /> },
       ]);
     }

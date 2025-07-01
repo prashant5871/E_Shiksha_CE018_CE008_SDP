@@ -72,7 +72,7 @@ const ManageCourses = () => {
 >
   {/* Course Thumbnail */}
   <img
-    src={`http://localhost:8000/images/thumbnails/${encodeURIComponent(course.thumbnail)}`}
+    src={`http://localhost:8000/courses/thumbnail/${course.courseId}`}
     alt={course.courseName}
     className="w-full h-48 object-cover rounded-lg mt-3"
   />
