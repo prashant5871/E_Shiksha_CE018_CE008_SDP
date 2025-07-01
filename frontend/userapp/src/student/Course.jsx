@@ -170,7 +170,12 @@ export default function Course() {
         {!selectedLesson && (
           <div className="bg-white p-6 rounded-xl shadow-md">
             <h1 className="text-3xl font-semibold text-gray-800">{course.courseName}</h1>
-            <img src={`http://localhost:8000/images/thumbnails/${encodeURIComponent(course.thumbnail)}`} alt={course.courseName} className="w-full h-48 object-cover rounded-lg mt-3" />
+            <img
+              className="w-full h-48 object-cover rounded-t-xl"
+              // src={`http://localhost:8000/images/thumbnails/${encodeURIComponent(course.thumbnail)}`}
+              src={`http://localhost:8000/courses/thumbnail/${course.courseId}`}
+              alt={course.courseName}
+            />
             <p className="text-gray-600 mt-4">{course.description}</p>
 
             <div className="mt-4">
@@ -186,7 +191,8 @@ export default function Course() {
             </ul>
 
             <h3 className="text-xl font-semibold my-6">Demo Video</h3>
-            <VideoPlayer src={`http://localhost:8000/courses/stream/${course.courseId}`} />
+            {/* <VideoPlayer src={`http://localhost:8000/courses/stream/${course.courseId}`} /> */}
+            <VideoPlayer src={`http://localhost:8000/stream/course/${course?.courseId}`} />
 
             <div className="bg-white p-8 rounded-2xl shadow-lg mt-8">
               <h2 className="text-3xl font-semibold text-gray-900 mb-6">Course Reviews</h2>

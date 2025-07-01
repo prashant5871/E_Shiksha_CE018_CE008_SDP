@@ -3,6 +3,7 @@ package com.Eshiksha.controllers;
 import com.Eshiksha.Entities.Course;
 import com.Eshiksha.Entities.CourseCategory;
 import com.Eshiksha.dto.CourseUpdateDTO;
+import com.Eshiksha.services.AzureStorageService;
 import com.Eshiksha.services.CourseService;
 import com.Eshiksha.services.VideoService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -39,8 +40,11 @@ public class CourseController {
     private String thumbnailsContainer;
     private CourseService courseService;
 
+    private AzureStorageService azureStorageService;
+
     private VideoService videoService;
-    public CourseController(CourseService courseService,VideoService videoService) {
+    public CourseController(CourseService courseService, AzureStorageService azureStorageService, VideoService videoService) {
+        this.azureStorageService = azureStorageService;
         this.videoService = videoService;
         this.courseService = courseService;
     }
@@ -69,6 +73,17 @@ public class CourseController {
             response.put("message", "Internal server error , please try again later");
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
+    }
+
+    @GetMapping("/{courseId}/pdf")
+    public ResponseEntity<byte[]> getCoursePdf(@PathVariable int courseId) {
+        byte[] pdfBytes = azureStorageService.fetchCoursePdf(courseId, "documents");  // "documents" is your container name
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_PDF);
+        headers.setContentDispositionFormData("filename", "course_" + courseId + ".pdf");
+
+        return new ResponseEntity<>(pdfBytes, headers, HttpStatus.OK);
     }
 
 

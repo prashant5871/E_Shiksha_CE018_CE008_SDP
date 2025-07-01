@@ -42,6 +42,7 @@ export default function CourseList({ toggleModal }) {
     });
 
     let url = isStudent ? "http://localhost:8000/courses/" : "http://localhost:8000/teacher/courses";
+    
     if (!isLoggedIn) {
       url = "http://localhost:8000/courses/";
     }
@@ -63,7 +64,7 @@ export default function CourseList({ toggleModal }) {
         return response.json();
       })
       .then((data) => {
-        const approvedCourses = isStudent ? data.filter((d) => d.status === "APPROVED") : data;
+        const approvedCourses = isStudent ? data.filter((d) => d.status === "ACTIVE") : data;
         setCourses(approvedCourses);
         setFilteredCourses(approvedCourses);
         setLoading(false);
