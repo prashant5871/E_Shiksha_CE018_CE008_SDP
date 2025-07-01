@@ -4,6 +4,7 @@ import com.Eshiksha.Entities.Course;
 import com.Eshiksha.Entities.CourseCategory;
 import com.Eshiksha.dto.CourseUpdateDTO;
 import com.Eshiksha.services.AzureStorageService;
+import com.Eshiksha.services.AzureStorageService;
 import com.Eshiksha.services.CourseService;
 import com.Eshiksha.services.VideoService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -39,10 +40,10 @@ public class CourseController {
     @Value("${azure.storage.container.thumbnails}")
     private String thumbnailsContainer;
     private CourseService courseService;
-
     private AzureStorageService azureStorageService;
-
     private VideoService videoService;
+    public CourseController(CourseService courseService, AzureStorageService azureStorageService, VideoService videoService) {
+        this.azureStorageService = azureStorageService;
     public CourseController(CourseService courseService, AzureStorageService azureStorageService, VideoService videoService) {
         this.azureStorageService = azureStorageService;
         this.videoService = videoService;
@@ -308,7 +309,16 @@ public class CourseController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
+    @GetMapping("/{courseId}/pdf")
+    public ResponseEntity<byte[]> getCoursePdf(@PathVariable int courseId) {
+        byte[] pdfBytes = azureStorageService.fetchCoursePdf(courseId, "documents");  // "documents" is your container name
 
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_PDF);
+        headers.setContentDispositionFormData("filename", "course_" + courseId + ".pdf");
+
+        return new ResponseEntity<>(pdfBytes, headers, HttpStatus.OK);
+    }
 
     @PostMapping("/bookmark/{courseId}/{userId}")
     public ResponseEntity<Map<String,String>> bookMarkCourse(@PathVariable int courseId,@PathVariable int userId)

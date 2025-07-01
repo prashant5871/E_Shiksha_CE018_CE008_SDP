@@ -26,7 +26,7 @@ export default function CourseDetail({selectedCourse,setSelectedCourse,toggleMod
     <div>
       <div
         id="modal-overlay"
-        className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 p-4"
+        className="fixed inset-0 flex items-center justify-center backdrop-blur-sm"
         onClick={handleOutsideClick}
       >
         <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-2xl max-h-[80vh] overflow-y-auto custom-scrollbar">

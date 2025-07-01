@@ -377,34 +377,26 @@ function ViewerView() {
 function ChatSection({ localParticipant }) {
   const [message, setMessage] = useState("");
   const [chatMessages, setChatMessages] = useState([]);
-
-  // Reference to the chat container for auto-scrolling
   const chatContainerRef = useRef(null);
-
-  const handleReceiveMessage = useCallback((newMessage) => {
-    setChatMessages((prev) => [...prev, newMessage]);
-  }, []);
 
   const pubsubData = usePubSub("CHAT", {
     onMessageReceived: (newMessage) => {
-      console.log("New Message Received:", newMessage);
       handleReceiveMessage(newMessage);
     },
     onOldMessagesReceived: (oldMessages) => {
-      console.log("Old Messages Received:", oldMessages);
       setChatMessages(Array.isArray(oldMessages) ? oldMessages : []);
     },
   });
 
   const pubsubDataRef = useRef(pubsubData);
-
   useEffect(() => {
     pubsubDataRef.current = pubsubData;
   }, [pubsubData]);
 
+  const handleReceiveMessage = useCallback((newMessage) => {
+    setChatMessages((prev) => [...prev, newMessage]);
+  }, []);
 
-
-  // Effect to auto-scroll to the latest message
   useEffect(() => {
     if (chatContainerRef.current) {
       chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
@@ -414,7 +406,7 @@ function ChatSection({ localParticipant }) {
   const handleSendMessage = () => {
     if (message.trim()) {
       pubsubDataRef.current.publish(message, { persist: true });
-      setMessage(""); // Clear the message input
+      setMessage("");
     }
   };
 

@@ -67,6 +67,8 @@ export default function CourseList({ toggleModal }) {
         const approvedCourses = isStudent ? data.filter((d) => d.status === "ACTIVE") : data;
         setCourses(approvedCourses);
         setFilteredCourses(approvedCourses);
+        console.log(filteredCourses);
+        
         setLoading(false);
       })
       .catch((error) => {
@@ -136,9 +138,9 @@ const handleLiveSubmit = async() => {
 
   // Effect to filter courses based on query
   useEffect(() => {
-    console.log("query gets changed...");
+    console.log("query gets changed...", query);
     if (query.trim() === "") {
-      setFilteredCourses(courses);
+      // setFilteredCourses(courses);
       return;
     }
 
@@ -150,6 +152,7 @@ const handleLiveSubmit = async() => {
     );
 
     setFilteredCourses(filtered);
+    console.log('filter=',filtered)
   }, [query, courses]);
 
   if (loading)
